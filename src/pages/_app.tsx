@@ -2,7 +2,8 @@ import type { AppProps } from 'next/app';
 import * as SorobanClient from 'soroban-client';
 import StellarSdk from 'stellar-sdk';
 
-import '../styles/global.css';
+import { MainLayout } from '@/layouts';
+import '@/styles/global.css';
 
 declare global {
   interface Window {
@@ -18,7 +19,9 @@ if (typeof window !== 'undefined') {
 const MyApp = ({ Component, pageProps }: AppProps) => {
   return (
     <div className='relative overflow-x-hidden'>
-      <Component {...pageProps} />
+      <MainLayout title='MultiClique' description=''>
+        <Component {...pageProps} />
+      </MainLayout>
     </div>
   );
 };
