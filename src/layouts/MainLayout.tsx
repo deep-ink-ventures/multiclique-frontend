@@ -2,6 +2,8 @@ import Image from 'next/image';
 import Link from 'next/link';
 import type { ReactNode } from 'react';
 
+import WalletConnect from '@/components/WalletConnect';
+
 import { Meta } from '@/components';
 import logo from '@/svg/logo.svg';
 
@@ -40,7 +42,7 @@ export const MainLayout = (props: IMainProps) => (
           </h2>
         </div>
         <div className='ml-auto py-2'>
-          <button className='btn btn-outline'>Connect Wallet</button>
+          <WalletConnect text='Connect Wallet' />
         </div>
       </div>
     </div>
