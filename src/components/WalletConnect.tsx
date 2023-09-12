@@ -7,8 +7,8 @@ import WalletConnectModal from '@/components/WalletConnectModal';
 import useMCStore from '@/stores/MCStore';
 import avatar from '@/svg/avatar.svg';
 import Logout from '@/svg/components/Logout';
-import wallet from '@/svg/wallet.svg';
 
+import Wallet from '@/svg/components/Wallet';
 import { truncateMiddle } from '../utils/index';
 
 interface WalletConnectProps {
@@ -56,7 +56,7 @@ const WalletConnect = (props: WalletConnectProps) => {
         tabIndex={0}
         className={`btn m-1 ${
           !currentWalletAccount
-            ? 'btn-primary'
+            ? 'btn-outline'
             : 'btn-connected hover:bg-base-100'
         }
             ${
@@ -74,8 +74,11 @@ const WalletConnect = (props: WalletConnectProps) => {
             <Image src={avatar} alt='avatar' height='18' width='18'></Image>
           </div>
         ) : (
-          <div className='mr-2'>
-            <Image src={wallet} alt='wallet' height='15' width='15'></Image>
+          <div
+            className={cn('mr-2', {
+              hidden: isConnectModalOpen,
+            })}>
+            <Wallet className='h-3 w-3 stroke-black' />
           </div>
         )}
         <span className='align-middle'>

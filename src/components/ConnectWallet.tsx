@@ -21,7 +21,7 @@ const Wallet = ({
 
   return (
     <button
-      className='btn-outline btn flex items-center justify-center gap-4 !rounded-lg px-4 py-2'
+      className='btn-outline btn flex h-fit items-center justify-center gap-4 !rounded-lg px-4 py-2'
       onClick={() => handleWalletSelect()}>
       <Image src={walletImg} height={35} width={35} alt={walletName} />
       <div>{walletName}</div>
