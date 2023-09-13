@@ -108,6 +108,7 @@ const Account = () => {
                 onClick={() =>
                   setActiveAccordion(activeAccordion === index ? null : index)
                 }
+                color='warning'
                 expanded={index === activeAccordion}>
                 <Accordion.Header className='flex gap-2 text-sm'>
                   <span className='h-2 w-2 rounded-full bg-warning-content' />
