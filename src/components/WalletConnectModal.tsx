@@ -33,7 +33,7 @@ const WalletConnectModal = () => {
         </div>
         <div className='my-4 flex h-[300px] w-full flex-col items-center justify-center'>
           <button
-            className='hover:brightness-70 hover:base-200 btn h-16 w-[75%] text-black outline-4 !outline-black'
+            className='btn h-16 w-[75%] text-black outline-4 !outline-black hover:bg-base-200 hover:brightness-75'
             name={'Freighter'}
             onClick={() => handleWalletSelect()}>
             <div className='flex w-full items-center justify-between'>

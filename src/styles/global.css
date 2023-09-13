@@ -63,13 +63,13 @@ h4 {
     @apply rounded-2xl py-2 px-3.5 lg:px-5 lg:py-3.5 font-medium normal-case text-center text-xs lg:text-sm border-[0.5px];
 }
 
-.btn:disabled {
+/* .btn:disabled {
     @apply opacity-50;
 }
 
 .btn-disabled {
     @apply opacity-50;
-}
+} */
 
 .btn-connected {
     box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.1);
@@ -82,11 +82,11 @@ h4 {
 }
 
 .card {
-    @apply rounded-[10px] z-0 bg-[#403945] hover:outline-1 hover:outline hover:outline-neutral hover:brightness-[1.15];
+    @apply rounded-[10px] bg-base-300 z-0 hover:outline-1 hover:outline hover:outline-neutral hover:brightness-[1.15];
 }
 
 .card-compact {
-    @apply rounded-[10px] z-0 bg-[#403945] hover:outline-1 hover:outline hover:outline-neutral hover:brightness-[1.15];
+    @apply rounded-[10px] z-0 hover:outline-1 hover:outline hover:outline-neutral hover:brightness-[1.15];
 }
 
 .card-body {
