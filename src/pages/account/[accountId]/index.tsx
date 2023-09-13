@@ -69,8 +69,8 @@ const Account = () => {
                 </div>
                 <div className='flex w-full items-center rounded-lg bg-base-300 p-4'>
                   <div className='flex-col'>
-                    <div className='text-xs'>Owned Tokens</div>
-                    <div className='font-semibold'>10</div>
+                    <div className='text-xs'>XLM Tokens</div>
+                    <div className='font-semibold'>10,000</div>
                   </div>
                   <Chevron className='ml-auto h-4 w-4 cursor-pointer fill-black' />
                 </div>
@@ -157,7 +157,7 @@ const Account = () => {
                       <div>Can be executed once threshold is reached</div>
                       <div className='flex w-full gap-2'>
                         <button className='btn btn-outline flex-1'>
-                          Cancel
+                          Reject
                         </button>
                         <button className='btn btn-primary flex-1'>
                           Approve
