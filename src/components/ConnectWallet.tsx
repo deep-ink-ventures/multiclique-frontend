@@ -1,48 +1,18 @@
-import useMCStore from '@/stores/MCStore';
-import Chevron from '@/svg/components/Chevron';
-import freighter from '@/svg/freighter-icon.svg';
-import Image from 'next/image';
-import type { ReactNode } from 'react';
+import Link from 'next/link';
+import WalletConnect from './WalletConnect';
 
-const Wallet = ({
-  children,
-  walletImg,
-  walletName,
-}: {
-  children?: ReactNode;
-  walletImg: string;
-  walletName: string;
-}) => {
-  const [getWallet] = useMCStore((s) => [s.getWallet]);
-
-  const handleWalletSelect = async () => {
-    getWallet();
-  };
-
+const ConnectWallet = () => {
   return (
-    <button
-      className='btn-outline btn flex h-fit items-center justify-center gap-4 !rounded-lg px-4 py-2'
-      onClick={() => handleWalletSelect()}>
-      <Image src={walletImg} height={35} width={35} alt={walletName} />
-      <div>{walletName}</div>
-      {children}
-      <Chevron className='h-4 w-4 fill-black' />
-    </button>
-  );
-};
-
-const Panel = () => {
-  return (
-    <>
-      <div className='space-y-2 text-center'>
-        <div className='text-xl font-semibold'>Connect Wallet</div>
+    <div className='mt-1 flex flex-col justify-center gap-y-6 p-12'>
+      <div className='flex w-full flex-col items-center gap-8'>
+        <div className='text-lg'>Please connect your wallet to continue</div>
+        <WalletConnect text='Connect Wallet' />
+        <Link href='/' className='text-lg underline'>
+          {`Help, I don't have a wallet`}
+        </Link>
       </div>
-      {/* TODO: Remove once WalletConnect is integrated */}
-      <Wallet walletImg={freighter} walletName='Freighter' />
-    </>
+    </div>
   );
 };
 
-export const ConnectWallet = {
-  Panel,
-};
+export default ConnectWallet;

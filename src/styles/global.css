@@ -23,7 +23,7 @@
         z-index: -2;
 
         /* background: rgba(19, 17, 22, 0.2); */
-        @apply absolute w-screen top-0 bg-base-100/40 left-0;
+        @apply absolute w-screen top-0 bg-base-100 left-0;
     }
 
 }
@@ -60,21 +60,21 @@ h4 {
 }
 
 .btn {
-    @apply rounded-3xl py-2 px-3.5 lg:px-5 lg:py-3.5 font-medium normal-case text-center text-xs lg:text-sm;
+    @apply rounded-2xl py-2 px-3.5 lg:px-5 lg:py-3.5 font-medium normal-case text-center text-xs lg:text-sm border-[0.5px];
 }
 
-.btn:disabled {
+/* .btn:disabled {
     @apply opacity-50;
 }
 
 .btn-disabled {
     @apply opacity-50;
-}
+} */
 
 .btn-connected {
     box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.1);
     backdrop-filter: blur(5px);
-    @apply text-black bg-base-200;
+    @apply text-black bg-base-100;
 }
 
 .btn-primary {
@@ -82,11 +82,11 @@ h4 {
 }
 
 .card {
-    @apply rounded-[10px] z-0 bg-[#403945] hover:outline-1 hover:outline hover:outline-neutral hover:brightness-[1.15];
+    @apply rounded-[10px] bg-base-300 z-0 hover:outline-1 hover:outline hover:outline-neutral hover:brightness-[1.15];
 }
 
 .card-compact {
-    @apply rounded-[10px] z-0 bg-[#403945] hover:outline-1 hover:outline hover:outline-neutral hover:brightness-[1.15];
+    @apply rounded-[10px] z-0 hover:outline-1 hover:outline hover:outline-neutral hover:brightness-[1.15];
 }
 
 .card-body {
@@ -151,33 +151,34 @@ h4 {
     @apply md:block hidden
 }
 
-/* .a-modal {
+ /* .a-modal {
     padding-bottom: 0px;
     border-radius: 10px !important;
     border-color: #131116;
     @apply border-[0.1px];
-} */
+}
 
-/* .a-modal .ant-modal-content{
+.a-modal .ant-modal-content{
     background-color:#131116 !important;
     color: #FAFAFA !important;
     padding-bottom: 0px;
     border-radius: 10px;
     border-color: #131116;
     @apply border-[0.1px];
-  } */
+  }  */
 
 /* modal's background */
 .a-modal-bg {
-    @apply bg-base-content/50;
+    @apply bg-base-content/10;
 }
-/* 
+
 .ant-modal-close-icon {
-    @apply text-content-primary;
-} */
+    @apply text-neutral-content;
+}
 .wallet-modal .ant-modal-content {
-    @apply w-[550px] h-[470px] bg-base-200 text-black rounded-[20px] p-10;
+    @apply !w-[600px] !h-[400px] bg-base-200 text-black rounded-[20px] p-10;
     }
+
 
 .vote-up:hover {
     stroke: #1E1B21 !important

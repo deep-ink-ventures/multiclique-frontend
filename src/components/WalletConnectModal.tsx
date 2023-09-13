@@ -19,7 +19,7 @@ const WalletConnectModal = () => {
       open={isConnectModalOpen}
       confirmLoading={false}
       wrapClassName='a-modal-bg'
-      className='wallet-modal [&>div.ant-modal-content]:w-full'
+      className='wallet-modal'
       onCancel={() => {
         updateIsConnectModalOpen(false);
       }}
