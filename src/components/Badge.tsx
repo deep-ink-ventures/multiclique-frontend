@@ -1,9 +1,8 @@
 export const statusColors = {
   Active: 'bg-neutral text-base-100',
   Pending: 'bg-warning text-warning-content',
-  Accepted: 'bg-accent text-base-100',
-  Rejected: 'bg-error',
-  Faulty: 'bg-error',
+  Approved: 'bg-success text-neutral-content',
+  Cancelled: 'bg-error text-error-content',
   undefined: 'bg-neutral text-base-100',
 };
 

@@ -84,7 +84,7 @@ module.exports = {
         'success-content': '#233800',
         "warning": "#FBEBDF",
         'warning-content': '#D26400',
-        "error": "#FBDFE5",
+        "error": "#ea9b8e",
         'error-content': '#52000A',
 
         "--border-btn": '0.5px',

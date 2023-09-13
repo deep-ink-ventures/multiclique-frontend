@@ -1,9 +1,10 @@
 import {
-  Accordion,
-  Avatar,
-  Sidebar,
-  TransactionBadge,
-  UserTally,
+Accordion,
+Avatar,
+Sidebar,
+Timeline,
+TransactionBadge,
+UserTally,
 } from '@/components';
 import WalletConnect from '@/components/WalletConnect';
 import useMCStore from '@/stores/MCStore';
@@ -43,6 +44,8 @@ const Account = () => {
   const [currentAccount] = useMCStore((s) => [s.currentAccount]);
 
   const [activeAccordion, setActiveAccordion] = useState<number | null>(null);
+
+  const mockCurrentStep = Math.floor(Math.random() * 4);
 
   return (
     <div className='flex w-full'>
@@ -101,53 +104,70 @@ const Account = () => {
         <div className='space-y-3'>
           {Array(4)
             .fill(null)
-            .map((item, index) => (
-              <Accordion.Container
-                key={index}
-                id={index}
-                onClick={() =>
-                  setActiveAccordion(activeAccordion === index ? null : index)
-                }
-                color='warning'
-                expanded={index === activeAccordion}>
-                <Accordion.Header className='flex gap-2 text-sm'>
-                  <span className='h-2 w-2 rounded-full bg-warning-content' />
-                  <div className='grow font-semibold'>Header</div>
-                  <div>{dayjs().format('MMMM D, YYYY - h:mm:ss A')}</div>
-                  <UserTally value={index} over={10} />
-                  <TransactionBadge status='Pending' />
-                </Accordion.Header>
-                <Accordion.Content className='flex divide-x'>
-                  <div className='w-2/3'>Test Content</div>
-                  <div className='grow space-y-2 px-3'>
-                    <ul className='steps steps-vertical'>
-                      <li
-                        data-content='✓'
-                        className='step !min-h-0 !gap-0 py-2 text-start before:!h-[120%] before:!w-[1px] after:!h-4 after:!w-4 after:border-[0.1rem] after:border-base-content after:!bg-white after:!text-[0.6rem]'>
-                        Created
-                      </li>
-                      <li
-                        data-content=''
-                        className='step !min-h-0 !gap-0 py-2 text-start before:!h-[120%] before:!w-[1px] after:!h-4 after:!w-4 after:border-[0.1rem]  after:border-secondary after:!bg-white after:!text-[0.6rem]'>
-                        <span className='w-full truncate'>
-                          Confirmations (2 of 3)
-                        </span>
-                      </li>
-                      <li
-                        data-content=''
-                        className='step !min-h-0 !gap-0 py-2 text-start text-neutral before:!h-[120%] before:!w-[1px] after:!h-4 after:!w-4 after:border-[0.1rem] after:border-neutral  after:!bg-white after:!text-[0.6rem]'>
-                        Executed
-                      </li>
-                    </ul>
-                    <div>Can be executed once threshold is reached</div>
-                    <div className='flex w-full gap-2'>
-                      <button className='btn btn-outline flex-1'>Reject</button>
-                      <button className='btn btn-primary flex-1'>Accept</button>
+            .map((item, index) => {
+              const mockStatus = ['base', 'warning', 'success', 'danger'][
+                Math.floor(Math.random() * 4)
+              ] as any;
+              const mockBadgeStatus: Record<string, any> = {
+                base: 'Active',
+                warning: 'Pending',
+                success: 'Approved',
+                danger: 'Cancelled',
+              };
+              return (
+                <Accordion.Container
+                  key={index}
+                  id={index}
+                  onClick={() =>
+                    setActiveAccordion(activeAccordion === index ? null : index)
+                  }
+                  color={mockStatus}
+                  expanded={index === activeAccordion}>
+                  <Accordion.Header className='flex gap-2 text-sm'>
+                    <div className='grow font-semibold'>
+                      {'{Activity Name}'}
                     </div>
-                  </div>
-                </Accordion.Content>
-              </Accordion.Container>
-            ))}
+                    <div>{dayjs().format('MMMM D, YYYY - h:mm:ss A')}</div>
+                    <UserTally value={index} over={10} />
+                    <TransactionBadge
+                      status={
+                        mockStatus && (mockBadgeStatus[mockStatus] as any)
+                      }
+                    />
+                  </Accordion.Header>
+                  <Accordion.Content className='flex divide-x'>
+                    <div className='w-2/3'>Test Content</div>
+                    <div className='grow space-y-2 px-3'>
+                      <Timeline>
+                        {['Created', 'Approval', 'Approved', 'Executed'].map(
+                          (step, stepIndex) => (
+                            <Timeline.Item
+                              key={`${stepIndex}-${step}`}
+                              {...(stepIndex <= mockCurrentStep && {
+                                status:
+                                  stepIndex === mockCurrentStep
+                                    ? 'active'
+                                    : 'completed',
+                              })}>
+                              {step}
+                            </Timeline.Item>
+                          )
+                        )}
+                      </Timeline>
+                      <div>Can be executed once threshold is reached</div>
+                      <div className='flex w-full gap-2'>
+                        <button className='btn btn-outline flex-1'>
+                          Cancel
+                        </button>
+                        <button className='btn btn-primary flex-1'>
+                          Approve
+                        </button>
+                      </div>
+                    </div>
+                  </Accordion.Content>
+                </Accordion.Container>
+              );
+            })}
         </div>
       </div>
     </div>

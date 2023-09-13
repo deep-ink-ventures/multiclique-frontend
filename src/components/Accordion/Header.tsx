@@ -10,6 +10,13 @@ const BgColorMap: Record<string, string> = {
   base: 'bg-base-200',
 };
 
+const DotColorMap: Record<string, string> = {
+  success: 'bg-success-content',
+  warning: 'bg-warning-content',
+  danger: 'bg-error-content',
+  base: 'bg-neutral',
+};
+
 export interface IAccordionHeader {
   children?: ReactNode;
   className?: string;
@@ -25,6 +32,7 @@ export const AccordionHeader = ({ className, children }: IAccordionHeader) => {
   };
 
   const bgColor = color && BgColorMap[color];
+  const dotColor = color && DotColorMap[color];
 
   return (
     <div
@@ -34,6 +42,7 @@ export const AccordionHeader = ({ className, children }: IAccordionHeader) => {
         className
       )}
       onClick={handleClick}>
+      <span className={cn('h-2 w-2 rounded-full', dotColor)} />
       {children}
       <div className='ml-auto'>
         <Chevron
