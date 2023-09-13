@@ -33,6 +33,9 @@ module.exports = {
         base: {
           50: '#37323D',
         },
+        'warning-light': '#FBF4ED',
+        'success-light': '#eaf9eb',
+        'error-light': '#fcded9',
       },
     },
   },
@@ -72,7 +75,7 @@ module.exports = {
         'neutral-content': '#1E1B21',
         "base-100": "#FAF9F6",
         'base-200': '#F3F2ED',
-        'base-300': '#F3F0E8',
+        'base-300': '#d9d7d3',
         'base-content': '#2E2E2E',
         // 'base-container': '#050215',
         "info": "#CAEFFF",
@@ -80,16 +83,20 @@ module.exports = {
         "success": "#BFECC3",
         'success-content': '#233800',
         "warning": "#FBEBDF",
-        'warning-content': '#3D1C00',
+        'warning-content': '#D26400',
         "error": "#FBDFE5",
         'error-content': '#52000A',
 
         "--border-btn": '0.5px',
+
+        ".btn": {
+          'box-shadow': '0px 2px 4px rgba(0, 0, 0, 0.1)'
+        },
         ".btn-outline": {
           "border-color": '#C5C5C5'
         },
         ".btn-outline:hover": {
-          'background-color': '#f2f2f2',
+          'background-color': '#E0E0E0',
           'color': '#2E2E2E'
         }
       }

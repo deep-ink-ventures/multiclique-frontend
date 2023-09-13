@@ -1,5 +1,5 @@
-import type { SvgProps } from '@/components';
-import { withSvgProps } from '@/components';
+import type { SvgProps } from './SvgWrapper';
+import { withSvgProps } from './SvgWrapper';
 
 type IDashboard = SvgProps;
 

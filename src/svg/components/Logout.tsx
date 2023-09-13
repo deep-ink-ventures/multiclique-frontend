@@ -1,4 +1,4 @@
-import { withSvgProps } from '@/components/SvgWrapper';
+import { withSvgProps } from './SvgWrapper';
 
 const Logout = withSvgProps(
   ({ width = 16, height = 16, stroke = '#E11D48', className }) => {

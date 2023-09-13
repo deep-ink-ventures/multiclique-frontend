@@ -38,7 +38,9 @@ const SidebarMenuItem = ({ children }: ISidebarMenuItem) => {
 
 export const Sidebar = ({ children }: ISidebar) => {
   return (
-    <div className='h-full w-full bg-white py-6 drop-shadow-md'>{children}</div>
+    <div className='h-full w-full bg-base-200 py-6 drop-shadow-md'>
+      {children}
+    </div>
   );
 };
 
