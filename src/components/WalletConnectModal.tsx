@@ -19,7 +19,7 @@ const WalletConnectModal = () => {
       open={isConnectModalOpen}
       confirmLoading={false}
       wrapClassName='a-modal-bg'
-      className='wallet-modal [&>div.ant-modal-content]:w-full'
+      className='wallet-modal'
       onCancel={() => {
         updateIsConnectModalOpen(false);
       }}
@@ -33,7 +33,7 @@ const WalletConnectModal = () => {
         </div>
         <div className='my-4 flex h-[300px] w-full flex-col items-center justify-center'>
           <button
-            className='btn h-16 w-[75%] text-black hover:brightness-70 hover:base-200'
+            className='btn h-16 w-[75%] text-black outline-4 !outline-black hover:bg-base-200 hover:brightness-75'
             name={'Freighter'}
             onClick={() => handleWalletSelect()}>
             <div className='flex w-full items-center justify-between'>

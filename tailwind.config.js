@@ -25,7 +25,7 @@ module.exports = {
         white: '#FAFAFA',
         black: '#1A1829',
         content: {
-          primary: '#FAFAFA',
+          primary: '#FAF9F6',
         },
         card: {
           primary: '#262229',
@@ -48,41 +48,41 @@ module.exports = {
       multiclique: {
 
         // default
-        default: '#000',
+        default: '#2E2E2E',
         'default-outline': transparent,
         'default-hover': '#0D0D0D',
-        'default-active': '#000',
-        'default-disabled': '#000',
+        'default-active': '#2E2E2E',
+        'default-disabled': '#2E2E2E',
 
 
         'primary': '#1128A2',
         'primary-hover': '#0C1856',
         'primary-disabled': '#1128A2',
 
-        // 'primary-focus': '#781818',
-        // 'primary-content': '#000',
-        // "secondary": "#FF7A00",
-        // 'secondary-focus': '#D26400',
-        // 'secondary-content': '#1E1B21',
-        // "accent": "#A3E635",
-        // 'accent-focus': '#87BB2B',
-        // 'accent-content': '#1E1B21',
-        // 'neutral': '#FAFAFA',
-        // 'neutral-focus': '#ABABAB',
-        // 'neutral-content': '#1E1B21',
-        "base-100": "#F5F5F5",
-        'base-200': '#fff',
-        // 'base-300': '#151321',
-        'base-content': '#000',
+        'primary-focus': '#0C1856',
+        'primary-content': '#FAF9F6',
+        "secondary": "#FF7A00",
+        'secondary-focus': '#D26400',
+        'secondary-content': '#1E1B21',
+        "accent": "#A3E635",
+        'accent-focus': '#87BB2B',
+        'accent-content': '#1E1B21',
+        'neutral': '#C5C5C5',
+        'neutral-focus': '#ABABAB',
+        'neutral-content': '#1E1B21',
+        "base-100": "#FAF9F6",
+        'base-200': '#F3F2ED',
+        'base-300': '#F3F0E8',
+        'base-content': '#2E2E2E',
         // 'base-container': '#050215',
-        // "info": "#38BDF8",
-        // 'info-content': '#002B3D',
-        // "success": "#A3E635",
-        // 'success-content': '#233800',
-        // "warning": "#FB923C",
-        // 'warning-content': '#3D1C00',
-        // "error": "#FDA4AF",
-        // 'error-content': '#52000A'
+        "info": "#CAEFFF",
+        'info-content': '#002B3D',
+        "success": "#BFECC3",
+        'success-content': '#233800',
+        "warning": "#FBEBDF",
+        'warning-content': '#3D1C00',
+        "error": "#FBDFE5",
+        'error-content': '#52000A',
 
         "--border-btn": '0.5px',
         ".btn-outline": {
@@ -90,7 +90,7 @@ module.exports = {
         },
         ".btn-outline:hover": {
           'background-color': '#f2f2f2',
-          'color': '#000'
+          'color': '#2E2E2E'
         }
       }
     },
