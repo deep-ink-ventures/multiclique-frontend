@@ -2,7 +2,7 @@ import type { AppProps } from 'next/app';
 import * as SorobanClient from 'soroban-client';
 import StellarSdk from 'stellar-sdk';
 
-import { MainLayout } from '@/layouts';
+import TransactionNotification from '@/components/Notification';
 import '@/styles/global.css';
 
 declare global {
@@ -19,9 +19,8 @@ if (typeof window !== 'undefined') {
 const MyApp = ({ Component, pageProps }: AppProps) => {
   return (
     <div className='relative overflow-x-hidden'>
-      <MainLayout title='MultiClique' description=''>
-        <Component {...pageProps} />
-      </MainLayout>
+      <TransactionNotification />
+      <Component {...pageProps} />
     </div>
   );
 };

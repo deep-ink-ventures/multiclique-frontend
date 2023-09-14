@@ -7,6 +7,7 @@ import WalletConnect from '@/components/WalletConnect';
 import { Meta } from '@/components';
 import useMCStore from '@/stores/MCStore';
 import logo from '@/svg/logo.svg';
+import plus from '@/svg/plus.svg';
 
 interface IMainProps {
   title: string;
@@ -48,7 +49,17 @@ export const MainLayout = (props: IMainProps) => {
           <div className='ml-auto flex space-x-4 py-2'>
             {currentAccount?.isConnected && (
               <div className='m-1'>
-                <button className='btn btn-primary'>Create New Account</button>
+                <button className='btn btn-primary'>
+                  {' '}
+                  <Image
+                    src={plus}
+                    width={17}
+                    height={17}
+                    alt='add one'
+                    className='mr-2'
+                  />
+                  Create New Account
+                </button>
               </div>
             )}
 
