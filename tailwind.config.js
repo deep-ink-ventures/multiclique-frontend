@@ -81,11 +81,11 @@ module.exports = {
         "info": "#CAEFFF",
         'info-content': '#002B3D',
         "success": "#BFECC3",
-        'success-content': '#233800',
+        'success-content': '#002B3D',
         "warning": "#FBEBDF",
-        'warning-content': '#D26400',
-        "error": "#ea9b8e",
-        'error-content': '#52000A',
+        'warning-content': '#E16F1D',
+        "error": "#FBDFE5",
+        'error-content': '#E11D48',
 
         "--border-btn": '0.5px',
 
