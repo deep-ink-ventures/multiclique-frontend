@@ -1,9 +1,10 @@
+import plus from '@/svg/plus.svg';
+import Image from 'next/image';
 import { useRouter } from 'next/router';
 
 const Welcome = () => {
   const router = useRouter();
   const handleCreateNewAccount = () => {
-    // next router to /account/create
     router.push('/account/create');
   };
 
@@ -17,6 +18,13 @@ const Welcome = () => {
         <div className='flex w-[330px] flex-col items-center justify-center rounded-lg bg-neutral p-6 shadow-xl'>
           <div className='mb-5'>Create a new Multisig Account</div>
           <button className='btn btn-primary' onClick={handleCreateNewAccount}>
+            <Image
+              src={plus}
+              width={17}
+              height={17}
+              alt='add one'
+              className='mr-2'
+            />
             Create New Account
           </button>
         </div>

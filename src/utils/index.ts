@@ -3,7 +3,7 @@ import BigNumber from 'bignumber.js';
 import * as SorobanClient from 'soroban-client';
 // @ts-ignore
 export const truncateMiddle = (str: string, start = 4, end = 4) => {
-  if (str.length) {
+  if (str && str.length > 0) {
     if (str.length <= start + end) {
       return str;
     }
@@ -40,7 +40,7 @@ export const uiTokens = (
   return `${formatted} ${unitName}`;
 };
 
-export const isStellarPublicKey = (publicKey: string) => {
+export const isValidEd25519PublicKey = (publicKey: string) => {
   return SorobanClient.StrKey.isValidEd25519PublicKey(publicKey);
 };
 
