@@ -1,10 +1,10 @@
 import {
-Accordion,
-Avatar,
-Sidebar,
-Timeline,
-TransactionBadge,
-UserTally,
+  Accordion,
+  Avatar,
+  Sidebar,
+  Timeline,
+  TransactionBadge,
+  UserTally,
 } from '@/components';
 import WalletConnect from '@/components/WalletConnect';
 import useMCStore from '@/stores/MCStore';
