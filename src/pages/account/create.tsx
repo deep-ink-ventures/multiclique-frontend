@@ -18,7 +18,10 @@ const Create = () => {
           </div>
           <div>
             {currentAccount?.isConnected ? (
-              <CreateMultisigForm />
+              <CreateMultisigForm>
+                <CreateMultisigForm.Members />
+                <CreateMultisigForm.Threshold />
+              </CreateMultisigForm>
             ) : (
               <ConnectWallet />
             )}

@@ -1,3 +1,4 @@
+import cn from 'classnames';
 import type { ReactNode } from 'react';
 
 interface ISidebar {
@@ -6,6 +7,8 @@ interface ISidebar {
 
 interface ISidebarMenuItem {
   children?: ReactNode;
+  active?: boolean;
+  onClick?: () => void;
 }
 
 interface ISidebarMenu {
@@ -28,9 +31,16 @@ const SidebarMenu = ({ children }: ISidebarMenu) => {
   return <div className='divide-y border-y border-base-300'>{children}</div>;
 };
 
-const SidebarMenuItem = ({ children }: ISidebarMenuItem) => {
+const SidebarMenuItem = ({ active, onClick, children }: ISidebarMenuItem) => {
   return (
-    <div className='flex cursor-pointer items-center gap-4 px-6 py-4 transition-all duration-300 hover:bg-base-300'>
+    <div
+      className={cn(
+        'flex cursor-pointer items-center gap-4 px-6 py-4 transition-all duration-300 hover:bg-base-300',
+        {
+          'bg-base-300': active,
+        }
+      )}
+      onClick={onClick}>
       {children}
     </div>
   );

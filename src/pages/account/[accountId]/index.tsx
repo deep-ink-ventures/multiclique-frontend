@@ -1,30 +1,26 @@
-import {
-  Accordion,
-  Avatar,
-  Sidebar,
-  Timeline,
-  TransactionBadge,
-  UserTally,
-} from '@/components';
+import { Avatar, Sidebar } from '@/components';
 import WalletConnect from '@/components/WalletConnect';
 import { MainLayout } from '@/layouts';
 import useMCStore from '@/stores/MCStore';
 import AvatarImage from '@/svg/avatar.svg';
 import Chevron from '@/svg/components/Chevron';
 import Coins from '@/svg/components/Coins';
-import Dashboard from '@/svg/components/Dashboard';
-import Search from '@/svg/components/Search';
-import Settings from '@/svg/components/Settings';
-import Switch from '@/svg/components/Switch';
-import Copy from '@/svg/copy.svg';
+import DashboardIcon from '@/svg/components/Dashboard';
+import SettingsIcon from '@/svg/components/Settings';
+import SwitchIcon from '@/svg/components/Switch';
+import CopyIcon from '@/svg/copy.svg';
 import { truncateMiddle } from '@/utils';
-import dayjs from 'dayjs';
 import Image from 'next/image';
+import type { ReactNode } from 'react';
 import { useState } from 'react';
+import { Settings } from './Settings';
+import { Transactions } from './Transactions';
 
-const TABS = [
+type AccountTabs = 'Dashboard' | 'Assets' | 'Transactions' | 'Settings';
+
+const TABS: { icon: ReactNode; label: AccountTabs }[] = [
   {
-    icon: <Dashboard className='h-4 w-4 fill-black' />,
+    icon: <DashboardIcon className='h-4 w-4 fill-black' />,
     label: 'Dashboard',
   },
   {
@@ -32,21 +28,18 @@ const TABS = [
     label: 'Assets',
   },
   {
-    icon: <Switch className='h-4 w-4 fill-black' />,
+    icon: <SwitchIcon className='h-4 w-4 fill-black' />,
     label: 'Transactions',
   },
   {
-    icon: <Settings className='h-4 w-4 fill-black' />,
+    icon: <SettingsIcon className='h-4 w-4 fill-black' />,
     label: 'Settings',
   },
 ];
 
 const Account = () => {
   const [currentAccount] = useMCStore((s) => [s.currentAccount]);
-
-  const [activeAccordion, setActiveAccordion] = useState<number | null>(null);
-
-  const mockCurrentStep = Math.floor(Math.random() * 4);
+  const [currentTab, setCurrentTab] = useState<AccountTabs>('Dashboard');
 
   return (
     <MainLayout title='MultiClique' description=''>
@@ -62,7 +55,7 @@ const Account = () => {
                       {truncateMiddle(currentAccount.publicKey, 5, 3)}
                     </div>
                     <Image
-                      src={Copy}
+                      src={CopyIcon}
                       height={15}
                       width={15}
                       alt='copy'
@@ -84,7 +77,10 @@ const Account = () => {
             </Sidebar.Content>
             <Sidebar.Menu>
               {TABS.map((tab, index) => (
-                <Sidebar.MenuItem key={`${index}-${tab.label}`}>
+                <Sidebar.MenuItem
+                  key={`${index}-${tab.label}`}
+                  active={currentTab === tab.label}
+                  onClick={() => setCurrentTab(tab.label)}>
                   {tab.icon}
                   {tab.label}
                 </Sidebar.MenuItem>
@@ -93,77 +89,8 @@ const Account = () => {
           </Sidebar>
         </div>
         <div className='grow space-y-4 p-6'>
-          <div className='flex items-center'>
-            <div className='text-2xl font-semibold'>Transactions</div>
-            <div className='relative ml-auto'>
-              <Search className='absolute inset-y-0 left-2 my-auto h-4 w-4 fill-black' />
-              <input
-                className='my-auto rounded-lg px-3 py-2 pl-8 text-sm'
-                placeholder='Search'
-              />
-            </div>
-          </div>
-          <div className='space-y-3'>
-            {Array(4)
-              .fill(null)
-              .map((item, index) => {
-                return (
-                  <Accordion.Container
-                    key={index}
-                    id={index}
-                    onClick={() =>
-                      setActiveAccordion(
-                        activeAccordion === index ? null : index
-                      )
-                    }
-                    color='base'
-                    expanded={index === activeAccordion}>
-                    <Accordion.Header className='flex gap-2 text-sm'>
-                      <div className='grow font-semibold'>
-                        {'{Activity Name}'}
-                      </div>
-                      <div>
-                        {dayjs('Jan 1, 2023').format(
-                          'MMMM D, YYYY - h:mm:ss A'
-                        )}
-                      </div>
-                      <UserTally value={index} over={10} />
-                      <TransactionBadge status='Active' />
-                    </Accordion.Header>
-                    <Accordion.Content className='flex divide-x'>
-                      <div className='w-2/3'>Test Content</div>
-                      <div className='grow space-y-2 px-3'>
-                        <Timeline>
-                          {['Created', 'Approval', 'Approved', 'Executed'].map(
-                            (step, stepIndex) => (
-                              <Timeline.Item
-                                key={`${stepIndex}-${step}`}
-                                {...(stepIndex <= mockCurrentStep && {
-                                  status:
-                                    stepIndex === mockCurrentStep
-                                      ? 'active'
-                                      : 'completed',
-                                })}>
-                                {step}
-                              </Timeline.Item>
-                            )
-                          )}
-                        </Timeline>
-                        <div>Can be executed once threshold is reached</div>
-                        <div className='flex w-full gap-2'>
-                          <button className='btn btn-outline flex-1'>
-                            Reject
-                          </button>
-                          <button className='btn btn-primary flex-1'>
-                            Approve
-                          </button>
-                        </div>
-                      </div>
-                    </Accordion.Content>
-                  </Accordion.Container>
-                );
-              })}
-          </div>
+          {currentTab === 'Dashboard' && <Transactions />}
+          {currentTab === 'Settings' && <Settings />}
         </div>
       </div>
     </MainLayout>
