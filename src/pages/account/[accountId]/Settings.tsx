@@ -1,7 +1,7 @@
-import { Accordion, PolicyAddressesForm, TransactionBadge } from '@/components';
+import { Accordion,PolicyAddressesForm,TransactionBadge } from '@/components';
 import CreateMultisigForm from '@/components/CreateMultisigForm';
 import { useState } from 'react';
-import { FormProvider, useForm } from 'react-hook-form';
+import { FormProvider,useForm } from 'react-hook-form';
 
 const PolicyForm = ({ formName }: { formName?: string }) => {
   const formMethods = useForm({
@@ -27,7 +27,7 @@ const PolicyForm = ({ formName }: { formName?: string }) => {
         className='flex w-full flex-col items-center justify-center gap-2'>
         <PolicyAddressesForm formName={`${formName}Addresses`} />
         <button
-          className='btn btn-primary ml-auto w-full max-w-xs flex-1  self-end'
+          className='btn btn-primary ml-auto w-full max-w-[20%] flex-1 self-end truncate'
           onClick={() => {}}>
           Activate
         </button>
