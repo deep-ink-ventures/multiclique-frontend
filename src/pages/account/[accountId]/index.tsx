@@ -44,7 +44,7 @@ const Account = () => {
   return (
     <MainLayout title='MultiClique' description=''>
       <div className='flex w-full'>
-        <div className='w-1/4'>
+        <div className='w-1/4 shrink-0'>
           <Sidebar>
             <Sidebar.Content>
               <Avatar src={AvatarImage} />
