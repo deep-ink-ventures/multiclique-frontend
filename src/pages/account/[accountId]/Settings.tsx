@@ -1,7 +1,7 @@
-import { Accordion,PolicyAddressesForm,TransactionBadge } from '@/components';
+import { Accordion, PolicyAddressesForm, TransactionBadge } from '@/components';
 import CreateMultisigForm from '@/components/CreateMultisigForm';
 import { useState } from 'react';
-import { FormProvider,useForm } from 'react-hook-form';
+import { FormProvider, useForm } from 'react-hook-form';
 
 const PolicyForm = ({ formName }: { formName?: string }) => {
   const formMethods = useForm({
