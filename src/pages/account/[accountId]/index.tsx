@@ -1,4 +1,7 @@
-import { Avatar, Sidebar } from '@/components';
+import {
+  Avatar,
+  Sidebar,
+} from '@/components';
 import WalletConnect from '@/components/WalletConnect';
 import { MainLayout } from '@/layouts';
 import useMCStore from '@/stores/MCStore';
