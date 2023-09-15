@@ -3,6 +3,7 @@ import { ErrorMessage } from '@hookform/error-message';
 import { useState } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 
+import useMC from '@/hooks/useMC';
 import type { Multisig } from '@/types/multisig';
 import { truncateMiddle } from '@/utils';
 import cn from 'classnames';
@@ -14,10 +15,15 @@ interface ICreateMultisigFormProps extends Multisig {
 }
 
 const CreateMultisigForm = () => {
-  const [currentAccount, isTxnProcessing] = useMCStore((s) => [
-    s.currentAccount,
-    s.isTxnProcessing,
-  ]);
+  const [currentAccount, isTxnProcessing, updateIsTxnProcessing, handleErrors] =
+    useMCStore((s) => [
+      s.currentAccount,
+      s.isTxnProcessing,
+      s.updateIsTxnProcessing,
+      s.handleErrors,
+    ]);
+
+  const { getMulticliqueAddresses, initMulticliqueCore } = useMC();
 
   const [membersCount, setMembersCount] = useState(2);
 
@@ -35,6 +41,37 @@ const CreateMultisigForm = () => {
 
   const onSubmit = async (data: ICreateMultisigFormProps) => {
     console.log('ICreateMultisigFormProps data', data);
+
+    if (!currentAccount) return;
+
+    const { creatorAddress, signatories, threshold } = data;
+
+    const allSigners = [
+      creatorAddress,
+      ...signatories.map((signer) => signer.address),
+    ];
+
+    const multicliqueData = {
+      source: currentAccount.publicKey,
+      policy_preset: 'ELIO_DAO',
+    };
+
+    try {
+      await getMulticliqueAddresses(
+        multicliqueData,
+        (addresses: { coreAddress: string; policyAddress: string }) => {
+          initMulticliqueCore(addresses, allSigners, threshold, async () => {
+            // await for 3 seconds
+            await new Promise((resolve) => {
+              setTimeout(resolve, 3000);
+            });
+            updateIsTxnProcessing(false);
+          });
+        }
+      );
+    } catch (err) {
+      handleErrors('Error in transferring ownership to multisig', err);
+    }
   };
 
   const formMethods = useForm<ICreateMultisigFormProps>({

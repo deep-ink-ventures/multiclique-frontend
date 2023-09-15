@@ -1,5 +1,16 @@
 import BigNumber from 'bignumber.js';
 
+enum Network {
+  Futurenet = 'FUTURENET',
+  Standalone = 'STANDALONE',
+  Pubnet = 'PUBNET',
+}
+
+/**
+ * Use this to change network
+ */
+export const NETWORK: Network = Network.Futurenet;
+
 /** 18 decimals */
 export const DAO_UNITS: BigNumber = BigNumber(1000000000000000000);
 
@@ -11,12 +22,6 @@ export const XLM_UNITS: BigNumber = BigNumber(10000000);
 
 /** In XLM */
 export const BASE_FEE: string = '100';
-
-enum Network {
-  Futurenet = 'FUTURENET',
-  Standalone = 'STANDALONE',
-  Pubnet = 'PUBNET',
-}
 
 export const NETWORK_PASSPHRASE: { [key in Network]: string } = {
   FUTURENET: 'Test SDF Future Network ; October 2022',

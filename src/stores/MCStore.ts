@@ -6,10 +6,25 @@ import {
   getPublicKey,
   isConnected,
 } from '@stellar/freighter-api';
+import * as SorobanClient from 'soroban-client';
+
 import StellarSdk from 'stellar-sdk';
 import { create } from 'zustand';
-import { XLM_UNITS } from '../config/index';
+import {
+  NETWORK,
+  NETWORK_PASSPHRASE,
+  SOROBAN_RPC_ENDPOINT,
+  XLM_UNITS,
+} from '../config/index';
 import { contractErrorCodes } from './errors';
+
+export interface MCConfig {
+  /** Block time in seconds */
+  blockCreationInterval: number;
+  networkPassphrase: string;
+  rpcEndpoint: string;
+  currentBlockNumber?: number;
+}
 
 export interface WalletAccount {
   isConnected: boolean;
@@ -36,18 +51,17 @@ export interface TxnNotification {
   txnHash?: string;
 }
 
-export type ContractName =
-  | 'core'
-  | 'votes'
-  | 'assets'
-  | 'multicliqueCore'
-  | 'multicliquePolicy';
+export type ContractName = 'multicliqueCore' | 'multicliquePolicy';
 
 export interface MCState {
   currentAccount: WalletAccount | null;
   txnNotifications: TxnNotification[];
   isTxnProcessing: boolean;
   isConnectModalOpen: boolean;
+  sorobanServer: SorobanClient.Server;
+  showCongrats: boolean;
+  currentBlockNumber: number | null;
+  MCConfig: MCConfig;
 }
 
 export interface MCActions {
@@ -65,6 +79,12 @@ export interface MCActions {
   ) => Promise<string | null | undefined>;
   updateIsConnectModalOpen: (isOpen: boolean) => void;
   fetchMCAccounts: (publickey: string) => Promise<string[] | null | undefined>;
+  handleTxnSuccessNotification: (
+    response: SorobanClient.SorobanRpc.GetTransactionResponse,
+    successMsg: string,
+    txnHash?: string
+  ) => void;
+  updateIsTxnProcessing: (isProcessing: boolean) => void;
 }
 
 export interface MCStore extends MCState, MCActions {}
@@ -74,6 +94,14 @@ const useMCStore = create<MCStore>((set, get) => ({
   txnNotifications: [],
   isTxnProcessing: false,
   isConnectModalOpen: false,
+  sorobanServer: new SorobanClient.Server(SOROBAN_RPC_ENDPOINT[NETWORK]),
+  showCongrats: false,
+  currentBlockNumber: null,
+  MCConfig: {
+    blockCreationInterval: 5,
+    networkPassphrase: NETWORK_PASSPHRASE[NETWORK],
+    rpcEndpoint: SOROBAN_RPC_ENDPOINT[NETWORK],
+  },
   updateCurrentAccount: (account: WalletAccount | null) => {
     set({ currentAccount: account });
   },
@@ -112,6 +140,22 @@ const useMCStore = create<MCStore>((set, get) => ({
     const currentTxnNotis = get().txnNotifications;
     const newNotis = currentTxnNotis.slice(0, -1);
     set({ txnNotifications: newNotis });
+  },
+  handleTxnSuccessNotification(txnResponse, successMsg, txnHash?) {
+    // we don't turn off txnIsProcessing here
+    if (txnResponse.status !== 'SUCCESS') {
+      return;
+    }
+
+    const noti = {
+      title: TxnResponse.Success,
+      message: successMsg,
+      type: TxnResponse.Success,
+      timestamp: Date.now(),
+      txnHash,
+    };
+
+    get().addTxnNotification(noti);
   },
   fetchNativeTokenBalance: async (publicKey: string) => {
     try {
@@ -210,6 +254,9 @@ const useMCStore = create<MCStore>((set, get) => ({
       return Promise.resolve([]);
     }
     return Promise.resolve(null);
+  },
+  updateIsTxnProcessing: (isProcessing: boolean) => {
+    set({ isTxnProcessing: isProcessing });
   },
 }));
 
