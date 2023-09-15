@@ -1,7 +1,4 @@
-import {
-  Avatar,
-  Sidebar,
-} from '@/components';
+import { Avatar, Sidebar } from '@/components';
 import WalletConnect from '@/components/WalletConnect';
 import { MainLayout } from '@/layouts';
 import useMCStore from '@/stores/MCStore';
@@ -16,8 +13,8 @@ import { truncateMiddle } from '@/utils';
 import Image from 'next/image';
 import type { ReactNode } from 'react';
 import { useState } from 'react';
-import { Settings } from './Settings';
-import { Transactions } from './Transactions';
+import Settings from './Settings';
+import Transactions from './Transactions';
 
 type AccountTabs = 'Dashboard' | 'Assets' | 'Transactions' | 'Settings';
 

@@ -36,7 +36,7 @@ const PolicyForm = ({ formName }: { formName?: string }) => {
   );
 };
 
-export const Settings = () => {
+const Settings = () => {
   const [activeAccordion, setActiveAccordion] = useState<number | null>(null);
   return (
     <>
@@ -81,3 +81,5 @@ export const Settings = () => {
     </>
   );
 };
+
+export default Settings;

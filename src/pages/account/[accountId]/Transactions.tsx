@@ -3,7 +3,7 @@ import Search from '@/svg/components/Search';
 import dayjs from 'dayjs';
 import { useState } from 'react';
 
-export const Transactions = () => {
+const Transactions = () => {
   const [activeAccordion, setActiveAccordion] = useState<number | null>(null);
 
   const mockCurrentStep = Math.floor(Math.random() * 4);
@@ -76,3 +76,5 @@ export const Transactions = () => {
     </>
   );
 };
+
+export default Transactions;
