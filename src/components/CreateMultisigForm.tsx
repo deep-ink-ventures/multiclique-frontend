@@ -80,7 +80,11 @@ const Members = ({ title = 'Add Multisig Signers' }: { title?: string }) => {
   );
 };
 
-const SigningThreshold = () => {
+const SigningThreshold = ({
+  minimumSigners = 2,
+}: {
+  minimumSigners?: number;
+}) => {
   const [isTxnProcessing] = useMCStore((s) => [s.isTxnProcessing]);
 
   const formMethods = useFormContext();
@@ -102,7 +106,8 @@ const SigningThreshold = () => {
         <h4 className='text-center'>Enter Signing Threshold</h4>
         <p className='px-20 text-center text-sm'>
           The signing threshold is a the minimum number of signatures needed to
-          approve a multi-signature transaction. The minimum threshold is 2.
+          approve a multi-signature transaction. The minimum threshold is{' '}
+          {minimumSigners}.
         </p>
       </div>
       <div className='w-[120px]'>
@@ -113,7 +118,7 @@ const SigningThreshold = () => {
           disabled={isTxnProcessing}
           {...register('threshold', {
             required: 'Required',
-            min: { value: 1, message: 'Minimum is 2' },
+            min: { value: minimumSigners, message: 'Minimum is 2' },
             max: {
               value: maxThreshold,
               message: 'Cannot exceed # of council members',

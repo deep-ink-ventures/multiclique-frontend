@@ -36,6 +36,7 @@ const PolicyForm = ({ formName }: { formName?: string }) => {
   );
 };
 
+// TODO: when integrating existing record, change CreateMultisigForm.Threshold minimumSigners to current signer count.
 const Settings = () => {
   const [activeAccordion, setActiveAccordion] = useState<number | null>(null);
   return (
@@ -46,7 +47,7 @@ const Settings = () => {
       <div className='space-y-3 rounded-lg bg-base-200 p-4'>
         <CreateMultisigForm>
           <CreateMultisigForm.Members title='Update Multisig Signers' />
-          <CreateMultisigForm.Threshold />
+          <CreateMultisigForm.Threshold minimumSigners={2} />
           <div className='w-full space-y-2 p-3'>
             <h4 className='text-center'>Attach Policy</h4>
             {Array(4)
