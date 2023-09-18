@@ -1,10 +1,9 @@
 import useMCStore from '@/stores/MCStore';
 import { ErrorMessage } from '@hookform/error-message';
 import type { ReactNode } from 'react';
-import { FormProvider,useForm,useFormContext } from 'react-hook-form';
+import { FormProvider, useForm, useFormContext } from 'react-hook-form';
 
-import useMC from '@/hooks/useMC';
-import type { Multisig,Signatory } from '@/types/multisig';
+import type { Signatory } from '@/types/multisig';
 import { truncateMiddle } from '@/utils';
 import cn from 'classnames';
 import SignatoriesForm from './SignatoriesForm';

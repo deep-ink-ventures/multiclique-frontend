@@ -1,7 +1,23 @@
 import { Accordion, PolicyAddressesForm, TransactionBadge } from '@/components';
 import CreateMultisigForm from '@/components/CreateMultisigForm';
+import cn from 'classnames';
 import { useState } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
+
+const SettingsTabs: Array<{ id: string; label: string }> = [
+  {
+    id: 'signers',
+    label: 'Update signers',
+  },
+  {
+    id: 'threshold',
+    label: 'Change the threshold',
+  },
+  {
+    id: 'policy',
+    label: 'Attach policy',
+  },
+];
 
 const PolicyForm = ({ formName }: { formName?: string }) => {
   const formMethods = useForm({
@@ -39,16 +55,62 @@ const PolicyForm = ({ formName }: { formName?: string }) => {
 // TODO: when integrating existing record, change CreateMultisigForm.Threshold minimumSigners to current signer count.
 const Settings = () => {
   const [activeAccordion, setActiveAccordion] = useState<number | null>(null);
+  const [activeSettingsTab, setActiveSettingsTab] = useState(
+    SettingsTabs.at(0)?.id
+  );
   return (
     <>
       <div className='flex items-center'>
         <div className='text-2xl font-semibold'>Settings</div>
       </div>
-      <div className='space-y-3 rounded-lg bg-base-200 p-4'>
+      <div className=''>
+        <ul
+          className='flex flex-wrap text-center text-sm '
+          id='signers'
+          role='tablist'>
+          {SettingsTabs.map((tab) => (
+            <li key={tab.id}>
+              <button
+                className={cn(
+                  'inline-block rounded-t-lg  p-4 hover:bg-base-300',
+                  {
+                    'bg-base-200': activeSettingsTab === tab.id,
+                  }
+                )}
+                onClick={() => setActiveSettingsTab(tab.id)}
+                type='button'
+                role='tab'>
+                {tab.label}
+              </button>
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      <div
+        className={cn('!mt-0 space-y-3 rounded-lg bg-base-200 p-4', {
+          hidden: activeSettingsTab !== SettingsTabs.at(0)?.id,
+        })}>
         <CreateMultisigForm onSubmit={() => {}}>
           <CreateMultisigForm.Members title='Update Multisig Signers' />
+        </CreateMultisigForm>
+      </div>
+
+      <div
+        className={cn('!mt-0 space-y-3 rounded-lg bg-base-200 p-4', {
+          hidden: activeSettingsTab !== SettingsTabs.at(1)?.id,
+        })}>
+        <CreateMultisigForm onSubmit={() => {}}>
           <CreateMultisigForm.Threshold minimumSigners={2} />
-          <div className='w-full space-y-2 p-3'>
+        </CreateMultisigForm>
+      </div>
+
+      <div
+        className={cn('!mt-0 space-y-3 rounded-lg bg-base-200 p-4', {
+          hidden: activeSettingsTab !== SettingsTabs.at(2)?.id,
+        })}>
+        <CreateMultisigForm onSubmit={() => {}}>
+          <div className='w-full space-y-2'>
             <h4 className='text-center'>Attach Policy</h4>
             {Array(4)
               .fill(null)
