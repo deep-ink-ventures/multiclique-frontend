@@ -55,7 +55,7 @@ const WalletConnect = (props: WalletConnectProps) => {
     <div className='relative flex flex-col'>
       <button
         tabIndex={0}
-        className={cn('btn btn-outline m-1', {
+        className={cn('btn-outline btn m-1', {
           loading:
             (isConnectModalOpen && !currentWalletAccount?.isConnected) ||
             isTxnProcessing,

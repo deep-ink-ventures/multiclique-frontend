@@ -62,7 +62,7 @@ const Transactions = () => {
                     </Timeline>
                     <div>Can be executed once threshold is reached</div>
                     <div className='flex w-full gap-2'>
-                      <button className='btn btn-outline flex-1'>Reject</button>
+                      <button className='btn-outline btn flex-1'>Reject</button>
                       <button className='btn btn-primary flex-1'>
                         Approve
                       </button>

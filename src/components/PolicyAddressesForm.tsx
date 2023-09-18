@@ -83,7 +83,7 @@ export const PolicyAddressesForm = (props: {
       })}
       <div className='mb-4'>
         <button
-          className='btn btn-outline'
+          className='btn-outline btn'
           type='button'
           disabled={disabled}
           onClick={handleAddMember}>
