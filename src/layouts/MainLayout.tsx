@@ -75,7 +75,7 @@ export const MainLayout = (props: IMainProps) => {
           siteName={props.siteName ? props.siteName : 'MultiClique'}
         />
         <div className='mx-auto'>
-          <div className='m-2 min-h-screen rounded-2xl border-slate-800 p-2'>
+          <div className='m-2 min-h-screen rounded-2xl p-2'>
             {props.children}
           </div>
         </div>

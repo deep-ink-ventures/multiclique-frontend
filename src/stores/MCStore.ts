@@ -112,10 +112,19 @@ const useMCStore = create<MCStore>((set, get) => ({
     // wallet is automatically injected to the window, we just need to get the values
 
     const connected = await isConnected();
-    const networkDetails = await getNetworkDetails();
     const publicKey = await getPublicKey();
+    if (!publicKey || !connected) {
+      get().addTxnNotification({
+        title: 'Please install Freighter Wallet',
+        message: 'You need to install Freighter Wallet to continue',
+        type: TxnResponse.Error,
+        timestamp: Date.now(),
+      });
+    }
+    const networkDetails = await getNetworkDetails();
     const nativeBalance = await get().fetchNativeTokenBalance(publicKey);
     const MCaccounts = await get().fetchMCAccounts(publicKey);
+
     const wallet: WalletAccount = {
       isConnected: connected,
       network: networkDetails.network,

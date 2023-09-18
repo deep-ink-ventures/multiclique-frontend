@@ -2,15 +2,9 @@ import ConnectWallet from '@/components/ConnectWallet';
 import Welcome from '@/components/Welcome';
 import { MainLayout } from '@/layouts';
 import useMCStore from '@/stores/MCStore';
-import { useEffect } from 'react';
 
 const Index = () => {
   const [currentAccount] = useMCStore((s) => [s.currentAccount]);
-
-  useEffect(() => {
-    console.log('currentAccount', currentAccount);
-  });
-
   return (
     <MainLayout
       title={'MultiClique - Stellar Soroban Multisig Tools'}
