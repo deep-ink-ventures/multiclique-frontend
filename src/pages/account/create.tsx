@@ -20,7 +20,6 @@ const Create = () => {
   const onSubmit: SubmitHandler<
     ISignatoriesFormValues & IThresholdFormValues
   > = async (data) => {
-    console.log('ICreateMultisigFormProps data', data);
 
     if (!currentAccount) return;
 
