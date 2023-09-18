@@ -45,7 +45,7 @@ const Settings = () => {
         <div className='text-2xl font-semibold'>Settings</div>
       </div>
       <div className='space-y-3 rounded-lg bg-base-200 p-4'>
-        <CreateMultisigForm>
+        <CreateMultisigForm onSubmit={() => {}}>
           <CreateMultisigForm.Members title='Update Multisig Signers' />
           <CreateMultisigForm.Threshold minimumSigners={2} />
           <div className='w-full space-y-2 p-3'>

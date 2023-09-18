@@ -1,11 +1,60 @@
 import ConnectWallet from '@/components/ConnectWallet';
+import type {
+  ISignatoriesFormValues,
+  IThresholdFormValues,
+} from '@/components/CreateMultisigForm';
 import CreateMultisigForm from '@/components/CreateMultisigForm';
+import useMC from '@/hooks/useMC';
 
 import { MainLayout } from '@/layouts';
 import useMCStore from '@/stores/MCStore';
+import type { SubmitHandler } from 'react-hook-form';
 
 const Create = () => {
-  const [currentAccount] = useMCStore((s) => [s.currentAccount]);
+  const [currentAccount, handleErrors, updateIsTxnProcessing] = useMCStore(
+    (s) => [s.currentAccount, s.handleErrors, s.updateIsTxnProcessing]
+  );
+
+  const { getMulticliqueAddresses, initMulticliqueCore } = useMC();
+
+  const onSubmit: SubmitHandler<
+    ISignatoriesFormValues & IThresholdFormValues
+  > = async (data) => {
+    console.log('ICreateMultisigFormProps data', data);
+
+    if (!currentAccount) return;
+
+    const { creatorAddress, signatories, threshold } = data;
+
+    const allSigners = [
+      ...(creatorAddress ? [creatorAddress] : []),
+      ...(signatories
+        ?.filter((signer) => signer != null)
+        .map((signer) => signer.address) ?? []),
+    ];
+
+    const multicliqueData = {
+      source: currentAccount.publicKey,
+      policy_preset: 'ELIO_DAO',
+    };
+
+    try {
+      await getMulticliqueAddresses(
+        multicliqueData,
+        (addresses: { coreAddress: string; policyAddress: string }) => {
+          initMulticliqueCore(addresses, allSigners, threshold, async () => {
+            // await for 3 seconds
+            await new Promise((resolve) => {
+              setTimeout(resolve, 3000);
+            });
+            updateIsTxnProcessing(false);
+          });
+        }
+      );
+    } catch (err) {
+      handleErrors('Error in transferring ownership to multisig', err);
+    }
+  };
 
   return (
     <MainLayout
@@ -18,7 +67,7 @@ const Create = () => {
           </div>
           <div>
             {currentAccount?.isConnected ? (
-              <CreateMultisigForm>
+              <CreateMultisigForm onSubmit={onSubmit}>
                 <CreateMultisigForm.Members />
                 <CreateMultisigForm.Threshold />
               </CreateMultisigForm>

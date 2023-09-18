@@ -1,18 +1,28 @@
 import useMCStore from '@/stores/MCStore';
 import { ErrorMessage } from '@hookform/error-message';
 import type { ReactNode } from 'react';
-import { FormProvider, useForm, useFormContext } from 'react-hook-form';
+import { FormProvider,useForm,useFormContext } from 'react-hook-form';
 
 import useMC from '@/hooks/useMC';
-import type { Multisig } from '@/types/multisig';
+import type { Multisig,Signatory } from '@/types/multisig';
 import { truncateMiddle } from '@/utils';
 import cn from 'classnames';
 import SignatoriesForm from './SignatoriesForm';
 
-interface ICreateMultisigFormProps extends Multisig {
+export interface ISignatoriesFormValues {
   creatorName: string;
   creatorAddress: string;
+  signatories: Signatory[];
 }
+
+export interface IThresholdFormValues {
+  threshold: number;
+}
+
+export type ICreateMultisigFormProps =
+  | (ISignatoriesFormValues & IThresholdFormValues)
+  | ISignatoriesFormValues
+  | IThresholdFormValues;
 
 const Members = ({ title = 'Add Multisig Signers' }: { title?: string }) => {
   const [currentAccount, isTxnProcessing] = useMCStore((s) => [
@@ -142,53 +152,23 @@ const SigningThreshold = ({
   );
 };
 
-const CreateMultisigForm = ({ children }: { children?: ReactNode }) => {
-  const [currentAccount, isTxnProcessing, updateIsTxnProcessing, handleErrors] =
-    useMCStore((s) => [
-      s.currentAccount,
-      s.isTxnProcessing,
-      s.updateIsTxnProcessing,
-      s.handleErrors,
-    ]);
+const CreateMultisigForm = ({
+  children,
+  onSubmit,
+}: {
+  children?: ReactNode;
+  onSubmit: (data: any) => void;
+}) => {
+  const [currentAccount, isTxnProcessing] = useMCStore((s) => [
+    s.currentAccount,
+    s.isTxnProcessing,
+  ]);
 
-  const { getMulticliqueAddresses, initMulticliqueCore } = useMC();
-
-  const onSubmit = async (data: ICreateMultisigFormProps) => {
-    console.log('ICreateMultisigFormProps data', data);
-
-    if (!currentAccount) return;
-
-    const { creatorAddress, signatories, threshold } = data;
-
-    const allSigners = [
-      creatorAddress,
-      ...signatories.map((signer) => signer.address),
-    ];
-
-    const multicliqueData = {
-      source: currentAccount.publicKey,
-      policy_preset: 'ELIO_DAO',
-    };
-
-    try {
-      await getMulticliqueAddresses(
-        multicliqueData,
-        (addresses: { coreAddress: string; policyAddress: string }) => {
-          initMulticliqueCore(addresses, allSigners, threshold, async () => {
-            // await for 3 seconds
-            await new Promise((resolve) => {
-              setTimeout(resolve, 3000);
-            });
-            updateIsTxnProcessing(false);
-          });
-        }
-      );
-    } catch (err) {
-      handleErrors('Error in transferring ownership to multisig', err);
-    }
-  };
-
-  const formMethods = useForm<ICreateMultisigFormProps>({
+  const formMethods = useForm<
+    | (ISignatoriesFormValues & IThresholdFormValues)
+    | IThresholdFormValues
+    | ISignatoriesFormValues
+  >({
     defaultValues: {
       creatorName: '',
       creatorAddress: currentAccount?.publicKey,
@@ -206,7 +186,7 @@ const CreateMultisigForm = ({ children }: { children?: ReactNode }) => {
 
   const signatories = watch('signatories');
 
-  const membersCount = signatories.length + 1 ?? 0;
+  const membersCount = (signatories && signatories.length + 1) ?? 0;
 
   return (
     <FormProvider {...formMethods}>
