@@ -1,4 +1,3 @@
-import Link from 'next/link';
 import WalletConnect from './WalletConnect';
 
 const ConnectWallet = () => {
@@ -7,9 +6,10 @@ const ConnectWallet = () => {
       <div className='flex w-full flex-col items-center gap-8'>
         <div className='text-lg'>Please connect your wallet to continue</div>
         <WalletConnect text='Connect Wallet' />
-        <Link href='/' className='text-lg underline'>
-          {`Help, I don't have a wallet`}
-        </Link>
+        <a
+          href='https://freighter.app/'
+          target='_blank'
+          className='underline'>{`Help, I don't have a wallet`}</a>
       </div>
     </div>
   );

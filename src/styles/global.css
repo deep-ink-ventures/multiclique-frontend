@@ -235,7 +235,11 @@ input[type=number] {
 
 
 a {
-    @apply hover:cursor-pointer
+    @apply hover:cursor-pointer;
+}
+
+.external-link {
+    @apply hover:cursor-pointer text-blue-400 hover:text-blue-300;
 }
 
 .description-display a {
