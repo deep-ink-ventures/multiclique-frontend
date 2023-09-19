@@ -18,10 +18,13 @@ export interface IThresholdFormValues {
   threshold: number;
 }
 
-export type ICreateMultisigFormProps =
-  | (ISignatoriesFormValues & IThresholdFormValues)
-  | ISignatoriesFormValues
-  | IThresholdFormValues;
+export interface IAccountNameValues {
+  accountName: string;
+}
+
+export type ICreateMultisigFormProps = ISignatoriesFormValues &
+  IThresholdFormValues &
+  IAccountNameValues;
 
 const Members = ({ title = 'Add Multisig Signers' }: { title?: string }) => {
   const [currentAccount, isTxnProcessing] = useMCStore((s) => [
@@ -90,7 +93,7 @@ const Members = ({ title = 'Add Multisig Signers' }: { title?: string }) => {
 };
 
 const SigningThreshold = ({
-  minimumSigners = 2,
+  minimumSigners = 1,
 }: {
   minimumSigners?: number;
 }) => {
@@ -127,7 +130,7 @@ const SigningThreshold = ({
           disabled={isTxnProcessing}
           {...register('threshold', {
             required: 'Required',
-            min: { value: minimumSigners, message: 'Minimum is 2' },
+            min: { value: minimumSigners, message: 'Minimum is 1' },
             max: {
               value: maxThreshold,
               message: 'Cannot exceed # of council members',
@@ -151,6 +154,75 @@ const SigningThreshold = ({
   );
 };
 
+const AccountName = ({ maxChars = 24 }: { maxChars?: number }) => {
+  const [isTxnProcessing] = useMCStore((s) => [s.isTxnProcessing]);
+
+  const formMethods = useFormContext();
+
+  const {
+    register,
+    watch,
+    formState: { errors },
+  } = formMethods;
+
+  const accountNameWatch = watch('accountName');
+
+  return (
+    <>
+      <div>
+        <h4 className='text-center'>Enter Account Name</h4>
+        <p className='px-20 text-center text-sm'>
+          This will be the name of the multisig account which will be stored
+          off-chain.
+        </p>
+        <p className='px-20 text-center text-sm'>
+          Max character count is {maxChars}.
+        </p>
+      </div>
+      <div className='w-[340px]'>
+        <div className='flex items-end justify-between'>
+          <p className='mb-1 ml-2'>
+            Account Name{' '}
+            <span className='text-lg font-medium text-red-600'>*</span>
+          </p>
+        </div>
+        <div className='relative'>
+          <input
+            className={cn('input', {
+              'input-error': accountNameWatch.length > maxChars,
+              'input-primary': accountNameWatch.length < maxChars,
+            })}
+            type='text'
+            placeholder=''
+            disabled={isTxnProcessing}
+            {...register('accountName', {
+              required: 'Required',
+              min: { value: 3, message: 'Minimum character count is 3' },
+              max: {
+                value: maxChars,
+                message: `Maximum character count is ${maxChars}`,
+              },
+            })}
+          />
+          <p
+            className={`absolute right-2 top-3 opacity-60 ${
+              accountNameWatch.length > maxChars ? 'text-error-content' : null
+            }`}>
+            {accountNameWatch.length}/{maxChars}
+          </p>
+        </div>
+      </div>
+      <ErrorMessage
+        errors={errors}
+        name='accountName'
+        render={({ message }) => (
+          <p className='ml-2 mt-1 text-error-content'>{message}</p>
+        )}
+      />
+    </>
+  );
+};
+
 const CreateMultisigForm = ({
   children,
   onSubmit,
@@ -163,11 +235,7 @@ const CreateMultisigForm = ({
     s.isTxnProcessing,
   ]);
 
-  const formMethods = useForm<
-    | (ISignatoriesFormValues & IThresholdFormValues)
-    | IThresholdFormValues
-    | ISignatoriesFormValues
-  >({
+  const formMethods = useForm<ICreateMultisigFormProps>({
     defaultValues: {
       creatorName: '',
       creatorAddress: currentAccount?.publicKey,
@@ -178,6 +246,7 @@ const CreateMultisigForm = ({
         },
       ],
       threshold: 1,
+      accountName: '',
     },
   });
 
@@ -212,5 +281,6 @@ const CreateMultisigForm = ({
 
 CreateMultisigForm.Members = Members;
 CreateMultisigForm.Threshold = SigningThreshold;
+CreateMultisigForm.AccountName = AccountName;
 
 export default CreateMultisigForm;

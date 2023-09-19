@@ -1,8 +1,5 @@
 import ConnectWallet from '@/components/ConnectWallet';
-import type {
-  ISignatoriesFormValues,
-  IThresholdFormValues,
-} from '@/components/CreateMultisigForm';
+import type { ICreateMultisigFormProps } from '@/components/CreateMultisigForm';
 import CreateMultisigForm from '@/components/CreateMultisigForm';
 import useMC from '@/hooks/useMC';
 
@@ -17,15 +14,13 @@ const Create = () => {
 
   const { getMulticliqueAddresses, initMulticliqueCore } = useMC();
 
-  const onSubmit: SubmitHandler<
-    ISignatoriesFormValues & IThresholdFormValues
-  > = async (data) => {
+  const onSubmit: SubmitHandler<ICreateMultisigFormProps> = async (data) => {
     if (!currentAccount) return;
 
     const { creatorAddress, signatories, threshold } = data;
 
     const allSigners = [
-      ...(creatorAddress ? [creatorAddress] : []),
+      creatorAddress,
       ...(signatories
         ?.filter((signer) => signer != null)
         .map((signer) => signer.address) ?? []),
@@ -66,6 +61,7 @@ const Create = () => {
           <div>
             {currentAccount?.isConnected ? (
               <CreateMultisigForm onSubmit={onSubmit}>
+                <CreateMultisigForm.AccountName />
                 <CreateMultisigForm.Members />
                 <CreateMultisigForm.Threshold />
               </CreateMultisigForm>
