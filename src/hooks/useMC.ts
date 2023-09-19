@@ -56,6 +56,14 @@ const useMC = () => {
         // eslint-disable-next-line
         await new Promise((resolve) => setTimeout(resolve, 1000));
       }
+
+      if (txResponse.status === 'FAILED') {
+        // eslint-disable-next-line
+        console.log(txResponse.status);
+        updateIsTxnProcessing(false); // delay here and pass onto the next state controller
+        handleErrors(errorMsg);
+      }
+
       if (txResponse.status === 'SUCCESS') {
         handleTxnSuccessNotification(
           txResponse,
@@ -68,13 +76,6 @@ const useMC = () => {
         } else {
           updateIsTxnProcessing(false);
         }
-      }
-
-      if (txResponse.status === 'FAILED') {
-        // eslint-disable-next-line
-        console.log(txResponse.status);
-        updateIsTxnProcessing(false); // delay here and pass onto the next state controller
-        handleErrors(errorMsg);
       }
 
       return txResponse;
@@ -194,11 +195,11 @@ const useMC = () => {
         // eslint-disable-next-line
         console.log('Cannot stimulate transaction', res.error)
       }
-      const xdr = res?.results?.[0]?.xdr;
-      if (!xdr) {
+      const result = res?.result;
+      if (!result) {
         return;
       }
-      return decodeXdr(xdr as string);
+      return decodeXdr(result.retval.toXDR().toString('base64'));
     } catch (err) {
       handleErrors('Cannot submit read transaction', err);
       return null;
@@ -329,28 +330,22 @@ const useMC = () => {
               await new Promise((resolve) => {
                 setTimeout(resolve, 2000);
               });
-              if (!coreResult?.resultMetaXdr) {
+              if (!coreResult || coreResult.status === 'FAILED') {
                 throw new Error('Cannot get multiclique core address');
               }
 
-              if (!policyResult?.resultMetaXdr) {
+              if (!policyResult || policyResult.stats === 'FAILED') {
                 throw new Error('Cannot get multiclique policy address');
               }
 
-              const coreId = SorobanClient.xdr.TransactionMeta.fromXDR(
-                coreResult.resultMetaXdr,
-                'base64'
-              )
+              const coreId = coreResult.resultMetaXdr
                 .v3()
                 ?.sorobanMeta()
                 ?.returnValue()
                 .address()
                 .contractId();
 
-              const policyId = SorobanClient.xdr.TransactionMeta.fromXDR(
-                policyResult.resultMetaXdr,
-                'base64'
-              )
+              const policyId = policyResult.resultMetaXdr
                 .v3()
                 ?.sorobanMeta()
                 ?.returnValue()
