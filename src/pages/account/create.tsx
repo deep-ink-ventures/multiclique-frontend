@@ -20,7 +20,6 @@ const Create = () => {
   const onSubmit: SubmitHandler<
     ISignatoriesFormValues & IThresholdFormValues
   > = async (data) => {
-
     if (!currentAccount) return;
 
     const { creatorAddress, signatories, threshold } = data;

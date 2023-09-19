@@ -1,5 +1,5 @@
 {
-  "name": "MultiClique",
+  "name": "multiclique",
   "homepage": "https://github.com/deep-ink-ventures/multiclique-frontend",
   "private": true,
   "scripts": {
@@ -14,7 +14,7 @@
     "format": "next lint --fix && prettier '**/*.{json,yaml}' --write --ignore-path .gitignore",
     "check-types": "tsc --noEmit --pretty",
     "test": "jest",
-    "pre-commit": "yarn format && yarn check-types",
+    "pre-commit": "bun format && bun check-types",
     "commit": "cz",
     "prepare": "husky install"
   },
@@ -24,7 +24,6 @@
     "@soroban-react/core": "^5.0.3",
     "@soroban-react/types": "^5.0.3",
     "@stellar/freighter-api": "^1.6.0",
-    "@typescript-eslint/typescript-estree": "^6.6.0",
     "antd": "^5.2.2",
     "bignumber.js": "^9.1.1",
     "classnames": "^2.3.2",
@@ -51,7 +50,7 @@
     "@percy/cli": "^1.16.0",
     "@testing-library/jest-dom": "^5.16.5",
     "@testing-library/react": "^13.4.0",
-    "@types/jest": "^29.2.5",
+    "@types/jest": "^29.5.5",
     "@types/node": "^18.11.18",
     "@types/react": "^18.0.26",
     "@types/react-html-parser": "^2.0.2",
@@ -59,7 +58,9 @@
     "@types/uuid": "^9.0.1",
     "@typescript-eslint/eslint-plugin": "^5.47.1",
     "@typescript-eslint/parser": "^5.47.1",
+    "@typescript-eslint/typescript-estree": "^6.7.2",
     "autoprefixer": "^10.4.13",
+    "bun-types": "^1.0.2",
     "commitizen": "^4.2.6",
     "cross-env": "^7.0.3",
     "cssnano": "^5.1.14",
@@ -91,10 +92,9 @@
     "prettier-plugin-organize-imports": "^3.2.2",
     "prettier-plugin-tailwindcss": "^0.2.7",
     "rimraf": "^3.0.2",
-    "start-server-and-test": "^1.15.2",
+    "start-server-and-test": "^2.0.0",
     "tailwindcss": "^3.2.4",
-    "typescript": "^5.1.6",
-    "whatwg-fetch": "^3.6.2"
+    "typescript": "^5.1.6"
   },
   "config": {
     "commitizen": {

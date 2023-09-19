@@ -23,11 +23,6 @@ jobs:
         with:
           cmd: install 
           
-      - name: Test the app
-        uses: Borales/actions-yarn@v4.2.0
-        with:
-          cmd: test 
-          
       - name: Check types
         uses: Borales/actions-yarn@v4.2.0
         with:

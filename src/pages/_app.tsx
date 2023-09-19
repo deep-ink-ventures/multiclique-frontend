@@ -1,3 +1,5 @@
+/// <reference lib="dom" />
+/// <reference lib="dom.iterable" />
 import type { AppProps } from 'next/app';
 import * as SorobanClient from 'soroban-client';
 import StellarSdk from 'stellar-sdk';
