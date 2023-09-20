@@ -10,10 +10,17 @@ const SignatoriesForm = (props: {
   formName: string;
   listStartCount?: number;
   disabled?: boolean;
+  maxCount?: number;
   onAddMember?: () => void;
   onDeleteMember?: () => void;
 }) => {
-  const { onAddMember, onDeleteMember, listStartCount = 1, disabled } = props;
+  const {
+    onAddMember,
+    onDeleteMember,
+    listStartCount = 1,
+    disabled,
+    maxCount,
+  } = props;
   const {
     control,
     register,
@@ -109,22 +116,24 @@ const SignatoriesForm = (props: {
           </div>
         );
       })}
-      <div className='mb-4'>
-        <button
-          className='btn btn-primary'
-          type='button'
-          disabled={disabled}
-          onClick={handleAddMember}>
-          <Image
-            src={plus}
-            width={17}
-            height={17}
-            alt='add one'
-            className='mr-2'
-          />
-          Add a Member
-        </button>
-      </div>
+      {(!maxCount || fields.length < maxCount) && (
+        <div className='mb-4'>
+          <button
+            className='btn btn-primary'
+            type='button'
+            disabled={disabled}
+            onClick={handleAddMember}>
+            <Image
+              src={plus}
+              width={17}
+              height={17}
+              alt='add one'
+              className='mr-2'
+            />
+            Add a Member
+          </button>
+        </div>
+      )}
     </>
   );
 };
