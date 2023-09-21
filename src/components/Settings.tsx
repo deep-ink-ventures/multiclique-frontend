@@ -2,7 +2,7 @@ import { Accordion, PolicyAddressesForm, TransactionBadge } from '@/components';
 import CreateMultisigForm from '@/components/CreateMultisigForm';
 import cn from 'classnames';
 import { useState } from 'react';
-import { FormProvider,useForm } from 'react-hook-form';
+import { FormProvider, useForm } from 'react-hook-form';
 
 const SettingsTabs: Array<{ id: string; label: string }> = [
   {
