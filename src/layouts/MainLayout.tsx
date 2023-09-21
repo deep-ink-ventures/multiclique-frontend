@@ -8,6 +8,7 @@ import { Meta } from '@/components';
 import useMCStore from '@/stores/MCStore';
 import logo from '@/svg/logo.svg';
 import plus from '@/svg/plus.svg';
+import { useRouter } from 'next/router';
 
 interface IMainProps {
   title: string;
@@ -24,7 +25,14 @@ interface IMainProps {
  * @returns
  */
 export const MainLayout = (props: IMainProps) => {
+  const router = useRouter();
+
   const [currentAccount] = useMCStore((s) => [s.currentAccount]);
+
+  const handleCreateNewAccount = () => {
+    router.push('/account/create');
+  };
+
   return (
     <>
       <div className='flex flex-wrap justify-between bg-base-200 py-4 drop-shadow-sm'>
@@ -49,7 +57,9 @@ export const MainLayout = (props: IMainProps) => {
           <div className='ml-auto flex space-x-4 py-2'>
             {currentAccount?.isConnected && (
               <div className='m-1'>
-                <button className='btn btn-primary'>
+                <button
+                  className='btn btn-primary'
+                  onClick={handleCreateNewAccount}>
                   {' '}
                   <Image
                     src={plus}

@@ -10,10 +10,10 @@ const SignatoriesForm = (props: {
   formName: string;
   listStartCount?: number;
   disabled?: boolean;
-  onAddMember?: () => void;
-  onDeleteMember?: () => void;
+  onAddSigner?: () => void;
+  onDeleteSigner?: () => void;
 }) => {
-  const { onAddMember, onDeleteMember, listStartCount = 1, disabled } = props;
+  const { onAddSigner, onDeleteSigner, listStartCount = 1, disabled } = props;
   const {
     control,
     register,
@@ -26,8 +26,8 @@ const SignatoriesForm = (props: {
   });
 
   const handleAddMember = () => {
-    if (onAddMember) {
-      onAddMember();
+    if (onAddSigner) {
+      onAddSigner();
     }
     append({
       name: '',
@@ -97,8 +97,8 @@ const SignatoriesForm = (props: {
                     height={18}
                     alt='delete button'
                     onClick={() => {
-                      if (onDeleteMember) {
-                        onDeleteMember();
+                      if (onDeleteSigner) {
+                        onDeleteSigner();
                       }
                       remove(index);
                     }}
@@ -122,7 +122,7 @@ const SignatoriesForm = (props: {
             alt='add one'
             className='mr-2'
           />
-          Add a Member
+          Add a Signer
         </button>
       </div>
     </>

@@ -12,7 +12,7 @@ enum Network {
 export const NETWORK: Network = Network.Futurenet;
 
 /** 18 decimals */
-export const DAO_UNITS: BigNumber = BigNumber(1000000000000000000);
+export const DAO_UNITS: BigNumber = BigNumber('1000000000000000000');
 
 /** Block time in seconds */
 export const BLOCK_TIME: number = 5;
