@@ -45,7 +45,7 @@ const Transactions = () => {
                   <div className='w-2/3'>Test Content</div>
                   <div className='grow space-y-2 px-3'>
                     <Timeline>
-                      {['Created', 'Approval', 'Approved', 'Executed'].map(
+                      {['Created', 'Approved', 'Executed'].map(
                         (step, stepIndex) => (
                           <Timeline.Item
                             key={`${stepIndex}-${step}`}
