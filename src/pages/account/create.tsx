@@ -62,7 +62,7 @@ const Create = () => {
             {currentAccount?.isConnected ? (
               <CreateMultisigForm onSubmit={onSubmit}>
                 <CreateMultisigForm.AccountName />
-                <CreateMultisigForm.Members />
+                <CreateMultisigForm.Signers />
                 <CreateMultisigForm.Threshold />
               </CreateMultisigForm>
             ) : (

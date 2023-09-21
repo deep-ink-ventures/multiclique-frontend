@@ -92,7 +92,7 @@ const Settings = () => {
           hidden: activeSettingsTab !== SettingsTabs.at(0)?.id,
         })}>
         <CreateMultisigForm onSubmit={() => {}}>
-          <CreateMultisigForm.Members title='Update Multisig Signers' />
+          <CreateMultisigForm.Signers title='Update Multisig Signers' />
         </CreateMultisigForm>
       </div>
 

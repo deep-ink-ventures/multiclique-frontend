@@ -26,7 +26,7 @@ export type ICreateMultisigFormProps = ISignatoriesFormValues &
   IThresholdFormValues &
   IAccountNameValues;
 
-const Members = ({ title = 'Add Multisig Signers' }: { title?: string }) => {
+const Signers = ({ title = 'Add Multisig Signers' }: { title?: string }) => {
   const [currentAccount, isTxnProcessing] = useMCStore((s) => [
     s.currentAccount,
     s.isTxnProcessing,
@@ -279,7 +279,7 @@ const CreateMultisigForm = ({
   );
 };
 
-CreateMultisigForm.Members = Members;
+CreateMultisigForm.Signers = Signers;
 CreateMultisigForm.Threshold = SigningThreshold;
 CreateMultisigForm.AccountName = AccountName;
 
