@@ -11,6 +11,7 @@ const SignatoriesForm = (props: {
   listStartCount?: number;
   disabled?: boolean;
   maxCount?: number;
+  minCount?: number;
   onAddSigner?: () => void;
   onDeleteSigner?: () => void;
 }) => {
@@ -20,6 +21,7 @@ const SignatoriesForm = (props: {
     listStartCount = 1,
     disabled,
     maxCount,
+    minCount,
   } = props;
   const {
     control,
@@ -95,23 +97,24 @@ const SignatoriesForm = (props: {
                   )}
                 />
               </div>
-              {!disabled && (
-                <div className='ml-3 flex items-center pt-5'>
-                  <Image
-                    className='duration-150 hover:cursor-pointer hover:brightness-125 active:brightness-90'
-                    src={d}
-                    width={18}
-                    height={18}
-                    alt='delete button'
-                    onClick={() => {
-                      if (onDeleteSigner) {
-                        onDeleteSigner();
-                      }
-                      remove(index);
-                    }}
-                  />
-                </div>
-              )}
+              {!disabled &&
+                (!minCount || index > minCount - listStartCount) && (
+                  <div className='ml-3 flex items-center pt-5'>
+                    <Image
+                      className='duration-150 hover:cursor-pointer hover:brightness-125 active:brightness-90'
+                      src={d}
+                      width={18}
+                      height={18}
+                      alt='delete button'
+                      onClick={() => {
+                        if (onDeleteSigner) {
+                          onDeleteSigner();
+                        }
+                        remove(index);
+                      }}
+                    />
+                  </div>
+                )}
             </div>
           </div>
         );
