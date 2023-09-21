@@ -26,7 +26,19 @@ export type ICreateMultisigFormProps = ISignatoriesFormValues &
   IThresholdFormValues &
   IAccountNameValues;
 
-const Signers = ({ title = 'Add Multisig Signers' }: { title?: string }) => {
+const Signers = ({
+  title = 'Add Multisig Signers',
+  subtitle = "Enter at least 2 Multisig Signers. The signers' addresses will be used to create a multi-signature account on MultiClique.",
+  maxSignatories,
+  minSignatories,
+  disableCreator,
+}: {
+  title?: string;
+  subtitle?: string;
+  maxSignatories?: number;
+  minSignatories?: number;
+  disableCreator?: boolean;
+}) => {
   const [currentAccount, isTxnProcessing] = useMCStore((s) => [
     s.currentAccount,
     s.isTxnProcessing,
@@ -43,50 +55,50 @@ const Signers = ({ title = 'Add Multisig Signers' }: { title?: string }) => {
     <>
       <div>
         <h4 className='text-center'>{title}</h4>
-        <p className='px-24 text-center text-sm'>
-          {`Enter at least 2 Multisig Signers. The signers' addresses will
-                be used to create a multi-signature account on MultiClique.`}
-        </p>
+        <p className='px-24 text-center text-sm'>{subtitle}</p>
       </div>
-      <div className='flex w-full px-4'>
-        <div className='mr-3 flex w-1/4 flex-col'>
-          <p className='pl-8'>Your Name</p>
-          <div className='flex'>
-            <div className='mr-4 flex flex-col justify-center'>1</div>
-            <input
-              type='text'
-              placeholder='Your name'
-              className='input input-primary'
-              disabled={isTxnProcessing}
-              {...register('creatorName', {
-                required: 'Required',
-                minLength: { value: 1, message: 'Minimum is 1' },
-                maxLength: { value: 30, message: 'Maximum is 30' },
-              })}
+      {!disableCreator && (
+        <div className='flex w-full px-4'>
+          <div className='mr-3 flex w-1/4 flex-col'>
+            <p className='pl-8'>Your Name</p>
+            <div className='flex'>
+              <div className='mr-4 flex flex-col justify-center'>1</div>
+              <input
+                type='text'
+                placeholder='Your name'
+                className='input input-primary'
+                disabled={isTxnProcessing}
+                {...register('creatorName', {
+                  required: 'Required',
+                  minLength: { value: 1, message: 'Minimum is 1' },
+                  maxLength: { value: 30, message: 'Maximum is 30' },
+                })}
+              />
+            </div>
+            <ErrorMessage
+              errors={errors}
+              name='creatorName'
+              render={({ message }) => (
+                <p className='mt-1 pl-8 text-error-content'>{message}</p>
+              )}
             />
           </div>
-          <ErrorMessage
-            errors={errors}
-            name='creatorName'
-            render={({ message }) => (
-              <p className='mt-1 pl-8 text-error-content'>{message}</p>
-            )}
-          />
-        </div>
-        <div className='flex flex-auto flex-col'>
-          <p className='ml-1'>Wallet Address</p>
-          <input type='text' hidden {...register('creatorAddress')} />
-          <div className='flex h-12 items-center rounded-[10px] border-[0.3px] bg-base-100 px-2 opacity-50'>
-            {currentAccount
-              ? truncateMiddle(currentAccount?.publicKey, 5, 5)
-              : 'Please Connect Wallet'}
+          <div className='flex flex-auto flex-col'>
+            <p className='ml-1'>Wallet Address</p>
+            <input type='text' hidden {...register('creatorAddress')} />
+            <div className='flex h-12 items-center rounded-[10px] border-[0.3px] bg-base-100 px-2 opacity-50'>
+              {currentAccount
+                ? truncateMiddle(currentAccount?.publicKey, 5, 5)
+                : 'Please Connect Wallet'}
+            </div>
           </div>
         </div>
-      </div>
+      )}
       <SignatoriesForm
         formName='signatories'
-        listStartCount={2}
         disabled={isTxnProcessing}
+        maxCount={maxSignatories}
+        minCount={minSignatories}
       />
     </>
   );

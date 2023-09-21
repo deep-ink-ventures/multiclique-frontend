@@ -10,10 +10,19 @@ const SignatoriesForm = (props: {
   formName: string;
   listStartCount?: number;
   disabled?: boolean;
+  maxCount?: number;
+  minCount?: number;
   onAddSigner?: () => void;
   onDeleteSigner?: () => void;
 }) => {
-  const { onAddSigner, onDeleteSigner, listStartCount = 1, disabled } = props;
+  const {
+    onAddSigner,
+    onDeleteSigner,
+    listStartCount = 1,
+    disabled,
+    maxCount,
+    minCount,
+  } = props;
   const {
     control,
     register,
@@ -25,7 +34,7 @@ const SignatoriesForm = (props: {
     name: props.formName,
   });
 
-  const handleAddMember = () => {
+  const handleAddSigner = () => {
     if (onAddSigner) {
       onAddSigner();
     }
@@ -88,43 +97,46 @@ const SignatoriesForm = (props: {
                   )}
                 />
               </div>
-              {!disabled && (
-                <div className='ml-3 flex items-center pt-5'>
-                  <Image
-                    className='duration-150 hover:cursor-pointer hover:brightness-125 active:brightness-90'
-                    src={d}
-                    width={18}
-                    height={18}
-                    alt='delete button'
-                    onClick={() => {
-                      if (onDeleteSigner) {
-                        onDeleteSigner();
-                      }
-                      remove(index);
-                    }}
-                  />
-                </div>
-              )}
+              {!disabled &&
+                (!minCount || index > minCount - listStartCount) && (
+                  <div className='ml-3 flex items-center pt-5'>
+                    <Image
+                      className='duration-150 hover:cursor-pointer hover:brightness-125 active:brightness-90'
+                      src={d}
+                      width={18}
+                      height={18}
+                      alt='delete button'
+                      onClick={() => {
+                        if (onDeleteSigner) {
+                          onDeleteSigner();
+                        }
+                        remove(index);
+                      }}
+                    />
+                  </div>
+                )}
             </div>
           </div>
         );
       })}
-      <div className='mb-4'>
-        <button
-          className='btn btn-primary'
-          type='button'
-          disabled={disabled}
-          onClick={handleAddMember}>
-          <Image
-            src={plus}
-            width={17}
-            height={17}
-            alt='add one'
-            className='mr-2'
-          />
-          Add a Signer
-        </button>
-      </div>
+      {(!maxCount || fields.length < maxCount) && (
+        <div className='mb-4'>
+          <button
+            className='btn btn-primary'
+            type='button'
+            disabled={disabled}
+            onClick={handleAddSigner}>
+            <Image
+              src={plus}
+              width={17}
+              height={17}
+              alt='add one'
+              className='mr-2'
+            />
+            Add a Signer
+          </button>
+        </div>
+      )}
     </>
   );
 };

@@ -6,8 +6,12 @@ import { FormProvider, useForm } from 'react-hook-form';
 
 const SettingsTabs: Array<{ id: string; label: string }> = [
   {
-    id: 'signers',
-    label: 'Update signers',
+    id: 'addSigner',
+    label: 'Add a signer',
+  },
+  {
+    id: 'removeSigner',
+    label: 'Remove a signer',
   },
   {
     id: 'threshold',
@@ -92,7 +96,14 @@ const Settings = () => {
           hidden: activeSettingsTab !== SettingsTabs.at(0)?.id,
         })}>
         <CreateMultisigForm onSubmit={() => {}}>
-          <CreateMultisigForm.Signers title='Update Multisig Signers' />
+          <CreateMultisigForm.Signers
+            title='Add a Signer'
+            subtitle=''
+            disableCreator
+            // TODO: set MC signatories + 1 as maxSignatories
+            maxSignatories={1}
+            minSignatories={1}
+          />
         </CreateMultisigForm>
       </div>
 
@@ -101,13 +112,29 @@ const Settings = () => {
           hidden: activeSettingsTab !== SettingsTabs.at(1)?.id,
         })}>
         <CreateMultisigForm onSubmit={() => {}}>
-          <CreateMultisigForm.Threshold minimumSigners={2} />
+          <CreateMultisigForm.Signers
+            title='Remove a Signer'
+            subtitle=''
+            // TODO: set MC signatories + 1 as maxSignatories
+            minSignatories={1}
+            maxSignatories={1}
+            disableCreator
+          />
         </CreateMultisigForm>
       </div>
 
       <div
         className={cn('!mt-0 space-y-3 rounded-lg bg-base-200 p-4', {
           hidden: activeSettingsTab !== SettingsTabs.at(2)?.id,
+        })}>
+        <CreateMultisigForm onSubmit={() => {}}>
+          <CreateMultisigForm.Threshold minimumSigners={2} />
+        </CreateMultisigForm>
+      </div>
+
+      <div
+        className={cn('!mt-0 space-y-3 rounded-lg bg-base-200 p-4', {
+          hidden: activeSettingsTab !== SettingsTabs.at(3)?.id,
         })}>
         <CreateMultisigForm onSubmit={() => {}}>
           <div className='w-full space-y-2'>
