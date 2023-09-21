@@ -2,7 +2,7 @@ import { Accordion, PolicyAddressesForm, TransactionBadge } from '@/components';
 import CreateMultisigForm from '@/components/CreateMultisigForm';
 import cn from 'classnames';
 import { useState } from 'react';
-import { FormProvider, useForm } from 'react-hook-form';
+import { FormProvider,useForm } from 'react-hook-form';
 
 const SettingsTabs: Array<{ id: string; label: string }> = [
   {
@@ -92,7 +92,7 @@ const Settings = () => {
           hidden: activeSettingsTab !== SettingsTabs.at(0)?.id,
         })}>
         <CreateMultisigForm onSubmit={() => {}}>
-          <CreateMultisigForm.Members
+          <CreateMultisigForm.Signers
             title='Update Multisig Signers'
             // TODO: set MC signatories + 1 as maxSignatories
             maxSignatories={3}

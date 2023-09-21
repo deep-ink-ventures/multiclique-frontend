@@ -11,12 +11,12 @@ const SignatoriesForm = (props: {
   listStartCount?: number;
   disabled?: boolean;
   maxCount?: number;
-  onAddMember?: () => void;
-  onDeleteMember?: () => void;
+  onAddSigner?: () => void;
+  onDeleteSigner?: () => void;
 }) => {
   const {
-    onAddMember,
-    onDeleteMember,
+    onAddSigner,
+    onDeleteSigner,
     listStartCount = 1,
     disabled,
     maxCount,
@@ -32,9 +32,9 @@ const SignatoriesForm = (props: {
     name: props.formName,
   });
 
-  const handleAddMember = () => {
-    if (onAddMember) {
-      onAddMember();
+  const handleAddSigner = () => {
+    if (onAddSigner) {
+      onAddSigner();
     }
     append({
       name: '',
@@ -104,8 +104,8 @@ const SignatoriesForm = (props: {
                     height={18}
                     alt='delete button'
                     onClick={() => {
-                      if (onDeleteMember) {
-                        onDeleteMember();
+                      if (onDeleteSigner) {
+                        onDeleteSigner();
                       }
                       remove(index);
                     }}
@@ -122,7 +122,7 @@ const SignatoriesForm = (props: {
             className='btn btn-primary'
             type='button'
             disabled={disabled}
-            onClick={handleAddMember}>
+            onClick={handleAddSigner}>
             <Image
               src={plus}
               width={17}
@@ -130,7 +130,7 @@ const SignatoriesForm = (props: {
               alt='add one'
               className='mr-2'
             />
-            Add a Member
+            Add a Signer
           </button>
         </div>
       )}

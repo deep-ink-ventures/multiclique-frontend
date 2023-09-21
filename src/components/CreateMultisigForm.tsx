@@ -26,7 +26,7 @@ export type ICreateMultisigFormProps = ISignatoriesFormValues &
   IThresholdFormValues &
   IAccountNameValues;
 
-const Members = ({
+const Signers = ({
   title = 'Add Multisig Signers',
   maxSignatories,
 }: {
@@ -286,7 +286,7 @@ const CreateMultisigForm = ({
   );
 };
 
-CreateMultisigForm.Members = Members;
+CreateMultisigForm.Signers = Signers;
 CreateMultisigForm.Threshold = SigningThreshold;
 CreateMultisigForm.AccountName = AccountName;
 
