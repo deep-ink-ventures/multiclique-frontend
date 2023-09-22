@@ -72,7 +72,8 @@ export const fakeMultisigTransactions = [
   {
     id: 1,
     multisigAddress: 'G12345ABCDEF67890GHIJKL12345MNOPQRSTUV67890WXYZabcdefghi',
-    callHash: 'callHash1',
+    callHash:
+      '0x123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0',
     status: MultiSigTransactionStatus.Pending,
     createdAt: '2023-09-16T12:00:00Z',
     updatedAt: '2023-09-16T13:00:00Z',
@@ -80,7 +81,8 @@ export const fakeMultisigTransactions = [
   {
     id: 2,
     multisigAddress: 'G23456ABCDEF67890GHIJKL12345MNOPQRSTUV67890WXYZabcdefghi',
-    callHash: 'callHash2',
+    callHash:
+      '0xabcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789',
     status: MultiSigTransactionStatus.Cancelled,
     canceledBy: 'G34567ABCDEF67890GHIJKL12345MNOPQRSTUV67890WXYZabcdefghi',
     createdAt: '2023-09-15T12:00:00Z',
@@ -89,7 +91,8 @@ export const fakeMultisigTransactions = [
   {
     id: 3,
     multisigAddress: 'G34567ABCDEF67890GHIJKL12345MNOPQRSTUV67890WXYZabcdefghi',
-    callHash: 'callHash3',
+    callHash:
+      '0x6789abcdef0123456789abcdef0123456789abcdef0123456789abcdef012345',
     status: MultiSigTransactionStatus.Executed,
     executedAt: '2023-09-14T12:00:00Z',
     createdAt: '2023-09-14T15:00:00Z',
@@ -98,9 +101,29 @@ export const fakeMultisigTransactions = [
   {
     id: 4,
     multisigAddress: 'G45678ABCDEF67890GHIJKL12345MNOPQRSTUV67890WXYZabcdefghi',
-    callHash: 'callHash4',
+    callHash:
+      '0x0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef',
     status: MultiSigTransactionStatus.Pending,
     createdAt: '2023-09-13T12:00:00Z',
     updatedAt: '2023-09-13T17:00:00Z',
+  },
+  {
+    id: 5,
+    multisigAddress: 'G56789ABCDEF67890GHIJKL12345MNOPQRSTUV67890WXYZabcdefghi',
+    callHash:
+      '0x89abcdef0123456789abcdef0123456789abcdef0123456789abcdef012345678',
+    status: MultiSigTransactionStatus.Cancelled,
+    canceledBy: 'G67890ABCDEF67890GHIJKL12345MNOPQRSTUV67890WXYZabcdefghi',
+    createdAt: '2023-09-12T12:00:00Z',
+    updatedAt: '2023-09-12T18:00:00Z',
+  },
+  {
+    id: 6,
+    multisigAddress: 'G67890ABCDEF67890GHIJKL12345MNOPQRSTUV67890WXYZabcdefghi',
+    callHash:
+      '0x456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef012345',
+    status: MultiSigTransactionStatus.Pending,
+    createdAt: '2023-09-11T12:00:00Z',
+    updatedAt: '2023-09-11T19:00:00Z',
   },
 ];
