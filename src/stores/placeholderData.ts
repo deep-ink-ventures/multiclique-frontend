@@ -1,6 +1,7 @@
 import type { Multisig } from '@/types/multisig';
+import { MultiSigTransactionStatus } from '@/types/multisigTransaction';
 
-export const multisigAccounts: Multisig[] = [
+export const fakeMultisigAccounts: Multisig[] = [
   {
     name: 'Multisig Account 1',
     address: 'C12345ABCDEF67890GHIJKL12345MNOPQRSTUV67890WXYZabcdefghijkl',
@@ -64,5 +65,42 @@ export const multisigAccounts: Multisig[] = [
       },
     ],
     threshold: 2,
+  },
+];
+
+export const fakeMultisigTransactions = [
+  {
+    id: 1,
+    multisigAddress: 'G12345ABCDEF67890GHIJKL12345MNOPQRSTUV67890WXYZabcdefghi',
+    callHash: 'callHash1',
+    status: MultiSigTransactionStatus.Pending,
+    createdAt: '2023-09-16T12:00:00Z',
+    updatedAt: '2023-09-16T13:00:00Z',
+  },
+  {
+    id: 2,
+    multisigAddress: 'G23456ABCDEF67890GHIJKL12345MNOPQRSTUV67890WXYZabcdefghi',
+    callHash: 'callHash2',
+    status: MultiSigTransactionStatus.Cancelled,
+    canceledBy: 'G34567ABCDEF67890GHIJKL12345MNOPQRSTUV67890WXYZabcdefghi',
+    createdAt: '2023-09-15T12:00:00Z',
+    updatedAt: '2023-09-15T14:00:00Z',
+  },
+  {
+    id: 3,
+    multisigAddress: 'G34567ABCDEF67890GHIJKL12345MNOPQRSTUV67890WXYZabcdefghi',
+    callHash: 'callHash3',
+    status: MultiSigTransactionStatus.Executed,
+    executedAt: '2023-09-14T12:00:00Z',
+    createdAt: '2023-09-14T15:00:00Z',
+    updatedAt: '2023-09-14T16:00:00Z',
+  },
+  {
+    id: 4,
+    multisigAddress: 'G45678ABCDEF67890GHIJKL12345MNOPQRSTUV67890WXYZabcdefghi',
+    callHash: 'callHash4',
+    status: MultiSigTransactionStatus.Pending,
+    createdAt: '2023-09-13T12:00:00Z',
+    updatedAt: '2023-09-13T17:00:00Z',
   },
 ];
