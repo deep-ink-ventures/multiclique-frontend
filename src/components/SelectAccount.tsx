@@ -6,7 +6,10 @@ import AccountCards from './AccountCards';
 const SelectAccount = () => {
   const [searchTerm, setSearchTerm] = useState('');
 
-  const [isTxnProcessing, multisigAccounts] = useMCStore((s) => [s.isTxnProcessing, s.multisigAccounts]);
+  const [isTxnProcessing, multisigAccounts] = useMCStore((s) => [
+    s.isTxnProcessing,
+    s.multisigAccounts,
+  ]);
 
   // fetch multisig accounts
 

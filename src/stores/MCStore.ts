@@ -11,7 +11,8 @@ import {
 import * as SorobanClient from 'soroban-client';
 
 import type { Multisig } from '@/types/multisig';
-import type { MultiSigTransaction } from '@/types/multisigTransaction';
+import type { MultisigTransaction } from '@/types/multisigTransaction';
+
 import {
   NETWORK,
   NETWORK_PASSPHRASE,
@@ -69,7 +70,7 @@ export interface MCState {
   currentBlockNumber: number | null;
   MCConfig: MCConfig;
   multisigAccounts: Multisig[];
-  multisigTransactions: MultiSigTransaction[];
+  multisigTransactions: MultisigTransaction[];
 }
 
 export interface MCActions {
@@ -94,7 +95,7 @@ export interface MCActions {
   ) => void;
   updateIsTxnProcessing: (isProcessing: boolean) => void;
   updateMultisigAccounts: (accounts: Multisig[]) => void;
-  updateMultisigTransactions: (transactions: MultiSigTransaction[]) => void;
+  updateMultisigTransactions: (transactions: MultisigTransaction[]) => void;
 }
 
 export interface MCStore extends MCState, MCActions {}
@@ -282,7 +283,7 @@ const useMCStore = create<MCStore>((set, get) => ({
   updateMultisigAccounts: (accounts: Multisig[]) => {
     set({ multisigAccounts: accounts });
   },
-  updateMultisigTransactions: (transactions: MultiSigTransaction[]) => {
+  updateMultisigTransactions: (transactions: MultisigTransaction[]) => {
     set({ multisigTransactions: transactions });
   },
 }));
