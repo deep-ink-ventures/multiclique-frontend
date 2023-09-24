@@ -1,6 +1,7 @@
 import { Avatar, Sidebar } from '@/components';
 import ConnectWallet from '@/components/ConnectWallet';
 import WalletConnect from '@/components/WalletConnect';
+import useCopyToClipboard from '@/hooks/useCopyToClipboard';
 import { MainLayout } from '@/layouts';
 import useMCStore from '@/stores/MCStore';
 import AvatarImage from '@/svg/avatar.svg';
@@ -45,6 +46,8 @@ const Account = () => {
   const [currentAccount] = useMCStore((s) => [s.currentAccount]);
   const [currentTab, setCurrentTab] = useState<AccountTabs>('Dashboard');
 
+  const { textRef, copyToClipboard } = useCopyToClipboard<HTMLDivElement>();
+
   return (
     <MainLayout title='MultiClique' description=''>
       {currentAccount?.publicKey ? (
@@ -56,7 +59,9 @@ const Account = () => {
                 {accountId?.toString() && (
                   <>
                     <div className='mx-auto flex w-1/2'>
-                      <div className='inline-block grow truncate text-center'>
+                      <div
+                        className='inline-block grow truncate text-center'
+                        ref={textRef}>
                         {truncateMiddle(accountId?.toString(), 5, 3)}
                       </div>
                       <Image
@@ -65,6 +70,7 @@ const Account = () => {
                         width={15}
                         alt='copy'
                         className='cursor-pointer'
+                        onClick={copyToClipboard}
                       />
                     </div>
                     <div className='flex w-full items-center rounded-lg bg-base-300 p-4'>
