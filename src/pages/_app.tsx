@@ -5,6 +5,8 @@ import * as SorobanClient from 'soroban-client';
 import StellarSdk from 'stellar-sdk';
 
 import TransactionNotification from '@/components/Notification';
+import { LoadingScreenController } from '@/context/LoadingScreen';
+
 import '@/styles/global.css';
 
 declare global {
@@ -22,7 +24,9 @@ const MyApp = ({ Component, pageProps }: AppProps) => {
   return (
     <div className='relative overflow-x-hidden'>
       <TransactionNotification />
-      <Component {...pageProps} />
+      <LoadingScreenController>
+        <Component {...pageProps} />
+      </LoadingScreenController>
     </div>
   );
 };
