@@ -1,10 +1,15 @@
 import { Accordion, Timeline, TransactionBadge, UserTally } from '@/components';
+import useCopyToClipboard from '@/hooks/useCopyToClipboard';
+import Copy from '@/svg/components/Copy';
 import Search from '@/svg/components/Search';
+import { truncateMiddle } from '@/utils';
 import dayjs from 'dayjs';
 import { useState } from 'react';
 
 const Transactions = () => {
   const [activeAccordion, setActiveAccordion] = useState<number | null>(null);
+
+  const { textRef, copyToClipboard } = useCopyToClipboard<HTMLDivElement>();
 
   const mockCurrentStep = Math.floor(Math.random() * 4);
 
@@ -42,10 +47,26 @@ const Transactions = () => {
                   <TransactionBadge status='Active' />
                 </Accordion.Header>
                 <Accordion.Content className='flex divide-x'>
-                  <div className='w-2/3'>Test Content</div>
+                  <div className='w-2/3 px-2 pr-4'>
+                    <div className='flex items-center gap-2'>
+                      <div className='shrink-0 font-semibold'>Call hash:</div>
+                      <div ref={textRef}>
+                        {truncateMiddle(
+                          '0x6789abcdef0123456789abcdef0123456789abcdef0123456789abcdef012345',
+                          16,
+                          3
+                        )}
+                      </div>
+                      <span
+                        onClick={copyToClipboard}
+                        className='rounded-full p-1 hover:bg-base-200'>
+                        <Copy className='h-4 w-4 cursor-pointer' />
+                      </span>
+                    </div>
+                  </div>
                   <div className='grow space-y-2 px-3'>
                     <Timeline>
-                      {['Created', 'Approval', 'Approved', 'Executed'].map(
+                      {['Created', 'Approved', 'Executed'].map(
                         (step, stepIndex) => (
                           <Timeline.Item
                             key={`${stepIndex}-${step}`}
