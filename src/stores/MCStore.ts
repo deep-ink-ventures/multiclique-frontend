@@ -1,4 +1,6 @@
 import BigNumber from 'bignumber.js';
+import StellarSdk from 'stellar-sdk';
+import { create } from 'zustand';
 
 import { splitCamelCase } from '@/utils';
 import {
@@ -8,8 +10,9 @@ import {
 } from '@stellar/freighter-api';
 import * as SorobanClient from 'soroban-client';
 
-import StellarSdk from 'stellar-sdk';
-import { create } from 'zustand';
+import type { Multisig } from '@/types/multisig';
+import type { MultisigTransaction } from '@/types/multisigTransaction';
+
 import {
   NETWORK,
   NETWORK_PASSPHRASE,
@@ -17,6 +20,10 @@ import {
   XLM_UNITS,
 } from '../config/index';
 import { contractErrorCodes } from './errors';
+import {
+  fakeMultisigAccounts,
+  fakeMultisigTransactions,
+} from './placeholderData';
 
 export interface MCConfig {
   /** Block time in seconds */
@@ -33,7 +40,7 @@ export interface WalletAccount {
   networkUrl: string;
   networkPassphrase: string;
   nativeTokenBalance: BigNumber;
-  MCAccounts: string[];
+  MCAccounts: Multisig[];
 }
 
 export enum TxnResponse {
@@ -62,6 +69,8 @@ export interface MCState {
   showCongrats: boolean;
   currentBlockNumber: number | null;
   MCConfig: MCConfig;
+  multisigAccounts: Multisig[];
+  multisigTransactions: MultisigTransaction[];
 }
 
 export interface MCActions {
@@ -78,13 +87,15 @@ export interface MCActions {
     publickey: string
   ) => Promise<string | null | undefined>;
   updateIsConnectModalOpen: (isOpen: boolean) => void;
-  fetchMCAccounts: (publickey: string) => Promise<string[] | null | undefined>;
+  fetchMCAccounts: (publickey: string) => Promise<Multisig[] | null>;
   handleTxnSuccessNotification: (
     response: SorobanClient.SorobanRpc.GetTransactionResponse,
     successMsg: string,
     txnHash?: string
   ) => void;
   updateIsTxnProcessing: (isProcessing: boolean) => void;
+  updateMultisigAccounts: (accounts: Multisig[]) => void;
+  updateMultisigTransactions: (transactions: MultisigTransaction[]) => void;
 }
 
 export interface MCStore extends MCState, MCActions {}
@@ -102,6 +113,8 @@ const useMCStore = create<MCStore>((set, get) => ({
     networkPassphrase: NETWORK_PASSPHRASE[NETWORK],
     rpcEndpoint: SOROBAN_RPC_ENDPOINT[NETWORK],
   },
+  multisigAccounts: fakeMultisigAccounts,
+  multisigTransactions: fakeMultisigTransactions,
   updateCurrentAccount: (account: WalletAccount | null) => {
     set({ currentAccount: account });
   },
@@ -260,12 +273,18 @@ const useMCStore = create<MCStore>((set, get) => ({
   fetchMCAccounts: async (publicKey: string) => {
     // fixme: this is a placeholder
     if (publicKey) {
-      return Promise.resolve([]);
+      return Promise.resolve(fakeMultisigAccounts);
     }
     return Promise.resolve(null);
   },
   updateIsTxnProcessing: (isProcessing: boolean) => {
     set({ isTxnProcessing: isProcessing });
+  },
+  updateMultisigAccounts: (accounts: Multisig[]) => {
+    set({ multisigAccounts: accounts });
+  },
+  updateMultisigTransactions: (transactions: MultisigTransaction[]) => {
+    set({ multisigTransactions: transactions });
   },
 }));
 

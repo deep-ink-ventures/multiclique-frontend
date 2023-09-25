@@ -1,13 +1,15 @@
 import useMCStore from '@/stores/MCStore';
 import { useMemo, useState } from 'react';
 
-import { multisigAccounts } from '@/stores/placeholderData';
 import AccountCards from './AccountCards';
 
 const SelectAccount = () => {
   const [searchTerm, setSearchTerm] = useState('');
 
-  const [isTxnProcessing] = useMCStore((s) => [s.isTxnProcessing]);
+  const [isTxnProcessing, multisigAccounts] = useMCStore((s) => [
+    s.isTxnProcessing,
+    s.multisigAccounts,
+  ]);
 
   // fetch multisig accounts
 
