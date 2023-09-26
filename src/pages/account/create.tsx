@@ -12,7 +12,11 @@ const Create = () => {
     (s) => [s.currentAccount, s.handleErrors, s.updateIsTxnProcessing]
   );
 
-  const { getMulticliqueAddresses, initMulticliqueCore } = useMC();
+  const {
+    getMulticliqueAddresses,
+    initMulticliqueCore,
+    createUpdateMultiCliqueAccount,
+  } = useMC();
 
   const onSubmit: SubmitHandler<ICreateMultisigFormProps> = async (data) => {
     if (!currentAccount) return;
@@ -32,7 +36,7 @@ const Create = () => {
     };
 
     try {
-      await getMulticliqueAddresses(
+      const contractAddresses = await getMulticliqueAddresses(
         multicliqueData,
         (addresses: { coreAddress: string; policyAddress: string }) => {
           initMulticliqueCore(addresses, allSigners, threshold, async () => {
@@ -44,6 +48,17 @@ const Create = () => {
           });
         }
       );
+
+      if (contractAddresses?.coreAddress && contractAddresses?.policyAddress) {
+        const response = await createUpdateMultiCliqueAccount({
+          policy: contractAddresses.policyAddress,
+          publicKeys: allSigners,
+          defaultThreshold: threshold,
+          address: contractAddresses.coreAddress,
+        });
+
+        console.log('response', response);
+      }
     } catch (err) {
       handleErrors('Error in transferring ownership to multisig', err);
     }

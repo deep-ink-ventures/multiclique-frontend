@@ -9,3 +9,10 @@ export interface Multisig {
   signatories: Signatory[];
   threshold: number;
 }
+
+export interface MultiCliqueAccount {
+  address: string;
+  publicKeys: string[];
+  defaultThreshold: string;
+  policy: string;
+}

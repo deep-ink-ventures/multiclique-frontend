@@ -4,6 +4,8 @@ import {
   NETWORK_PASSPHRASE,
   SERVICE_URL,
 } from '@/config/index';
+import type { CreateUpdateMultiCliqueAccountPayload } from '@/services/accounts';
+import { AccountService } from '@/services/accounts';
 import type { ContractName } from '@/stores/MCStore';
 import useMCStore from '@/stores/MCStore';
 import { decodeXdr, numberToU32ScVal, toBase64 } from '@/utils';
@@ -193,7 +195,7 @@ const useMC = () => {
       const res = await sorobanServer.simulateTransaction(txn);
       if (res.error) {
         // eslint-disable-next-line
-        console.log('Cannot stimulate transaction', res.error)
+        console.log('Cannot stimulate transaction', res.error);
       }
       const result = res?.result;
       if (!result) {
@@ -302,7 +304,12 @@ const useMC = () => {
     },
     cb?: Function
   ) => {
-    let contractAddresses;
+    let contractAddresses:
+      | {
+          coreAddress?: string;
+          policyAddress?: string;
+        }
+      | undefined;
     try {
       const txns = await makeInstallMulticliqueTxns(policyData);
 
@@ -420,6 +427,24 @@ const useMC = () => {
     );
   };
 
+  const createUpdateMultiCliqueAccount = async (
+    payload: CreateUpdateMultiCliqueAccountPayload
+  ) => {
+    try {
+      const response = await AccountService.createUpdateMultiCliqueAccount(
+        payload
+      );
+
+      return response;
+    } catch (err) {
+      handleErrors(
+        'Error in getting creating/updating multiclique account',
+        err
+      );
+      return null;
+    }
+  };
+
   return {
     handleTxnResponse,
     getMulticliqueAddresses,
@@ -428,6 +453,7 @@ const useMC = () => {
     submitReadTxn,
     submitTxn,
     doChallenge,
+    createUpdateMultiCliqueAccount,
   };
 };
 
