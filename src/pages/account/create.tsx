@@ -35,8 +35,10 @@ const Create = () => {
       policy_preset: 'ELIO_DAO',
     };
 
+    console.log('data', data);
+
     try {
-      const contractAddresses = await getMulticliqueAddresses(
+      await getMulticliqueAddresses(
         multicliqueData,
         (addresses: { coreAddress: string; policyAddress: string }) => {
           initMulticliqueCore(addresses, allSigners, threshold, async () => {
@@ -48,19 +50,20 @@ const Create = () => {
           });
         }
       );
-
-      if (contractAddresses?.coreAddress && contractAddresses?.policyAddress) {
-        const response = await createUpdateMultiCliqueAccount({
-          policy: contractAddresses.policyAddress,
-          publicKeys: allSigners,
-          defaultThreshold: threshold,
-          address: contractAddresses.coreAddress,
-        });
-
-        console.log('response', response);
-      }
     } catch (err) {
       handleErrors('Error in transferring ownership to multisig', err);
+    }
+
+    try {
+      const response = await createUpdateMultiCliqueAccount({
+        policy: multicliqueData.policy_preset,
+        publicKeys: allSigners,
+        defaultThreshold: threshold,
+        address: currentAccount.publicKey,
+      });
+      console.log('response', response);
+    } catch (err) {
+      handleErrors('Error in creating an account', err);
     }
   };
 
