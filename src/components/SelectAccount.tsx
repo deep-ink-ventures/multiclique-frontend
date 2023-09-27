@@ -1,6 +1,8 @@
 import useMCStore from '@/stores/MCStore';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
+import { usePromise } from '@/hooks/usePromise';
+import { AccountService, ListMultiCliqueAccountsParams } from '@/services';
 import AccountCards from './AccountCards';
 
 const SelectAccount = () => {
@@ -11,16 +13,30 @@ const SelectAccount = () => {
     s.multisigAccounts,
   ]);
 
+  const listMultiCliqueAccounts = usePromise({
+    promiseFunction: async (params: ListMultiCliqueAccountsParams) => {
+      const response = await AccountService.listMultiCliqueAccounts(params);
+      return response;
+    },
+  });
+
+  useEffect(() => {
+    listMultiCliqueAccounts.call({
+      offset: 0,
+      limit: 10,
+    });
+  }, []);
+
   // fetch multisig accounts
 
   const filteredDaos = useMemo(() => {
-    return multisigAccounts?.filter((account) => {
+    return listMultiCliqueAccounts.value?.results?.filter((account) => {
       return (
         account.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         account.address.toLowerCase().includes(searchTerm.toLowerCase())
       );
     });
-  }, [searchTerm]);
+  }, [searchTerm, listMultiCliqueAccounts.value?.results]);
 
   const handleSearch = (e: any) => {
     setSearchTerm(e.target.value);

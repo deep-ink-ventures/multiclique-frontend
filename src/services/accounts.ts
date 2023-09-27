@@ -1,7 +1,14 @@
 import { SERVICE_URL } from '@/config';
 import type { MultiCliqueAccount } from '@/types/multisig';
+import type { Paginated } from '@/types/response';
+import { convertToQueryString } from '@/utils/api';
 import type { SnakeCaseObject } from '@/utils/transformer';
 import { keysToCamelCase, keysToSnakeCase } from '@/utils/transformer';
+
+export interface ListMultiCliqueAccountsParams {
+  offset: number;
+  limit: number;
+}
 
 export interface CreateUpdateMultiCliqueAccountPayload {
   name: string;
@@ -32,6 +39,27 @@ export const createUpdateMultiCliqueAccount = async (
   return formattedMultiCliqueAccount;
 };
 
+export const listMultiCliqueAccounts = async (
+  params?: ListMultiCliqueAccountsParams
+): Promise<Paginated<MultiCliqueAccount[]>> => {
+  const queryString = convertToQueryString(params);
+
+  const response = await fetch(
+    `${SERVICE_URL}/multiclique/accounts/?${queryString}`
+  );
+
+  const objResponse: Paginated<SnakeCaseObject<MultiCliqueAccount>[]> =
+    await response.json();
+
+  const formattedResponse: Paginated<MultiCliqueAccount[]> = {
+    ...objResponse,
+    results: objResponse.results.map((data) => keysToCamelCase(data)),
+  };
+
+  return formattedResponse;
+};
+
 export const AccountService = {
   createUpdateMultiCliqueAccount,
+  listMultiCliqueAccounts,
 };
