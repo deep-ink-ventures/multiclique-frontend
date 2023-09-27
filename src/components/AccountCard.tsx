@@ -1,8 +1,8 @@
-import type { Multisig } from '@/types/multisig';
+import type { MultiCliqueAccount } from '@/types/multisig';
 import { truncateMiddle } from '@/utils';
 import Link from 'next/link';
 
-const AccountCard = ({ account }: { account: Multisig }) => {
+const AccountCard = ({ account }: { account: MultiCliqueAccount }) => {
   return (
     <Link
       href={`/account/${account.address}`}

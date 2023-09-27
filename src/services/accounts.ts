@@ -6,8 +6,11 @@ import type { SnakeCaseObject } from '@/utils/transformer';
 import { keysToCamelCase, keysToSnakeCase } from '@/utils/transformer';
 
 export interface ListMultiCliqueAccountsParams {
-  offset: number;
+  search?: string;
+  ordering?: keyof MultiCliqueAccount;
   limit: number;
+  offset: number;
+  signatories?: string;
 }
 
 export interface CreateUpdateMultiCliqueAccountPayload {

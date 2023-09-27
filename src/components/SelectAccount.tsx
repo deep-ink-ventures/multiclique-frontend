@@ -1,17 +1,17 @@
-import useMCStore from '@/stores/MCStore';
 import { useEffect, useMemo, useState } from 'react';
 
+import { useDebounce } from '@/hooks/useDebounce';
 import { usePromise } from '@/hooks/usePromise';
-import { AccountService, ListMultiCliqueAccountsParams } from '@/services';
+import type { ListMultiCliqueAccountsParams } from '@/services';
+import { AccountService } from '@/services';
+import useMCStore from '@/stores/MCStore';
 import AccountCards from './AccountCards';
 
 const SelectAccount = () => {
-  const [searchTerm, setSearchTerm] = useState('');
+  const [currentAccount] = useMCStore((s) => [s.currentAccount]);
 
-  const [isTxnProcessing, multisigAccounts] = useMCStore((s) => [
-    s.isTxnProcessing,
-    s.multisigAccounts,
-  ]);
+  const [searchTerm, setSearchTerm] = useState('');
+  const debouncedSearchTerm = useDebounce(searchTerm, 3000);
 
   const listMultiCliqueAccounts = usePromise({
     promiseFunction: async (params: ListMultiCliqueAccountsParams) => {
@@ -21,13 +21,16 @@ const SelectAccount = () => {
   });
 
   useEffect(() => {
-    listMultiCliqueAccounts.call({
-      offset: 0,
-      limit: 10,
-    });
-  }, []);
-
-  // fetch multisig accounts
+    if (currentAccount?.publicKey) {
+      listMultiCliqueAccounts.call({
+        offset: 0,
+        limit: 10,
+        search: debouncedSearchTerm,
+        signatories: currentAccount?.publicKey,
+      });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [debouncedSearchTerm, currentAccount]);
 
   const filteredDaos = useMemo(() => {
     return listMultiCliqueAccounts.value?.results?.filter((account) => {
@@ -53,7 +56,7 @@ const SelectAccount = () => {
           className='input input-primary mb-5 w-full text-sm'
           placeholder='Search for account name or address'
           onChange={handleSearch}
-          disabled={isTxnProcessing}
+          disabled={listMultiCliqueAccounts.pending}
         />
         <AccountCards accounts={filteredDaos} />
       </div>
