@@ -7,7 +7,7 @@ import {
 import type { CreateUpdateMultiCliqueAccountPayload } from '@/services/accounts';
 import { AccountService } from '@/services/accounts';
 import type { ContractName } from '@/stores/MCStore';
-import useMCStore from '@/stores/MCStore';
+import useMCStore, { TxnResponse } from '@/stores/MCStore';
 import { decodeXdr, numberToU32ScVal, toBase64 } from '@/utils';
 import { signBlob, signTransaction } from '@stellar/freighter-api';
 import * as SorobanClient from 'soroban-client';
@@ -25,6 +25,7 @@ const useMC = () => {
     handleErrors,
     handleTxnSuccessNotification,
     MCConfig,
+    addTxnNotification,
   ] = useMCStore((s) => [
     s.currentAccount,
     s.sorobanServer,
@@ -32,6 +33,7 @@ const useMC = () => {
     s.handleErrors,
     s.handleTxnSuccessNotification,
     s.MCConfig,
+    s.addTxnNotification,
   ]);
 
   const handleTxnResponse = async (
@@ -431,9 +433,18 @@ const useMC = () => {
     payload: CreateUpdateMultiCliqueAccountPayload
   ) => {
     try {
+      updateIsTxnProcessing(true);
+
       const response = await AccountService.createUpdateMultiCliqueAccount(
         payload
       );
+
+      addTxnNotification({
+        title: TxnResponse.Success,
+        message: 'Successfully created a MultiClique account',
+        type: TxnResponse.Success,
+        timestamp: new Date().valueOf(),
+      });
 
       return response;
     } catch (err) {
@@ -442,6 +453,8 @@ const useMC = () => {
         err
       );
       return null;
+    } finally {
+      updateIsTxnProcessing(false);
     }
   };
 

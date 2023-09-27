@@ -11,8 +11,9 @@ export interface Multisig {
 }
 
 export interface MultiCliqueAccount {
+  name: string;
   address: string;
-  publicKeys: string[];
+  signatories: string[];
   defaultThreshold: string;
   policy: string;
 }

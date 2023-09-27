@@ -5,12 +5,14 @@ import useMC from '@/hooks/useMC';
 
 import { MainLayout } from '@/layouts';
 import useMCStore from '@/stores/MCStore';
+import { useRouter } from 'next/navigation';
 import type { SubmitHandler } from 'react-hook-form';
 
 const Create = () => {
   const [currentAccount, handleErrors, updateIsTxnProcessing] = useMCStore(
     (s) => [s.currentAccount, s.handleErrors, s.updateIsTxnProcessing]
   );
+  const router = useRouter();
 
   const {
     getMulticliqueAddresses,
@@ -35,8 +37,6 @@ const Create = () => {
       policy_preset: 'ELIO_DAO',
     };
 
-    console.log('data', data);
-
     try {
       await getMulticliqueAddresses(
         multicliqueData,
@@ -55,13 +55,15 @@ const Create = () => {
     }
 
     try {
-      const response = await createUpdateMultiCliqueAccount({
+      await createUpdateMultiCliqueAccount({
+        name: data.accountName,
         policy: multicliqueData.policy_preset,
-        publicKeys: allSigners,
-        defaultThreshold: threshold,
+        signatories: allSigners,
+        defaultThreshold: Number(threshold),
         address: currentAccount.publicKey,
       });
-      console.log('response', response);
+
+      router.push('/');
     } catch (err) {
       handleErrors('Error in creating an account', err);
     }

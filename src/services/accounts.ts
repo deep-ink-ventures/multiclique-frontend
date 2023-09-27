@@ -4,8 +4,9 @@ import type { SnakeCaseObject } from '@/utils/transformer';
 import { keysToCamelCase, keysToSnakeCase } from '@/utils/transformer';
 
 export interface CreateUpdateMultiCliqueAccountPayload {
+  name: string;
   address: string;
-  publicKeys: string[];
+  signatories: string[];
   defaultThreshold: number;
   policy: string;
 }
@@ -15,7 +16,7 @@ export const createUpdateMultiCliqueAccount = async (
 ): Promise<MultiCliqueAccount> => {
   const body = JSON.stringify(keysToSnakeCase(payload));
 
-  const response = await fetch(`${SERVICE_URL}/multiclique/accounts`, {
+  const response = await fetch(`${SERVICE_URL}/multiclique/accounts/`, {
     method: 'POST',
     body,
     headers: {
