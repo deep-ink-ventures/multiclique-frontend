@@ -4,8 +4,6 @@ import {
   NETWORK_PASSPHRASE,
   SERVICE_URL,
 } from '@/config/index';
-import type { CreateUpdateMultiCliqueAccountPayload } from '@/services/accounts';
-import { AccountService } from '@/services/accounts';
 import type { ContractName } from '@/stores/MCStore';
 import useMCStore, { TxnResponse } from '@/stores/MCStore';
 import { decodeXdr, numberToU32ScVal, toBase64 } from '@/utils';
@@ -194,16 +192,30 @@ const useMC = () => {
     try {
       // eslint-disable-next-line
       console.log('Stimulating transaction...');
-      const res = await sorobanServer.simulateTransaction(txn);
-      if (res.error) {
-        // eslint-disable-next-line
-        console.log('Cannot stimulate transaction', res.error);
+      const resObj = (await sorobanServer.simulateTransaction(
+        txn
+      )) as SorobanClient.SorobanRpc.SimulateTransactionResponse;
+
+      let response: SorobanClient.SorobanRpc.SimulateTransactionResponse;
+
+      if (Object.keys(resObj).includes('error')) {
+        response =
+          resObj as SorobanClient.SorobanRpc.SimulateTransactionErrorResponse;
+        throw new Error(response.error);
+      } else if (Object.keys(resObj).includes('transactionData')) {
+        response =
+          resObj as unknown as SorobanClient.SorobanRpc.SimulateTransactionSuccessResponse;
+        if (response?.result) {
+          return decodeXdr(response.result.retval.toXDR().toString('base64'));
+        }
+        return null;
+      } else {
+        response =
+          resObj as SorobanClient.SorobanRpc.SimulateTransactionRestoreResponse;
+        if (response?.result) {
+          return decodeXdr(response.result.retval.toXDR().toString('base64'));
+        }
       }
-      const result = res?.result;
-      if (!result) {
-        return;
-      }
-      return decodeXdr(result.retval.toXDR().toString('base64'));
     } catch (err) {
       handleErrors('Cannot submit read transaction', err);
       return null;
