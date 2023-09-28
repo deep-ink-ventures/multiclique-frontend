@@ -1,5 +1,5 @@
 import { SERVICE_URL } from '@/config';
-import type { MultiCliqueAccount } from '@/types/multisig';
+import type { MultiCliqueAccount, Multisig } from '@/types/multisig';
 import type { Paginated } from '@/types/response';
 import { convertToQueryString } from '@/utils/api';
 import type { SnakeCaseObject } from '@/utils/transformer';
@@ -21,9 +21,9 @@ export interface CreateUpdateMultiCliqueAccountPayload {
   policy: string;
 }
 
-export const createUpdateMultiCliqueAccount = async (
-  payload: CreateUpdateMultiCliqueAccountPayload
-): Promise<MultiCliqueAccount> => {
+export const createMultiCliqueAccount = async (
+  payload: Multisig
+): Promise<Multisig> => {
   const body = JSON.stringify(keysToSnakeCase(payload));
 
   const response = await fetch(`${SERVICE_URL}/multiclique/accounts/`, {
@@ -34,8 +34,7 @@ export const createUpdateMultiCliqueAccount = async (
     },
   });
 
-  const objResponse: SnakeCaseObject<MultiCliqueAccount> =
-    await response.json();
+  const objResponse: SnakeCaseObject<Multisig> = await response.json();
 
   const formattedMultiCliqueAccount = keysToCamelCase(objResponse);
 
@@ -63,6 +62,6 @@ export const listMultiCliqueAccounts = async (
 };
 
 export const AccountService = {
-  createUpdateMultiCliqueAccount,
+  createMultiCliqueAccount,
   listMultiCliqueAccounts,
 };

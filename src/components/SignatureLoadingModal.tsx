@@ -1,24 +1,21 @@
 import MemberSign from '@/svg/components/MemberSign';
 import cn from 'classnames';
-import LoadingModal from './LoadingModal';
 import Stepper from './Stepper';
 
-interface ISignatureLoadingModalProps {
-  isVisible?: boolean;
+export interface ISignatureLoadingProps {
   totalSignCount?: number;
   currentSignCount?: number;
   loading?: boolean;
   isComplete?: boolean;
 }
 
-const SignatureLoadingModal = ({
-  isVisible,
+const SignatureLoading = ({
   currentSignCount = 0,
   totalSignCount = 0,
   isComplete = false,
-}: ISignatureLoadingModalProps) => {
+}: ISignatureLoadingProps) => {
   return (
-    <LoadingModal isVisible={isVisible}>
+    <>
       <div className='text-2xl font-semibold'>Transaction Pending</div>
       <div className='w-96'>
         <Stepper>
@@ -49,8 +46,8 @@ const SignatureLoadingModal = ({
         </div>
         <div>signature{totalSignCount > 1 && 's'} complete</div>
       </div>
-    </LoadingModal>
+    </>
   );
 };
 
-export default SignatureLoadingModal;
+export default SignatureLoading;
