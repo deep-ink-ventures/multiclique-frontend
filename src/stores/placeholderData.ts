@@ -20,7 +20,8 @@ export const fakeMultisigAccounts: Multisig[] = [
         address: 'G34567ABCDEF67890GHIJKL12345MNOPQRSTUV67890WXYZabcdefghi',
       },
     ],
-    threshold: 2,
+    defaultThreshold: 2,
+    policy: 'ELIO_DAO',
   },
   {
     name: 'Multisig Account 2',
@@ -35,7 +36,8 @@ export const fakeMultisigAccounts: Multisig[] = [
         address: 'G56789ABCDEF67890GHIJKL12345MNOPQRSTUV67890WXYZabcdefghi',
       },
     ],
-    threshold: 1,
+    defaultThreshold: 1,
+    policy: 'ELIO_DAO',
   },
   {
     name: 'Multisig Account 3',
@@ -50,7 +52,8 @@ export const fakeMultisigAccounts: Multisig[] = [
         address: 'G78901ABCDEF67890GHIJKL12345MNOPQRSTUV67890WXYZabcdefghi',
       },
     ],
-    threshold: 1,
+    defaultThreshold: 1,
+    policy: 'ELIO_DAO',
   },
   {
     name: 'Multisig Account 4',
@@ -65,7 +68,8 @@ export const fakeMultisigAccounts: Multisig[] = [
         address: 'G90123ABCDEF67890GHIJKL12345MNOPQRSTUV67890WXYZabcdefghi',
       },
     ],
-    threshold: 2,
+    defaultThreshold: 2,
+    policy: 'ELIO_DAO',
   },
 ];
 

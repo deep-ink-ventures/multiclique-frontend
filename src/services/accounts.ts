@@ -1,19 +1,11 @@
 import { SERVICE_URL } from '@/config';
-import type { MultiCliqueAccount } from '@/types/multisig';
+import type { Multisig } from '@/types/multisig';
 import type { SnakeCaseObject } from '@/utils/transformer';
 import { keysToCamelCase, keysToSnakeCase } from '@/utils/transformer';
 
-export interface CreateUpdateMultiCliqueAccountPayload {
-  name: string;
-  address: string;
-  signatories: string[];
-  defaultThreshold: number;
-  policy: string;
-}
-
-export const createUpdateMultiCliqueAccount = async (
-  payload: CreateUpdateMultiCliqueAccountPayload
-): Promise<MultiCliqueAccount> => {
+export const createMultiCliqueAccount = async (
+  payload: Multisig
+): Promise<Multisig> => {
   const body = JSON.stringify(keysToSnakeCase(payload));
 
   const response = await fetch(`${SERVICE_URL}/multiclique/accounts/`, {
@@ -24,8 +16,7 @@ export const createUpdateMultiCliqueAccount = async (
     },
   });
 
-  const objResponse: SnakeCaseObject<MultiCliqueAccount> =
-    await response.json();
+  const objResponse: SnakeCaseObject<Multisig> = await response.json();
 
   const formattedMultiCliqueAccount = keysToCamelCase(objResponse);
 
@@ -33,5 +24,5 @@ export const createUpdateMultiCliqueAccount = async (
 };
 
 export const AccountService = {
-  createUpdateMultiCliqueAccount,
+  createMultiCliqueAccount,
 };
