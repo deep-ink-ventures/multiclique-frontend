@@ -1,8 +1,10 @@
-import { Avatar, Sidebar } from '@/components';
+import { Avatar,Sidebar } from '@/components';
 import ConnectWallet from '@/components/ConnectWallet';
 import WalletConnect from '@/components/WalletConnect';
 import useCopyToClipboard from '@/hooks/useCopyToClipboard';
+import { usePromise } from '@/hooks/usePromise';
 import { MainLayout } from '@/layouts';
+import { AccountService } from '@/services';
 import useMCStore from '@/stores/MCStore';
 import AvatarImage from '@/svg/avatar.svg';
 import Chevron from '@/svg/components/Chevron';
@@ -15,7 +17,7 @@ import { truncateMiddle } from '@/utils';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
 import type { ReactNode } from 'react';
-import { useState } from 'react';
+import { useEffect,useState } from 'react';
 import Settings from '../../../components/Settings';
 import Transactions from '../../../components/Transactions';
 
@@ -48,6 +50,27 @@ const Account = () => {
 
   const { textRef, copyToClipboard } = useCopyToClipboard<HTMLDivElement>();
 
+  const getMultiCliqueAccount = usePromise({
+    promiseFunction: async (address: string) => {
+      const response = await AccountService.getMultiCliqueAccount(address);
+      return response;
+    },
+  });
+
+  useEffect(() => {
+    if (accountId) {
+      getMultiCliqueAccount.call(accountId.toString());
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [accountId]);
+
+  useEffect(() => {
+    if (!getMultiCliqueAccount.pending && !getMultiCliqueAccount.value) {
+      // router.push('/'); Uncomment to guard page for invalid addresses in URL
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [getMultiCliqueAccount.value]);
+
   return (
     <MainLayout title='MultiClique' description=''>
       {currentAccount?.publicKey ? (
@@ -56,13 +79,17 @@ const Account = () => {
             <Sidebar>
               <Sidebar.Content>
                 <Avatar src={AvatarImage} />
-                {accountId?.toString() && (
+                {getMultiCliqueAccount.value?.address && (
                   <>
                     <div className='mx-auto flex w-1/2'>
                       <div
                         className='inline-block grow truncate text-center'
                         ref={textRef}>
-                        {truncateMiddle(accountId?.toString(), 5, 3)}
+                        {truncateMiddle(
+                          getMultiCliqueAccount.value?.address?.toString(),
+                          5,
+                          3
+                        )}
                       </div>
                       <Image
                         src={CopyIcon}
@@ -76,6 +103,7 @@ const Account = () => {
                     <div className='flex w-full items-center rounded-lg bg-base-300 p-4'>
                       <div className='flex-col'>
                         <div className='text-xs'>XLM Tokens</div>
+                        {/* TODO: map balance */}
                         <div className='font-semibold'>10,000</div>
                       </div>
                       <Chevron className='ml-auto h-4 w-4 cursor-pointer fill-black' />
