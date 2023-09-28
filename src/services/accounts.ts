@@ -1,5 +1,5 @@
 import { SERVICE_URL } from '@/config';
-import type { MultiCliqueAccount, Multisig } from '@/types/multisig';
+import type { Multisig } from '@/types/multisig';
 import type { Paginated } from '@/types/response';
 import { convertToQueryString } from '@/utils/api';
 import type { SnakeCaseObject } from '@/utils/transformer';
@@ -7,7 +7,7 @@ import { keysToCamelCase, keysToSnakeCase } from '@/utils/transformer';
 
 export interface ListMultiCliqueAccountsParams {
   search?: string;
-  ordering?: keyof MultiCliqueAccount;
+  ordering?: keyof Multisig;
   limit: number;
   offset: number;
   signatories?: string;
@@ -43,17 +43,17 @@ export const createMultiCliqueAccount = async (
 
 export const listMultiCliqueAccounts = async (
   params?: ListMultiCliqueAccountsParams
-): Promise<Paginated<MultiCliqueAccount[]>> => {
+): Promise<Paginated<Multisig[]>> => {
   const queryString = convertToQueryString(params);
 
   const response = await fetch(
     `${SERVICE_URL}/multiclique/accounts/?${queryString}`
   );
 
-  const objResponse: Paginated<SnakeCaseObject<MultiCliqueAccount>[]> =
+  const objResponse: Paginated<SnakeCaseObject<Multisig>[]> =
     await response.json();
 
-  const formattedResponse: Paginated<MultiCliqueAccount[]> = {
+  const formattedResponse: Paginated<Multisig[]> = {
     ...objResponse,
     results: objResponse.results.map((data) => keysToCamelCase(data)),
   };

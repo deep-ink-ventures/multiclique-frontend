@@ -1,11 +1,11 @@
 import AvatarImage from '@/svg/avatar.svg';
 import MemberSign from '@/svg/components/MemberSign';
-import type { MultiCliqueAccount } from '@/types/multisig';
+import type { Multisig } from '@/types/multisig';
 import { truncateMiddle } from '@/utils';
 import Link from 'next/link';
 import { Avatar } from '.';
 
-const AccountCard = ({ account }: { account: MultiCliqueAccount }) => {
+const AccountCard = ({ account }: { account: Multisig }) => {
   return (
     <Link
       href={`/account/${account.address}`}

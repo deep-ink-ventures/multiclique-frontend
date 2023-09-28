@@ -1,8 +1,8 @@
-import type { MultiCliqueAccount } from '@/types/multisig';
+import type { Multisig } from '@/types/multisig';
 
 import AccountCard from './AccountCard';
 
-const AccountCards = (props: { accounts?: MultiCliqueAccount[] }) => {
+const AccountCards = (props: { accounts?: Multisig[] }) => {
   return (
     <div className='flex w-full flex-col items-center justify-between space-y-2'>
       {props.accounts?.map((account) => {
