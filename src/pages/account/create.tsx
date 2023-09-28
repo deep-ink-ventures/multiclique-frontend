@@ -5,14 +5,20 @@ import useMC from '@/hooks/useMC';
 
 import { MainLayout } from '@/layouts';
 import useMCStore from '@/stores/MCStore';
+import { useRouter } from 'next/navigation';
 import type { SubmitHandler } from 'react-hook-form';
 
 const Create = () => {
   const [currentAccount, handleErrors, updateIsTxnProcessing] = useMCStore(
     (s) => [s.currentAccount, s.handleErrors, s.updateIsTxnProcessing]
   );
+  const router = useRouter();
 
-  const { getMulticliqueAddresses, initMulticliqueCore } = useMC();
+  const {
+    getMulticliqueAddresses,
+    initMulticliqueCore,
+    createUpdateMultiCliqueAccount,
+  } = useMC();
 
   const onSubmit: SubmitHandler<ICreateMultisigFormProps> = async (data) => {
     if (!currentAccount) return;
@@ -46,6 +52,20 @@ const Create = () => {
       );
     } catch (err) {
       handleErrors('Error in transferring ownership to multisig', err);
+    }
+
+    try {
+      await createUpdateMultiCliqueAccount({
+        name: data.accountName,
+        policy: multicliqueData.policy_preset,
+        signatories: allSigners,
+        defaultThreshold: Number(threshold),
+        address: currentAccount.publicKey,
+      });
+
+      router.push('/');
+    } catch (err) {
+      handleErrors('Error in creating an account', err);
     }
   };
 

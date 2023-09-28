@@ -83,7 +83,7 @@ const SignatoriesForm = (props: {
                   placeholder='Wallet Address'
                   className='input input-primary'
                   disabled={disabled}
-                  {...register(`${props.formName}.${index}.walletAddress`, {
+                  {...register(`${props.formName}.${index}.address`, {
                     required: 'Required',
                     validate: (add) =>
                       isValidEd25519PublicKey(add) || 'Not a valid address',
@@ -91,7 +91,7 @@ const SignatoriesForm = (props: {
                 />
                 <ErrorMessage
                   errors={errors}
-                  name={`${props.formName}.${index}.walletAddress`}
+                  name={`${props.formName}.${index}.address`}
                   render={({ message }) => (
                     <p className='ml-2 mt-1 text-error-content'>{message}</p>
                   )}

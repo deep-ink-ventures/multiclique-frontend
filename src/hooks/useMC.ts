@@ -4,9 +4,9 @@ import {
   NETWORK_PASSPHRASE,
   SERVICE_URL,
 } from '@/config/index';
-
+import { AccountService, CreateUpdateMultiCliqueAccountPayload } from '@/services';
 import type { ContractName } from '@/stores/MCStore';
-import useMCStore from '@/stores/MCStore';
+import useMCStore, { TxnResponse } from '@/stores/MCStore';
 import { decodeXdr, numberToU32ScVal, toBase64 } from '@/utils';
 import { signBlob, signTransaction } from '@stellar/freighter-api';
 import * as SorobanClient from 'soroban-client';
@@ -24,6 +24,7 @@ const useMC = () => {
     handleErrors,
     handleTxnSuccessNotification,
     MCConfig,
+    addTxnNotification,
   ] = useMCStore((s) => [
     s.currentAccount,
     s.sorobanServer,
@@ -31,6 +32,7 @@ const useMC = () => {
     s.handleErrors,
     s.handleTxnSuccessNotification,
     s.MCConfig,
+    s.addTxnNotification,
   ]);
 
   const handleTxnResponse = async (
@@ -317,7 +319,12 @@ const useMC = () => {
     },
     cb?: Function
   ) => {
-    let contractAddresses;
+    let contractAddresses:
+      | {
+          coreAddress?: string;
+          policyAddress?: string;
+        }
+      | undefined;
     try {
       const txns = await makeInstallMulticliqueTxns(policyData);
 
@@ -435,6 +442,35 @@ const useMC = () => {
     );
   };
 
+  const createUpdateMultiCliqueAccount = async (
+    payload: CreateUpdateMultiCliqueAccountPayload
+  ) => {
+    try {
+      updateIsTxnProcessing(true);
+
+      const response = await AccountService.createUpdateMultiCliqueAccount(
+        payload
+      );
+
+      addTxnNotification({
+        title: TxnResponse.Success,
+        message: 'Successfully created a MultiClique account',
+        type: TxnResponse.Success,
+        timestamp: new Date().valueOf(),
+      });
+
+      return response;
+    } catch (err) {
+      handleErrors(
+        'Error in getting creating/updating multiclique account',
+        err
+      );
+      return null;
+    } finally {
+      updateIsTxnProcessing(false);
+    }
+  };
+
   return {
     handleTxnResponse,
     getMulticliqueAddresses,
@@ -443,6 +479,7 @@ const useMC = () => {
     submitReadTxn,
     submitTxn,
     doChallenge,
+    createUpdateMultiCliqueAccount,
   };
 };
 
