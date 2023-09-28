@@ -4,9 +4,10 @@ import {
   NETWORK_PASSPHRASE,
   SERVICE_URL,
 } from '@/config/index';
-import { AccountService, CreateUpdateMultiCliqueAccountPayload } from '@/services';
+import { AccountService } from '@/services';
 import type { ContractName } from '@/stores/MCStore';
-import useMCStore, { TxnResponse } from '@/stores/MCStore';
+import useMCStore from '@/stores/MCStore';
+import type { Multisig } from '@/types/multisig';
 import { decodeXdr, numberToU32ScVal, toBase64 } from '@/utils';
 import { signBlob, signTransaction } from '@stellar/freighter-api';
 import * as SorobanClient from 'soroban-client';
@@ -24,7 +25,6 @@ const useMC = () => {
     handleErrors,
     handleTxnSuccessNotification,
     MCConfig,
-    addTxnNotification,
   ] = useMCStore((s) => [
     s.currentAccount,
     s.sorobanServer,
@@ -32,7 +32,6 @@ const useMC = () => {
     s.handleErrors,
     s.handleTxnSuccessNotification,
     s.MCConfig,
-    s.addTxnNotification,
   ]);
 
   const handleTxnResponse = async (
@@ -312,6 +311,7 @@ const useMC = () => {
       return null;
     }
   };
+
   const getMulticliqueAddresses = async (
     policyData: {
       source: string;
@@ -386,7 +386,8 @@ const useMC = () => {
                 coreAddress: SorobanClient.StrKey.encodeContract(coreId),
                 policyAddress: SorobanClient.StrKey.encodeContract(policyId),
               };
-
+              // eslint-disable-next-line
+              console.log('contract addresses', contractAddresses)
               if (cb) {
                 cb(contractAddresses);
               }
@@ -402,6 +403,7 @@ const useMC = () => {
       return null;
     }
   };
+
   const initMulticliqueCore = async (
     contractAddresses: {
       coreAddress: string;
@@ -442,22 +444,11 @@ const useMC = () => {
     );
   };
 
-  const createUpdateMultiCliqueAccount = async (
-    payload: CreateUpdateMultiCliqueAccountPayload
-  ) => {
+  const createMultisigDB = async (payload: Multisig) => {
     try {
       updateIsTxnProcessing(true);
 
-      const response = await AccountService.createUpdateMultiCliqueAccount(
-        payload
-      );
-
-      addTxnNotification({
-        title: TxnResponse.Success,
-        message: 'Successfully created a MultiClique account',
-        type: TxnResponse.Success,
-        timestamp: new Date().valueOf(),
-      });
+      const response = await AccountService.createMultiCliqueAccount(payload);
 
       return response;
     } catch (err) {
@@ -466,8 +457,6 @@ const useMC = () => {
         err
       );
       return null;
-    } finally {
-      updateIsTxnProcessing(false);
     }
   };
 
@@ -479,7 +468,7 @@ const useMC = () => {
     submitReadTxn,
     submitTxn,
     doChallenge,
-    createUpdateMultiCliqueAccount,
+    createMultisigDB,
   };
 };
 

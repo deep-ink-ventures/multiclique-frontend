@@ -5,27 +5,21 @@ import useMC from '@/hooks/useMC';
 
 import { MainLayout } from '@/layouts';
 import useMCStore from '@/stores/MCStore';
-import { useRouter } from 'next/navigation';
 import type { SubmitHandler } from 'react-hook-form';
 
 const Create = () => {
   const [currentAccount, handleErrors, updateIsTxnProcessing] = useMCStore(
     (s) => [s.currentAccount, s.handleErrors, s.updateIsTxnProcessing]
   );
-  const router = useRouter();
 
-  const {
-    getMulticliqueAddresses,
-    initMulticliqueCore,
-    createUpdateMultiCliqueAccount,
-  } = useMC();
+  const { getMulticliqueAddresses, initMulticliqueCore } = useMC();
 
   const onSubmit: SubmitHandler<ICreateMultisigFormProps> = async (data) => {
     if (!currentAccount) return;
 
     const { creatorAddress, signatories, threshold } = data;
 
-    const allSigners = [
+    const signerAddresses = [
       creatorAddress,
       ...(signatories
         ?.filter((signer) => signer != null)
@@ -36,36 +30,26 @@ const Create = () => {
       source: currentAccount.publicKey,
       policy_preset: 'ELIO_DAO',
     };
-
+    //
     try {
       await getMulticliqueAddresses(
         multicliqueData,
         (addresses: { coreAddress: string; policyAddress: string }) => {
-          initMulticliqueCore(addresses, allSigners, threshold, async () => {
-            // await for 3 seconds
-            await new Promise((resolve) => {
-              setTimeout(resolve, 3000);
-            });
-            updateIsTxnProcessing(false);
-          });
+          initMulticliqueCore(
+            addresses,
+            signerAddresses,
+            threshold,
+            async () => {
+              await new Promise((resolve) => {
+                setTimeout(resolve, 3000);
+              });
+              updateIsTxnProcessing(false);
+            }
+          );
         }
       );
     } catch (err) {
       handleErrors('Error in transferring ownership to multisig', err);
-    }
-
-    try {
-      await createUpdateMultiCliqueAccount({
-        name: data.accountName,
-        policy: multicliqueData.policy_preset,
-        signatories: allSigners,
-        defaultThreshold: Number(threshold),
-        address: currentAccount.publicKey,
-      });
-
-      router.push('/');
-    } catch (err) {
-      handleErrors('Error in creating an account', err);
     }
   };
 
