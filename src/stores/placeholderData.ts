@@ -9,15 +9,15 @@ export const fakeMultisigAccounts: Multisig[] = [
     signatories: [
       {
         name: 'Signatory 1',
-        address: 'G12345ABCDEF67890GHIJKL12345MNOPQRSTUV67890WXYZabcdefghi',
+        publicKey: 'G12345ABCDEF67890GHIJKL12345MNOPQRSTUV67890WXYZabcdefghi',
       },
       {
         name: 'Signatory 2',
-        address: 'G23456ABCDEF67890GHIJKL12345MNOPQRSTUV67890WXYZabcdefghi',
+        publicKey: 'G23456ABCDEF67890GHIJKL12345MNOPQRSTUV67890WXYZabcdefghi',
       },
       {
         name: 'Signatory 3',
-        address: 'G34567ABCDEF67890GHIJKL12345MNOPQRSTUV67890WXYZabcdefghi',
+        publicKey: 'G34567ABCDEF67890GHIJKL12345MNOPQRSTUV67890WXYZabcdefghi',
       },
     ],
     defaultThreshold: 2,
@@ -29,11 +29,11 @@ export const fakeMultisigAccounts: Multisig[] = [
     signatories: [
       {
         name: 'Signatory 4',
-        address: 'G45678ABCDEF67890GHIJKL12345MNOPQRSTUV67890WXYZabcdefghi',
+        publicKey: 'G45678ABCDEF67890GHIJKL12345MNOPQRSTUV67890WXYZabcdefghi',
       },
       {
         name: 'Signatory 5',
-        address: 'G56789ABCDEF67890GHIJKL12345MNOPQRSTUV67890WXYZabcdefghi',
+        publicKey: 'G56789ABCDEF67890GHIJKL12345MNOPQRSTUV67890WXYZabcdefghi',
       },
     ],
     defaultThreshold: 1,
@@ -45,11 +45,11 @@ export const fakeMultisigAccounts: Multisig[] = [
     signatories: [
       {
         name: 'Signatory 6',
-        address: 'G67890ABCDEF67890GHIJKL12345MNOPQRSTUV67890WXYZabcdefghi',
+        publicKey: 'G67890ABCDEF67890GHIJKL12345MNOPQRSTUV67890WXYZabcdefghi',
       },
       {
         name: 'Signatory 7',
-        address: 'G78901ABCDEF67890GHIJKL12345MNOPQRSTUV67890WXYZabcdefghi',
+        publicKey: 'G78901ABCDEF67890GHIJKL12345MNOPQRSTUV67890WXYZabcdefghi',
       },
     ],
     defaultThreshold: 1,
@@ -61,11 +61,11 @@ export const fakeMultisigAccounts: Multisig[] = [
     signatories: [
       {
         name: 'Signatory 8',
-        address: 'G89012ABCDEF67890GHIJKL12345MNOPQRSTUV67890WXYZabcdefghi',
+        publicKey: 'G89012ABCDEF67890GHIJKL12345MNOPQRSTUV67890WXYZabcdefghi',
       },
       {
         name: 'Signatory 9',
-        address: 'G90123ABCDEF67890GHIJKL12345MNOPQRSTUV67890WXYZabcdefghi',
+        publicKey: 'G90123ABCDEF67890GHIJKL12345MNOPQRSTUV67890WXYZabcdefghi',
       },
     ],
     defaultThreshold: 2,
@@ -91,9 +91,15 @@ export const fakeMultisigTransactions: MultisigTransaction[] = [
     multicliqueAddress:
       'C12345ABCDEF67890GHIJKL12345MNOPQRSTUV67890WXYZabcdefghi', // Replace with your contract ID
     defaultThreshold: 2,
-    publicKeys: [
-      'GCIDMRY5GZDY7P7BLO5DEIMDQ57AHRTU32NXIIDWGE4P7WPTQSEJPCGW',
-      'GCVLEO7LQKXTOC2PGBEX4Z2YLYXNQSFESBKGASSEZTPHNUYQI6STGCDN',
+    signatories: [
+      {
+        name: 'Name 1',
+        publicKey: 'GCIDMRY5GZDY7P7BLO5DEIMDQ57AHRTU32NXIIDWGE4P7WPTQSEJPCGW',
+      },
+      {
+        name: 'Name 2',
+        publicKey: 'GCVLEO7LQKXTOC2PGBEX4Z2YLYXNQSFESBKGASSEZTPHNUYQI6STGCDN',
+      },
     ],
   },
   {
@@ -110,7 +116,16 @@ export const fakeMultisigTransactions: MultisigTransaction[] = [
     multicliqueAddress:
       'C23456ABCDEF67890GHIJKL12345MNOPQRSTUV67890WXYZabcdefghi', // Replace with your contract ID
     defaultThreshold: 1,
-    publicKeys: ['GCIDMRY5GZDY7P7BLO5DEIMDQ57AHRTU32NXIIDWGE4P7WPTQSEJPCGW'],
+    signatories: [
+      {
+        name: 'Name 1',
+        publicKey: 'GCIDMRY5GZDY7P7BLO5DEIMDQ57AHRTU32NXIIDWGE4P7WPTQSEJPCGW',
+      },
+      {
+        name: 'Name 2',
+        publicKey: 'GCVLEO7LQKXTOC2PGBEX4Z2YLYXNQSFESBKGASSEZTPHNUYQI6STGCDN',
+      },
+    ],
   },
   {
     xdr: 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123', // Replace with your Base64 hash
@@ -126,6 +141,15 @@ export const fakeMultisigTransactions: MultisigTransaction[] = [
     multicliqueAddress:
       'C34567ABCDEF67890GHIJKL12345MNOPQRSTUV67890WXYZabcdefghi', // Replace with your contract ID
     defaultThreshold: 1,
-    publicKeys: ['GCIDMRY5GZDY7P7BLO5DEIMDQ57AHRTU32NXIIDWGE4P7WPTQSEJPCGW'],
+    signatories: [
+      {
+        name: 'Name 1',
+        publicKey: 'GCIDMRY5GZDY7P7BLO5DEIMDQ57AHRTU32NXIIDWGE4P7WPTQSEJPCGW',
+      },
+      {
+        name: 'Name 2',
+        publicKey: 'GCVLEO7LQKXTOC2PGBEX4Z2YLYXNQSFESBKGASSEZTPHNUYQI6STGCDN',
+      },
+    ],
   },
 ];

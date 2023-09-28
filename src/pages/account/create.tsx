@@ -23,7 +23,7 @@ const Create = () => {
       creatorAddress,
       ...(signatories
         ?.filter((signer) => signer != null)
-        .map((signer) => signer.address) ?? []),
+        .map((signer) => signer.publicKey) ?? []),
     ];
 
     const multicliqueData = {

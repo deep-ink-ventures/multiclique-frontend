@@ -1,3 +1,6 @@
+import type { CamelCaseObject } from '@/utils/transformer';
+import type { RawSignatory } from './multisig';
+
 export enum MultiSigTransactionStatus {
   Pending = 'PENDING',
   Cancelled = 'CANCELLED',
@@ -17,21 +20,7 @@ export interface RawMultisigTransaction {
   updated_at: Date;
   multiclique_address: string;
   default_threshold: number;
-  public_keys: string[];
+  signatories: RawSignatory[];
 }
 
-export interface MultisigTransaction {
-  xdr: string;
-  preimageHash: string;
-  callFunc: string;
-  callArgs: Record<string, any>;
-  approvers: string[];
-  rejecters: string[];
-  status: MultiSigTransactionStatus;
-  executedAt: Date;
-  createdAt: Date;
-  updatedAt: Date;
-  multicliqueAddress: string;
-  defaultThreshold: number;
-  publicKeys: string[];
-}
+export type MultisigTransaction = CamelCaseObject<RawMultisigTransaction>;

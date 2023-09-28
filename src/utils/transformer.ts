@@ -2,14 +2,20 @@ export type CamelCase<S extends string> = S extends `${infer A}_${infer B}`
   ? `${Lowercase<A>}${Capitalize<B>}`
   : Lowercase<S>;
 
-export type CameCaseObject<T extends Record<string, any>> = {
+export type CamelCaseObject<T extends Record<string, any>> = {
   // @ts-ignore
-  [K in keyof T as CamelCase<K>]: T[K];
+  [K in keyof T as CamelCase<K>]: T[K] extends any[]
+    ? CamelCaseObject<T[K][number]>[]
+    : T[K] extends Date
+    ? T[K]
+    : T[K] extends Record<any, any>
+    ? CamelCaseObject<T[K]>
+    : T[K];
 };
 
 export const keysToCamelCase = <T extends Record<any, any>>(
   input: T
-): CameCaseObject<T> =>
+): CamelCaseObject<T> =>
   Object.entries(input).reduce((acc, [key, value]) => {
     const camelCaseKey = key.replace(/_([a-z])/g, (_, letter) =>
       letter.toUpperCase()
@@ -18,7 +24,7 @@ export const keysToCamelCase = <T extends Record<any, any>>(
       ...acc,
       [camelCaseKey]: value,
     };
-  }, {} as CameCaseObject<T>);
+  }, {} as CamelCaseObject<T>);
 
 export type SnakeCase<S extends string> = S extends `${infer A}${infer B}`
   ? B extends Uncapitalize<B>
@@ -28,7 +34,13 @@ export type SnakeCase<S extends string> = S extends `${infer A}${infer B}`
 
 export type SnakeCaseObject<T extends Record<string, any>> = {
   // @ts-ignore
-  [K in keyof T as SnakeCase<K>]: T[K];
+  [K in keyof T as SnakeCase<K>]: T[K] extends any[]
+    ? CamelCaseObject<T[K][number]>[]
+    : T[K] extends Date
+    ? T[K]
+    : T[K] extends Record<any, any>
+    ? SnakeCaseObject<T[K]>
+    : T[K];
 };
 
 export const keysToSnakeCase = <T extends Record<string, any>>(

@@ -1,23 +1,18 @@
-export type Signatory = {
+import type { CamelCaseObject } from '@/utils/transformer';
+
+export type RawSignatory = {
   name: string;
-  address: string;
+  public_key: string;
 };
 
-export interface Multisig {
-  name: string;
-  address: string;
-  signatories: Signatory[];
-  defaultThreshold: number;
-  policy: string;
-}
+export type Signatory = CamelCaseObject<RawSignatory>;
 
 export interface RawMultisig {
   name: string;
   address: string;
-  signatories: {
-    name: string;
-    public_key: string; // fixme this will change to "address"
-  };
+  signatories: RawSignatory[];
   default_threshold: number;
   policy: string;
 }
+
+export type Multisig = CamelCaseObject<RawMultisig>;
