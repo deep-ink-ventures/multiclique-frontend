@@ -3,7 +3,6 @@ export type Signatory = {
   address: string;
 };
 
-// TODO: Merge with MultiCliqueAccount when service is updated
 export interface Multisig {
   name: string;
   address: string;
