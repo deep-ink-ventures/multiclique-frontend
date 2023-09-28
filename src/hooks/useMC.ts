@@ -4,6 +4,7 @@ import {
   NETWORK_PASSPHRASE,
   SERVICE_URL,
 } from '@/config/index';
+import { AccountService, CreateUpdateMultiCliqueAccountPayload } from '@/services';
 import type { ContractName } from '@/stores/MCStore';
 import useMCStore, { TxnResponse } from '@/stores/MCStore';
 import { decodeXdr, numberToU32ScVal, toBase64 } from '@/utils';
