@@ -1,4 +1,4 @@
-import { Avatar, Sidebar } from '@/components';
+import { Avatar,Sidebar } from '@/components';
 import ConnectWallet from '@/components/ConnectWallet';
 import WalletConnect from '@/components/WalletConnect';
 import useCopyToClipboard from '@/hooks/useCopyToClipboard';
@@ -100,7 +100,9 @@ const Account = () => {
             </Sidebar>
           </div>
           <div className='grow space-y-4 p-6'>
-            {currentTab === 'Dashboard' && <Transactions />}
+            {currentTab === 'Dashboard' && (
+              <Transactions address={accountId?.toString()} />
+            )}
             {currentTab === 'Settings' && <Settings />}
           </div>
         </div>
