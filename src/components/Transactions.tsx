@@ -10,6 +10,7 @@ import { MultiSigTransactionStatus } from '@/types/multisigTransaction';
 import { truncateMiddle } from '@/utils';
 import dayjs from 'dayjs';
 import { useEffect, useState } from 'react';
+import Pagination from './Pagination';
 
 interface ITransactionsProps {
   address?: string;
@@ -28,6 +29,11 @@ const Transactions = ({ address }: ITransactionsProps) => {
   const debouncedSearchTerm = useDebounce(searchTerm, 3000);
   const { textRef, copyToClipboard } = useCopyToClipboard<HTMLDivElement>();
 
+  const [pagination, setPagination] = useState({
+    currentPage: 1,
+    offset: 0,
+  });
+
   const listTransactions = usePromise({
     promiseFunction: async (params: ListMultiCliqueTransactionsParams) => {
       const response = await TransactionService.listMultiCliqueTransactions(
@@ -40,14 +46,14 @@ const Transactions = ({ address }: ITransactionsProps) => {
   useEffect(() => {
     if (address) {
       listTransactions.call({
-        offset: 0,
-        limit: 10,
+        offset: Math.max(pagination.offset - 1, 0),
+        limit: 5,
         search: debouncedSearchTerm,
         multicliqueAccountAddress: `${address}`,
       });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [address, debouncedSearchTerm]);
+  }, [address, debouncedSearchTerm, JSON.stringify(pagination)]);
 
   const handleSearch = (e: any) => {
     setSearchTerm(e.target.value);
@@ -135,6 +141,18 @@ const Transactions = ({ address }: ITransactionsProps) => {
           );
         })}
       </div>
+      {!listTransactions.pending && (
+        <div>
+          <Pagination
+            currentPage={pagination.currentPage}
+            pageSize={5}
+            totalCount={listTransactions.value?.count}
+            onPageChange={(newPage, newOffset) =>
+              setPagination({ currentPage: newPage, offset: newOffset })
+            }
+          />
+        </div>
+      )}
     </>
   );
 };
