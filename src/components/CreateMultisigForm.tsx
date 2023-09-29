@@ -254,7 +254,7 @@ const CreateMultisigForm = ({
       signatories: [
         {
           name: '',
-          publicKey: '',
+          address: '',
         },
       ],
       threshold: 1,
