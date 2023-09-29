@@ -1,5 +1,6 @@
 import {
   Accordion,
+  EmptyPlaceholder,
   Pagination,
   Timeline,
   TransactionBadge,
@@ -16,7 +17,6 @@ import { MultiSigTransactionStatus } from '@/types/multisigTransaction';
 import { truncateMiddle } from '@/utils';
 import dayjs from 'dayjs';
 import { useEffect, useState } from 'react';
-import Pagination from './Pagination';
 
 interface ITransactionsProps {
   address?: string;
@@ -79,6 +79,9 @@ const Transactions = ({ address }: ITransactionsProps) => {
         </div>
       </div>
       <div className='space-y-3'>
+        {!listTransactions.pending &&
+          listTransactions.fulfilled &&
+          !listTransactions.value?.results?.length && <EmptyPlaceholder />}
         {listTransactions?.value?.results?.map((item, index) => {
           return (
             <Accordion.Container
