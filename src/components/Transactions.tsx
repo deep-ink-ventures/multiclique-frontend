@@ -1,6 +1,7 @@
 import {
   Accordion,
   EmptyPlaceholder,
+  LoadingPlaceholder,
   Pagination,
   Timeline,
   TransactionBadge,
@@ -79,6 +80,7 @@ const Transactions = ({ address }: ITransactionsProps) => {
         </div>
       </div>
       <div className='space-y-3'>
+        {listTransactions.pending && <LoadingPlaceholder />}
         {!listTransactions.pending &&
           listTransactions.fulfilled &&
           !listTransactions.value?.results?.length && <EmptyPlaceholder />}
