@@ -100,7 +100,9 @@ const Account = () => {
             </Sidebar>
           </div>
           <div className='grow space-y-4 p-6'>
-            {currentTab === 'Dashboard' && <Transactions />}
+            {currentTab === 'Dashboard' && (
+              <Transactions address={accountId?.toString()} />
+            )}
             {currentTab === 'Settings' && <Settings />}
           </div>
         </div>
