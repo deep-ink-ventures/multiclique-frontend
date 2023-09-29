@@ -33,7 +33,7 @@ const Transactions = ({ address }: ITransactionsProps) => {
   const [activeAccordion, setActiveAccordion] = useState<number | null>(null);
 
   const [searchTerm, setSearchTerm] = useState('');
-  const debouncedSearchTerm = useDebounce(searchTerm, 3000);
+  const debouncedSearchTerm = useDebounce(searchTerm, 1000);
   const { textRef, copyToClipboard } = useCopyToClipboard<HTMLDivElement>();
 
   const [pagination, setPagination] = useState({
