@@ -5,6 +5,7 @@ export * from './EmptyPlaceholder';
 export * from './Indicator';
 export * from './LoadingPlaceholder';
 export * from './Meta';
+export * from './Pagination';
 export * from './PolicyAddressesForm';
 export * from './Sidebar';
 export * from './Timeline';
