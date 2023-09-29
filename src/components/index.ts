@@ -3,6 +3,7 @@ export * from './Avatar';
 export * from './Badge';
 export * from './EmptyPlaceholder';
 export * from './Indicator';
+export * from './LoadingPlaceholder';
 export * from './Meta';
 export * from './PolicyAddressesForm';
 export * from './Sidebar';
