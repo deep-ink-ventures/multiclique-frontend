@@ -9,15 +9,15 @@ export const fakeMultisigAccounts: Multisig[] = [
     signatories: [
       {
         name: 'Signatory 1',
-        publicKey: 'G12345ABCDEF67890GHIJKL12345MNOPQRSTUV67890WXYZabcdefghi',
+        address: 'G12345ABCDEF67890GHIJKL12345MNOPQRSTUV67890WXYZabcdefghi',
       },
       {
         name: 'Signatory 2',
-        publicKey: 'G23456ABCDEF67890GHIJKL12345MNOPQRSTUV67890WXYZabcdefghi',
+        address: 'G23456ABCDEF67890GHIJKL12345MNOPQRSTUV67890WXYZabcdefghi',
       },
       {
         name: 'Signatory 3',
-        publicKey: 'G34567ABCDEF67890GHIJKL12345MNOPQRSTUV67890WXYZabcdefghi',
+        address: 'G34567ABCDEF67890GHIJKL12345MNOPQRSTUV67890WXYZabcdefghi',
       },
     ],
     defaultThreshold: 2,
@@ -29,11 +29,11 @@ export const fakeMultisigAccounts: Multisig[] = [
     signatories: [
       {
         name: 'Signatory 4',
-        publicKey: 'G45678ABCDEF67890GHIJKL12345MNOPQRSTUV67890WXYZabcdefghi',
+        address: 'G45678ABCDEF67890GHIJKL12345MNOPQRSTUV67890WXYZabcdefghi',
       },
       {
         name: 'Signatory 5',
-        publicKey: 'G56789ABCDEF67890GHIJKL12345MNOPQRSTUV67890WXYZabcdefghi',
+        address: 'G56789ABCDEF67890GHIJKL12345MNOPQRSTUV67890WXYZabcdefghi',
       },
     ],
     defaultThreshold: 1,
@@ -45,11 +45,11 @@ export const fakeMultisigAccounts: Multisig[] = [
     signatories: [
       {
         name: 'Signatory 6',
-        publicKey: 'G67890ABCDEF67890GHIJKL12345MNOPQRSTUV67890WXYZabcdefghi',
+        address: 'G67890ABCDEF67890GHIJKL12345MNOPQRSTUV67890WXYZabcdefghi',
       },
       {
         name: 'Signatory 7',
-        publicKey: 'G78901ABCDEF67890GHIJKL12345MNOPQRSTUV67890WXYZabcdefghi',
+        address: 'G78901ABCDEF67890GHIJKL12345MNOPQRSTUV67890WXYZabcdefghi',
       },
     ],
     defaultThreshold: 1,
@@ -61,11 +61,11 @@ export const fakeMultisigAccounts: Multisig[] = [
     signatories: [
       {
         name: 'Signatory 8',
-        publicKey: 'G89012ABCDEF67890GHIJKL12345MNOPQRSTUV67890WXYZabcdefghi',
+        address: 'G89012ABCDEF67890GHIJKL12345MNOPQRSTUV67890WXYZabcdefghi',
       },
       {
         name: 'Signatory 9',
-        publicKey: 'G90123ABCDEF67890GHIJKL12345MNOPQRSTUV67890WXYZabcdefghi',
+        address: 'G90123ABCDEF67890GHIJKL12345MNOPQRSTUV67890WXYZabcdefghi',
       },
     ],
     defaultThreshold: 2,
@@ -94,11 +94,11 @@ export const fakeMultisigTransactions: MultisigTransaction[] = [
     signatories: [
       {
         name: 'Name 1',
-        publicKey: 'GCIDMRY5GZDY7P7BLO5DEIMDQ57AHRTU32NXIIDWGE4P7WPTQSEJPCGW',
+        address: 'GCIDMRY5GZDY7P7BLO5DEIMDQ57AHRTU32NXIIDWGE4P7WPTQSEJPCGW',
       },
       {
         name: 'Name 2',
-        publicKey: 'GCVLEO7LQKXTOC2PGBEX4Z2YLYXNQSFESBKGASSEZTPHNUYQI6STGCDN',
+        address: 'GCVLEO7LQKXTOC2PGBEX4Z2YLYXNQSFESBKGASSEZTPHNUYQI6STGCDN',
       },
     ],
   },
@@ -119,11 +119,11 @@ export const fakeMultisigTransactions: MultisigTransaction[] = [
     signatories: [
       {
         name: 'Name 1',
-        publicKey: 'GCIDMRY5GZDY7P7BLO5DEIMDQ57AHRTU32NXIIDWGE4P7WPTQSEJPCGW',
+        address: 'GCIDMRY5GZDY7P7BLO5DEIMDQ57AHRTU32NXIIDWGE4P7WPTQSEJPCGW',
       },
       {
         name: 'Name 2',
-        publicKey: 'GCVLEO7LQKXTOC2PGBEX4Z2YLYXNQSFESBKGASSEZTPHNUYQI6STGCDN',
+        address: 'GCVLEO7LQKXTOC2PGBEX4Z2YLYXNQSFESBKGASSEZTPHNUYQI6STGCDN',
       },
     ],
   },
@@ -144,11 +144,11 @@ export const fakeMultisigTransactions: MultisigTransaction[] = [
     signatories: [
       {
         name: 'Name 1',
-        publicKey: 'GCIDMRY5GZDY7P7BLO5DEIMDQ57AHRTU32NXIIDWGE4P7WPTQSEJPCGW',
+        address: 'GCIDMRY5GZDY7P7BLO5DEIMDQ57AHRTU32NXIIDWGE4P7WPTQSEJPCGW',
       },
       {
         name: 'Name 2',
-        publicKey: 'GCVLEO7LQKXTOC2PGBEX4Z2YLYXNQSFESBKGASSEZTPHNUYQI6STGCDN',
+        address: 'GCVLEO7LQKXTOC2PGBEX4Z2YLYXNQSFESBKGASSEZTPHNUYQI6STGCDN',
       },
     ],
   },

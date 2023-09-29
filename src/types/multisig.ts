@@ -2,7 +2,7 @@ import type { CamelCaseObject } from '@/utils/transformer';
 
 export type RawSignatory = {
   name: string;
-  public_key: string;
+  address: string;
 };
 
 export type Signatory = CamelCaseObject<RawSignatory>;
