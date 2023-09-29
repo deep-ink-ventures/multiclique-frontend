@@ -91,9 +91,15 @@ export const fakeMultisigTransactions: MultisigTransaction[] = [
     multicliqueAddress:
       'C12345ABCDEF67890GHIJKL12345MNOPQRSTUV67890WXYZabcdefghi', // Replace with your contract ID
     defaultThreshold: 2,
-    publicKeys: [
-      'GCIDMRY5GZDY7P7BLO5DEIMDQ57AHRTU32NXIIDWGE4P7WPTQSEJPCGW',
-      'GCVLEO7LQKXTOC2PGBEX4Z2YLYXNQSFESBKGASSEZTPHNUYQI6STGCDN',
+    signatories: [
+      {
+        name: 'Name 1',
+        address: 'GCIDMRY5GZDY7P7BLO5DEIMDQ57AHRTU32NXIIDWGE4P7WPTQSEJPCGW',
+      },
+      {
+        name: 'Name 2',
+        address: 'GCVLEO7LQKXTOC2PGBEX4Z2YLYXNQSFESBKGASSEZTPHNUYQI6STGCDN',
+      },
     ],
   },
   {
@@ -110,7 +116,16 @@ export const fakeMultisigTransactions: MultisigTransaction[] = [
     multicliqueAddress:
       'C23456ABCDEF67890GHIJKL12345MNOPQRSTUV67890WXYZabcdefghi', // Replace with your contract ID
     defaultThreshold: 1,
-    publicKeys: ['GCIDMRY5GZDY7P7BLO5DEIMDQ57AHRTU32NXIIDWGE4P7WPTQSEJPCGW'],
+    signatories: [
+      {
+        name: 'Name 1',
+        address: 'GCIDMRY5GZDY7P7BLO5DEIMDQ57AHRTU32NXIIDWGE4P7WPTQSEJPCGW',
+      },
+      {
+        name: 'Name 2',
+        address: 'GCVLEO7LQKXTOC2PGBEX4Z2YLYXNQSFESBKGASSEZTPHNUYQI6STGCDN',
+      },
+    ],
   },
   {
     xdr: 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123', // Replace with your Base64 hash
@@ -126,6 +141,15 @@ export const fakeMultisigTransactions: MultisigTransaction[] = [
     multicliqueAddress:
       'C34567ABCDEF67890GHIJKL12345MNOPQRSTUV67890WXYZabcdefghi', // Replace with your contract ID
     defaultThreshold: 1,
-    publicKeys: ['GCIDMRY5GZDY7P7BLO5DEIMDQ57AHRTU32NXIIDWGE4P7WPTQSEJPCGW'],
+    signatories: [
+      {
+        name: 'Name 1',
+        address: 'GCIDMRY5GZDY7P7BLO5DEIMDQ57AHRTU32NXIIDWGE4P7WPTQSEJPCGW',
+      },
+      {
+        name: 'Name 2',
+        address: 'GCVLEO7LQKXTOC2PGBEX4Z2YLYXNQSFESBKGASSEZTPHNUYQI6STGCDN',
+      },
+    ],
   },
 ];

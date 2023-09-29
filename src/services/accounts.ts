@@ -1,24 +1,15 @@
 import { SERVICE_URL } from '@/config';
-import type { Multisig } from '@/types/multisig';
+import type { Multisig, RawMultisig } from '@/types/multisig';
 import type { Paginated } from '@/types/response';
 import { convertToQueryString } from '@/utils/api';
-import type { SnakeCaseObject } from '@/utils/transformer';
 import { keysToCamelCase, keysToSnakeCase } from '@/utils/transformer';
 
 export interface ListMultiCliqueAccountsParams {
   search?: string;
-  ordering?: keyof Multisig;
+  ordering?: keyof RawMultisig;
   limit: number;
   offset: number;
   signatories?: string;
-}
-
-export interface CreateUpdateMultiCliqueAccountPayload {
-  name: string;
-  address: string;
-  signatories: string[];
-  defaultThreshold: number;
-  policy: string;
 }
 
 export const createMultiCliqueAccount = async (
@@ -34,7 +25,7 @@ export const createMultiCliqueAccount = async (
     },
   });
 
-  const objResponse: SnakeCaseObject<Multisig> = await response.json();
+  const objResponse: RawMultisig = await response.json();
 
   const formattedMultiCliqueAccount = keysToCamelCase(objResponse);
 
@@ -50,10 +41,9 @@ export const listMultiCliqueAccounts = async (
     `${SERVICE_URL}/multiclique/accounts/?${queryString}`
   );
 
-  const objResponse: Paginated<SnakeCaseObject<Multisig>[]> =
-    await response.json();
+  const objResponse: Paginated<RawMultisig[]> = await response.json();
 
-  const formattedResponse: Paginated<Multisig[]> = {
+  const formattedResponse = {
     ...objResponse,
     results: objResponse.results.map((data) => keysToCamelCase(data)),
   };
@@ -61,7 +51,20 @@ export const listMultiCliqueAccounts = async (
   return formattedResponse;
 };
 
+export const getMultiCliqueAccount = async (address: string) => {
+  const response = await fetch(
+    `${SERVICE_URL}/multiclique/accounts/${address}/`
+  );
+
+  const objResponse: RawMultisig = await response.json();
+
+  const formattedResponse = keysToCamelCase(objResponse);
+
+  return formattedResponse;
+};
+
 export const AccountService = {
   createMultiCliqueAccount,
   listMultiCliqueAccounts,
+  getMultiCliqueAccount,
 };

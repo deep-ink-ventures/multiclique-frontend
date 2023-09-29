@@ -40,7 +40,7 @@ const SignatoriesForm = (props: {
     }
     append({
       name: '',
-      walletAddress: '',
+      address: '',
     });
   };
 
