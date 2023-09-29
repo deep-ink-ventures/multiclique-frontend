@@ -111,11 +111,7 @@ const Transactions = ({ address }: ITransactionsProps) => {
                     <div className='shrink-0 font-semibold'>Call hash:</div>
                     <div ref={textRef}>
                       {/* TODO: update hash */}
-                      {truncateMiddle(
-                        '0x6789abcdef0123456789abcdef0123456789abcdef0123456789abcdef012345',
-                        16,
-                        3
-                      )}
+                      {truncateMiddle(item.preimageHash, 16, 3)}
                     </div>
                     <span
                       onClick={copyToClipboard}
