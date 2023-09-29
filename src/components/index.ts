@@ -1,6 +1,7 @@
 export * from './Accordion';
 export * from './Avatar';
 export * from './Badge';
+export * from './EmptyPlaceholder';
 export * from './Indicator';
 export * from './Meta';
 export * from './Pagination';
