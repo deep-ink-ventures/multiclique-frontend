@@ -1,4 +1,10 @@
-import { Accordion, Timeline, TransactionBadge, UserTally } from '@/components';
+import {
+  Accordion,
+  Pagination,
+  Timeline,
+  TransactionBadge,
+  UserTally,
+} from '@/components';
 import useCopyToClipboard from '@/hooks/useCopyToClipboard';
 import { useDebounce } from '@/hooks/useDebounce';
 import { usePromise } from '@/hooks/usePromise';
@@ -141,18 +147,19 @@ const Transactions = ({ address }: ITransactionsProps) => {
           );
         })}
       </div>
-      {!listTransactions.pending && (
-        <div>
-          <Pagination
-            currentPage={pagination.currentPage}
-            pageSize={5}
-            totalCount={listTransactions.value?.count}
-            onPageChange={(newPage, newOffset) =>
-              setPagination({ currentPage: newPage, offset: newOffset })
-            }
-          />
-        </div>
-      )}
+      {!listTransactions.pending &&
+        Boolean(listTransactions.value?.results?.length) && (
+          <div>
+            <Pagination
+              currentPage={pagination.currentPage}
+              pageSize={5}
+              totalCount={listTransactions.value?.count}
+              onPageChange={(newPage, newOffset) =>
+                setPagination({ currentPage: newPage, offset: newOffset })
+              }
+            />
+          </div>
+        )}
     </>
   );
 };

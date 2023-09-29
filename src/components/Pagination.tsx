@@ -1,7 +1,7 @@
 import Image from 'next/image';
 
 import arrowLeft from '@/svg/arrow-left.svg';
-import arrowRight from '@/svg/arrow-right.svg';
+import arrowRight from '@/svg/rightArrow.svg';
 
 interface PaginationProps {
   pageSize: number;
@@ -10,7 +10,7 @@ interface PaginationProps {
   currentPage?: number;
 }
 
-const Pagination = (props: PaginationProps) => {
+export const Pagination = (props: PaginationProps) => {
   const { currentPage = 1, pageSize = 0, totalCount = 0, onPageChange } = props;
 
   const maxPageSize = Math.min(pageSize, totalCount);
@@ -64,5 +64,3 @@ const Pagination = (props: PaginationProps) => {
     </div>
   );
 };
-
-export default Pagination;

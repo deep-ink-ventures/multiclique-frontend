@@ -1,4 +1,4 @@
-import { Avatar,Sidebar } from '@/components';
+import { Avatar, Sidebar } from '@/components';
 import ConnectWallet from '@/components/ConnectWallet';
 import WalletConnect from '@/components/WalletConnect';
 import useCopyToClipboard from '@/hooks/useCopyToClipboard';

@@ -3,6 +3,7 @@ export * from './Avatar';
 export * from './Badge';
 export * from './Indicator';
 export * from './Meta';
+export * from './Pagination';
 export * from './PolicyAddressesForm';
 export * from './Sidebar';
 export * from './Timeline';

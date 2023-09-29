@@ -55,7 +55,7 @@ export const listMultiCliqueTransactions = async (
 
   const formattedResponse = {
     ...objResponse,
-    results: objResponse.results.map((data) => keysToCamelCase(data)),
+    results: objResponse.results?.map((data) => keysToCamelCase(data)),
   };
 
   return formattedResponse;
