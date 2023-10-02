@@ -93,3 +93,6 @@ export const numberToU32ScVal = (number: number) => {
 export const toBase64 = (str: string): string => {
   return Buffer.from(str, 'utf-8').toString('base64');
 };
+
+export const accountToScVal = (account: string) =>
+  new SorobanClient.Address(account).toScVal();

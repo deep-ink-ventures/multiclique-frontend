@@ -8,7 +8,7 @@ import { AccountService } from '@/services';
 import type { ContractName } from '@/stores/MCStore';
 import useMCStore from '@/stores/MCStore';
 import type { Multisig } from '@/types/multisig';
-import { decodeXdr, numberToU32ScVal, toBase64 } from '@/utils';
+import { accountToScVal, decodeXdr, numberToU32ScVal, toBase64 } from '@/utils';
 import { signBlob, signTransaction } from '@stellar/freighter-api';
 import * as SorobanClient from 'soroban-client';
 
@@ -420,6 +420,7 @@ const useMC = () => {
     const rawKeys = signerAddresses.map((addy) => {
       return SorobanClient.Keypair.fromPublicKey(addy).rawPublicKey();
     });
+
     const coreContract = new SorobanClient.Contract(
       contractAddresses.coreAddress
     );
@@ -444,20 +445,71 @@ const useMC = () => {
     );
   };
 
-  const createMultisigDB = async (payload: Multisig) => {
+  const initMulticliquePolicy = async (
+    policyAddress: string,
+    contracts: {
+      multiclique: string;
+      elioCore: string;
+      elioVotes: string;
+      elioAssets: string;
+    }
+  ) => {
+    if (!currentAccount) {
+      return;
+    }
+
+    const tx = await makeContractTxn(
+      currentAccount.publicKey,
+      policyAddress,
+      'init',
+      ...Object.values(contracts).map((v) => accountToScVal(v))
+    );
+
+    await submitTxn(
+      tx,
+      'Initialized Multiclique policy',
+      'Error in initializing Multiclique policy',
+      'multicliquePolicy'
+    );
+  };
+
+  const createMultisigDB = async (payload: Multisig, cb?: Function) => {
     try {
-      updateIsTxnProcessing(true);
-
       const response = await AccountService.createMultiCliqueAccount(payload);
-
+      if (cb) cb(response);
       return response;
     } catch (err) {
-      handleErrors(
-        'Error in getting creating/updating multiclique account',
-        err
-      );
+      handleErrors('Error in getting creating multiclique account', err);
       return null;
     }
+  };
+
+  const attachPolicy = async (
+    coreContract: string,
+    policyAddress: string,
+    contractAddresses: string[],
+    cb: Function
+  ) => {
+    if (!currentAccount?.publicKey) {
+      return;
+    }
+    const txn = await makeContractTxn(
+      currentAccount?.publicKey,
+      coreContract,
+      'attach_policy',
+
+      accountToScVal(policyAddress),
+      SorobanClient.xdr.ScVal.scvVec(
+        contractAddresses.map((v) => accountToScVal(v))
+      )
+    );
+    await submitTxn(
+      txn,
+      'Attached Multiclique policy',
+      'Error in attaching Multiclique policy',
+      'multicliqueCore',
+      cb
+    );
   };
 
   return {
@@ -469,6 +521,8 @@ const useMC = () => {
     submitTxn,
     doChallenge,
     createMultisigDB,
+    attachPolicy,
+    initMulticliquePolicy,
   };
 };
 
