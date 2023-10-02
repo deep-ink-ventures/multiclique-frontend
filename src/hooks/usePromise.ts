@@ -1,7 +1,7 @@
 import { useReducer } from 'react';
 
-export interface UsePromiseParams<T, P> {
-  promiseFunction: (args: T) => Promise<P>;
+export interface UsePromiseParams<T extends any[], P> {
+  promiseFunction: (...args: T) => Promise<P>;
 }
 
 export enum PromiseStatus {
@@ -58,7 +58,7 @@ const promiseReducer = <P>(
   }
 };
 
-export const usePromise = <T = any, P = any>({
+export const usePromise = <T extends any[], P = any>({
   promiseFunction,
 }: UsePromiseParams<T, P>) => {
   const [promiseState, dispatch] = useReducer(promiseReducer<P>, {
@@ -69,11 +69,11 @@ export const usePromise = <T = any, P = any>({
     value: null,
   });
 
-  const call = async (params: T) => {
+  const call = async (...params: T) => {
     dispatch({
       type: PromiseStatus.PENDING,
     });
-    promiseFunction(params).then(
+    promiseFunction(...params).then(
       (result) => {
         dispatch({
           type: PromiseStatus.FULFILLED,

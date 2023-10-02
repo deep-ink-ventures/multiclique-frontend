@@ -19,6 +19,8 @@ import {
   SOROBAN_RPC_ENDPOINT,
   XLM_UNITS,
 } from '../config/index';
+import type { AccountSlice } from './account';
+import { createAccountSlice } from './account';
 import { contractErrorCodes } from './errors';
 import {
   fakeMultisigAccounts,
@@ -60,6 +62,10 @@ export interface TxnNotification {
 
 export type ContractName = 'multicliqueCore' | 'multicliquePolicy';
 
+interface PageSlices {
+  account: AccountSlice;
+}
+
 export interface MCState {
   currentAccount: WalletAccount | null;
   txnNotifications: TxnNotification[];
@@ -71,6 +77,7 @@ export interface MCState {
   MCConfig: MCConfig;
   multisigAccounts: Multisig[];
   multisigTransactions: MultisigTransaction[];
+  pages: PageSlices;
 }
 
 export interface MCActions {
@@ -100,7 +107,7 @@ export interface MCActions {
 
 export interface MCStore extends MCState, MCActions {}
 
-const useMCStore = create<MCStore>((set, get) => ({
+const useMCStore = create<MCStore>((set, get, store) => ({
   currentAccount: null,
   txnNotifications: [],
   isTxnProcessing: false,
@@ -285,6 +292,9 @@ const useMCStore = create<MCStore>((set, get) => ({
   },
   updateMultisigTransactions: (transactions: MultisigTransaction[]) => {
     set({ multisigTransactions: transactions });
+  },
+  pages: {
+    ...createAccountSlice(set, get, store),
   },
 }));
 

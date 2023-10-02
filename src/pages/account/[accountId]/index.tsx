@@ -1,10 +1,8 @@
-import { Avatar,Sidebar } from '@/components';
+import { Avatar, Sidebar } from '@/components';
 import ConnectWallet from '@/components/ConnectWallet';
 import WalletConnect from '@/components/WalletConnect';
 import useCopyToClipboard from '@/hooks/useCopyToClipboard';
-import { usePromise } from '@/hooks/usePromise';
 import { MainLayout } from '@/layouts';
-import { AccountService } from '@/services';
 import useMCStore from '@/stores/MCStore';
 import AvatarImage from '@/svg/avatar.svg';
 import Chevron from '@/svg/components/Chevron';
@@ -17,7 +15,7 @@ import { truncateMiddle } from '@/utils';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
 import type { ReactNode } from 'react';
-import { useEffect,useState } from 'react';
+import { useEffect, useState } from 'react';
 import Settings from '../../../components/Settings';
 import Transactions from '../../../components/Transactions';
 
@@ -45,31 +43,27 @@ const TABS: { icon: ReactNode; label: AccountTabs }[] = [
 const Account = () => {
   const router = useRouter();
   const { accountId } = router.query;
-  const [currentAccount] = useMCStore((s) => [s.currentAccount]);
+  const [currentAccount, accountPage] = useMCStore((s) => [
+    s.currentAccount,
+    s.pages.account,
+  ]);
   const [currentTab, setCurrentTab] = useState<AccountTabs>('Dashboard');
 
   const { textRef, copyToClipboard } = useCopyToClipboard<HTMLDivElement>();
 
-  const getMultiCliqueAccount = usePromise({
-    promiseFunction: async (address: string) => {
-      const response = await AccountService.getMultiCliqueAccount(address);
-      return response;
-    },
-  });
-
   useEffect(() => {
     if (accountId) {
-      getMultiCliqueAccount.call(accountId.toString());
+      accountPage.multisig.getMultisigAccount(accountId.toString());
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [accountId]);
 
   useEffect(() => {
-    if (!getMultiCliqueAccount.pending && !getMultiCliqueAccount.value) {
+    if (accountPage.multisig.failed) {
       // router.push('/'); Uncomment to guard page for invalid addresses in URL
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [getMultiCliqueAccount.value]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [accountPage.multisig.failed]);
 
   return (
     <MainLayout title='MultiClique' description=''>
@@ -79,14 +73,14 @@ const Account = () => {
             <Sidebar>
               <Sidebar.Content>
                 <Avatar src={AvatarImage} />
-                {getMultiCliqueAccount.value?.address && (
+                {accountPage.multisig.data?.address && (
                   <>
                     <div className='mx-auto flex w-1/2'>
                       <div
                         className='inline-block grow truncate text-center'
                         ref={textRef}>
                         {truncateMiddle(
-                          getMultiCliqueAccount.value?.address?.toString(),
+                          accountPage.multisig.data?.address?.toString(),
                           5,
                           3
                         )}
