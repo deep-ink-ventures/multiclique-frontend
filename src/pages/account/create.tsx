@@ -8,14 +8,20 @@ import useMCStore from '@/stores/MCStore';
 import type { SubmitHandler } from 'react-hook-form';
 
 const Create = () => {
-  const [currentAccount, handleErrors, updateIsTxnProcessing] = useMCStore(
-    (s) => [s.currentAccount, s.handleErrors, s.updateIsTxnProcessing]
-  );
+  const [currentAccount, handleErrors, elioConfig] = useMCStore((s) => [
+    s.currentAccount,
+    s.handleErrors,
+    s.elioConfig,
+  ]);
 
-  const { getMulticliqueAddresses, initMulticliqueCore } = useMC();
+  const {
+    getMulticliqueAddresses,
+    initMulticliqueCore,
+    initMulticliquePolicy,
+  } = useMC();
 
   const onSubmit: SubmitHandler<ICreateMultisigFormProps> = async (data) => {
-    if (!currentAccount) return;
+    if (!currentAccount || !elioConfig) return;
 
     const { creatorAddress, signatories, threshold } = data;
 
@@ -40,10 +46,12 @@ const Create = () => {
             signerAddresses,
             threshold,
             async () => {
-              await new Promise((resolve) => {
-                setTimeout(resolve, 3000);
+              initMulticliquePolicy(addresses.policyAddress, {
+                multiclique: addresses.coreAddress,
+                elioCore: elioConfig?.coreContractAddress,
+                elioVotes: elioConfig?.votesContractAddress,
+                elioAssets: elioConfig?.votesContractAddress,
               });
-              updateIsTxnProcessing(false);
             }
           );
         }

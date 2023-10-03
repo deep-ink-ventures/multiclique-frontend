@@ -7,7 +7,9 @@ import StellarSdk from 'stellar-sdk';
 import TransactionNotification from '@/components/Notification';
 import { LoadingScreenController } from '@/context/LoadingScreen';
 
+import useMCStore from '@/stores/MCStore';
 import '@/styles/global.css';
+import { useCallback, useEffect } from 'react';
 
 declare global {
   interface Window {
@@ -21,6 +23,16 @@ if (typeof window !== 'undefined') {
 }
 
 const MyApp = ({ Component, pageProps }: AppProps) => {
+  const fetchConfig = useMCStore((s) => s.fetchConfig);
+
+  const fetchConfigCb = useCallback(() => {
+    fetchConfig();
+  }, [fetchConfig]);
+
+  useEffect(() => {
+    fetchConfigCb();
+  }, []);
+
   return (
     <div className='relative overflow-x-hidden'>
       <TransactionNotification />
