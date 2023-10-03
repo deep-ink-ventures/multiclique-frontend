@@ -1,5 +1,5 @@
 import type { CamelCaseObject } from '@/utils/transformer';
-import type { RawSignatory } from './multisig';
+import type { Signatory } from './multisig';
 
 export enum MultiSigTransactionStatus {
   Pending = 'PENDING',
@@ -20,7 +20,7 @@ export interface RawMultisigTransaction {
   updated_at: Date;
   multiclique_address: string;
   default_threshold: number;
-  signatories: RawSignatory[];
+  signatories: Signatory[];
 }
 
 export type MultisigTransaction = CamelCaseObject<RawMultisigTransaction>;

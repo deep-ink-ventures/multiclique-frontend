@@ -18,6 +18,8 @@ const Create = () => {
     getMulticliqueAddresses,
     initMulticliqueCore,
     initMulticliquePolicy,
+    attachPolicy,
+    createMultisigDB,
   } = useMC();
 
   const onSubmit: SubmitHandler<ICreateMultisigFormProps> = async (data) => {
@@ -41,23 +43,46 @@ const Create = () => {
       await getMulticliqueAddresses(
         multicliqueData,
         (addresses: { coreAddress: string; policyAddress: string }) => {
-          initMulticliqueCore(
-            addresses,
-            signerAddresses,
-            threshold,
-            async () => {
-              initMulticliquePolicy(addresses.policyAddress, {
+          console.log('init core...');
+          initMulticliqueCore(addresses, signerAddresses, threshold, () => {
+            console.log('init policy...');
+            initMulticliquePolicy(
+              addresses.policyAddress,
+              {
                 multiclique: addresses.coreAddress,
                 elioCore: elioConfig?.coreContractAddress,
                 elioVotes: elioConfig?.votesContractAddress,
                 elioAssets: elioConfig?.votesContractAddress,
-              });
-            }
-          );
+              },
+              () => {
+                console.log('attach policy...');
+                attachPolicy(
+                  addresses.coreAddress,
+                  addresses.policyAddress,
+                  [
+                    elioConfig?.coreContractAddress,
+                    elioConfig?.votesContractAddress,
+                    elioConfig?.votesContractAddress,
+                  ],
+                  async () => {
+                    console.log('create offchain multisig ...');
+                    const multisig = await createMultisigDB({
+                      name: data.accountName,
+                      address: addresses.coreAddress,
+                      signatories,
+                      defaultThreshold: threshold,
+                      policy: addresses.policyAddress,
+                    });
+                    console.log('multisig created', multisig);
+                  }
+                );
+              }
+            );
+          });
         }
       );
-    } catch (err) {
-      handleErrors('Error in transferring ownership to multisig', err);
+    } catch (error) {
+      handleErrors('Error in creating Multisig, error');
     }
   };
 

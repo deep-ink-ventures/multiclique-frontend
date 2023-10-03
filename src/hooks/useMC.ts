@@ -452,7 +452,8 @@ const useMC = () => {
       elioCore: string;
       elioVotes: string;
       elioAssets: string;
-    }
+    },
+    cb?: Function
   ) => {
     if (!currentAccount) {
       return;
@@ -469,7 +470,8 @@ const useMC = () => {
       tx,
       'Initialized Multiclique policy',
       'Error in initializing Multiclique policy',
-      'multicliquePolicy'
+      'multicliquePolicy',
+      cb
     );
   };
 
@@ -488,7 +490,7 @@ const useMC = () => {
     coreContract: string,
     policyAddress: string,
     contractAddresses: string[],
-    cb: Function
+    cb?: Function
   ) => {
     if (!currentAccount?.publicKey) {
       return;
