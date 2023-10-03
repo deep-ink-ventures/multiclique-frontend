@@ -71,7 +71,7 @@ const Create = () => {
                       address: addresses.coreAddress,
                       signatories,
                       defaultThreshold: threshold,
-                      policy: addresses.policyAddress,
+                      policy: 'ELIO_DAO',
                     });
                     console.log('multisig created', multisig);
                   }

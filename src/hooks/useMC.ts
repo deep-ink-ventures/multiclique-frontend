@@ -499,7 +499,6 @@ const useMC = () => {
       currentAccount?.publicKey,
       coreContract,
       'attach_policy',
-
       accountToScVal(policyAddress),
       SorobanClient.xdr.ScVal.scvVec(
         contractAddresses.map((v) => accountToScVal(v))
