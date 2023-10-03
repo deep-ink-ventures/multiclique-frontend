@@ -10,7 +10,7 @@ interface CreateTransactionFormValues {
   xdr: string | null;
 }
 
-const maxChars = 4096;
+const MAX_XDR_CHAR_COUNT = 4096;
 
 const CreateTransaction = () => {
   const [currentAccount, handleErrors, updateIsTxnProcessing, isTxnProcessing] =
@@ -87,18 +87,18 @@ const CreateTransaction = () => {
                               message: 'Minimum character count is 3',
                             },
                             max: {
-                              value: maxChars,
-                              message: `Maximum character count is ${maxChars}`,
+                              value: MAX_XDR_CHAR_COUNT,
+                              message: `Maximum character count is ${MAX_XDR_CHAR_COUNT}`,
                             },
                           })}
                         />
                         <p
                           className={`absolute right-2 top-3 opacity-60 ${
-                            !xdrWatch || xdrWatch?.length > maxChars
+                            !xdrWatch || xdrWatch?.length > MAX_XDR_CHAR_COUNT
                               ? 'text-error-content'
                               : null
                           }`}>
-                          {xdrWatch?.length}/{maxChars}
+                          {xdrWatch?.length}/{MAX_XDR_CHAR_COUNT}
                         </p>
                       </div>
                     </div>
