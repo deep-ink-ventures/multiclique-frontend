@@ -1,4 +1,4 @@
-import { Avatar,Sidebar } from '@/components';
+import { Avatar, Sidebar } from '@/components';
 import ConnectWallet from '@/components/ConnectWallet';
 import WalletConnect from '@/components/WalletConnect';
 import useCopyToClipboard from '@/hooks/useCopyToClipboard';
@@ -17,7 +17,7 @@ import { truncateMiddle } from '@/utils';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
 import type { ReactNode } from 'react';
-import { useEffect,useState } from 'react';
+import { useEffect, useState } from 'react';
 import Settings from '../../../components/Settings';
 import Transactions from '../../../components/Transactions';
 
@@ -61,14 +61,14 @@ const Account = () => {
     if (accountId) {
       getMultiCliqueAccount.call(accountId.toString());
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [accountId]);
 
   useEffect(() => {
     if (!getMultiCliqueAccount.pending && !getMultiCliqueAccount.value) {
       // router.push('/'); Uncomment to guard page for invalid addresses in URL
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [getMultiCliqueAccount.value]);
 
   return (
