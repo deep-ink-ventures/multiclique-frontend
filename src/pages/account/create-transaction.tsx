@@ -13,13 +13,11 @@ interface CreateTransactionFormValues {
 const MAX_XDR_CHAR_COUNT = 4096;
 
 const CreateTransaction = () => {
-  const [currentAccount, handleErrors, updateIsTxnProcessing, isTxnProcessing] =
-    useMCStore((s) => [
-      s.currentAccount,
-      s.handleErrors,
-      s.updateIsTxnProcessing,
-      s.isTxnProcessing,
-    ]);
+  const [currentAccount, handleErrors, isTxnProcessing] = useMCStore((s) => [
+    s.currentAccount,
+    s.handleErrors,
+    s.isTxnProcessing,
+  ]);
 
   const formMethods = useForm<CreateTransactionFormValues>({
     defaultValues: {
