@@ -18,7 +18,6 @@ const Create = () => {
     getMulticliqueAddresses,
     initMulticliqueCore,
     initMulticliquePolicy,
-    attachPolicy,
     createMultisigDB,
   } = useMC();
 
@@ -43,9 +42,7 @@ const Create = () => {
       await getMulticliqueAddresses(
         multicliqueData,
         (addresses: { coreAddress: string; policyAddress: string }) => {
-          console.log('init core...');
           initMulticliqueCore(addresses, signerAddresses, threshold, () => {
-            console.log('init policy...');
             initMulticliquePolicy(
               addresses.policyAddress,
               {
@@ -54,28 +51,15 @@ const Create = () => {
                 elioVotes: elioConfig?.votesContractAddress,
                 elioAssets: elioConfig?.votesContractAddress,
               },
-              () => {
-                console.log('attach policy...');
-                attachPolicy(
-                  addresses.coreAddress,
-                  addresses.policyAddress,
-                  [
-                    elioConfig?.coreContractAddress,
-                    elioConfig?.votesContractAddress,
-                    elioConfig?.votesContractAddress,
-                  ],
-                  async () => {
-                    console.log('create offchain multisig ...');
-                    const multisig = await createMultisigDB({
-                      name: data.accountName,
-                      address: addresses.coreAddress,
-                      signatories,
-                      defaultThreshold: threshold,
-                      policy: 'ELIO_DAO',
-                    });
-                    console.log('multisig created', multisig);
-                  }
-                );
+              async () => {
+                const multisig = await createMultisigDB({
+                  name: data.accountName,
+                  address: addresses.coreAddress,
+                  signatories,
+                  defaultThreshold: threshold,
+                  policy: 'ELIO_DAO',
+                });
+                console.log('multisig account created: ', multisig);
               }
             );
           });

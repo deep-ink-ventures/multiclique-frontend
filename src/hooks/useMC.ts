@@ -61,7 +61,7 @@ const useMC = () => {
 
       if (txResponse.status === 'FAILED') {
         // eslint-disable-next-line
-        console.log(txResponse.status);
+        console.log(txResponse);
         updateIsTxnProcessing(false); // delay here and pass onto the next state controller
         handleErrors(errorMsg);
       }
@@ -327,13 +327,10 @@ const useMC = () => {
       | undefined;
     try {
       const txns = await makeInstallMulticliqueTxns(policyData);
-
       if (!txns) {
         return;
       }
-
       let policyResult: any;
-
       const coreResult = await submitTxn(
         txns.coreTransaction,
         'Multiclique core contract installed',
