@@ -21,6 +21,8 @@ import {
   SOROBAN_RPC_ENDPOINT,
   XLM_UNITS,
 } from '../config/index';
+import type { AccountSlice } from './account';
+import { createAccountSlice } from './account';
 import { contractErrorCodes } from './errors';
 import {
   fakeMultisigAccounts,
@@ -62,6 +64,10 @@ export interface TxnNotification {
 
 export type ContractName = 'multicliqueCore' | 'multicliquePolicy';
 
+interface PageSlices {
+  account: AccountSlice;
+}
+
 export interface MCState {
   currentAccount: WalletAccount | null;
   txnNotifications: TxnNotification[];
@@ -74,6 +80,7 @@ export interface MCState {
   multisigAccounts: Multisig[];
   multisigTransactions: MultisigTransaction[];
   elioConfig: ElioConfig | null;
+  pages: PageSlices;
 }
 
 export interface MCActions {
@@ -104,8 +111,7 @@ export interface MCActions {
 
 export interface MCStore extends MCState, MCActions {}
 
-const useMCStore = create<MCStore>((set, get) => ({
-  elioConfig: null,
+const useMCStore = create<MCStore>((set, get, store) => ({
   currentAccount: null,
   txnNotifications: [],
   isTxnProcessing: false,
@@ -120,6 +126,7 @@ const useMCStore = create<MCStore>((set, get) => ({
   },
   multisigAccounts: fakeMultisigAccounts,
   multisigTransactions: fakeMultisigTransactions,
+  elioConfig: null,
   updateCurrentAccount: (account: WalletAccount | null) => {
     set({ currentAccount: account });
   },
@@ -298,6 +305,9 @@ const useMCStore = create<MCStore>((set, get) => ({
     } catch (err) {
       get().handleErrors('Error fetching config', err);
     }
+  }, // <- Add comma here
+  pages: {
+    ...createAccountSlice(set, get, store),
   },
 }));
 
