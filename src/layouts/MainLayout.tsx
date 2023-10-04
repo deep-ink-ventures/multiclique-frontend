@@ -33,6 +33,10 @@ export const MainLayout = (props: IMainProps) => {
     router.push('/account/create');
   };
 
+  const handleCreateTransaction = () => {
+    router.push('/account/create-transaction');
+  };
+
   return (
     <>
       <div className='flex flex-wrap justify-between bg-base-200 py-4 drop-shadow-sm'>
@@ -56,21 +60,38 @@ export const MainLayout = (props: IMainProps) => {
 
           <div className='ml-auto flex space-x-4 py-2'>
             {currentAccount?.isConnected && (
-              <div className='m-1'>
-                <button
-                  className='btn btn-primary'
-                  onClick={handleCreateNewAccount}>
-                  {' '}
-                  <Image
-                    src={plus}
-                    width={17}
-                    height={17}
-                    alt='add one'
-                    className='mr-2'
-                  />
-                  Create New Account
-                </button>
-              </div>
+              <>
+                <div className='m-1'>
+                  <button
+                    className='btn btn-primary'
+                    onClick={handleCreateTransaction}>
+                    {' '}
+                    <Image
+                      src={plus}
+                      width={17}
+                      height={17}
+                      alt='add one'
+                      className='mr-2'
+                    />
+                    Create Transaction
+                  </button>
+                </div>
+                <div className='m-1'>
+                  <button
+                    className='btn btn-primary'
+                    onClick={handleCreateNewAccount}>
+                    {' '}
+                    <Image
+                      src={plus}
+                      width={17}
+                      height={17}
+                      alt='add one'
+                      className='mr-2'
+                    />
+                    Create New Account
+                  </button>
+                </div>
+              </>
             )}
 
             <WalletConnect text='Connect' />
