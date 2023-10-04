@@ -448,7 +448,9 @@ const useMC = () => {
     try {
       updateIsTxnProcessing(true);
 
-      const response = await AccountService.createMultiCliqueAccount(payload);
+      const response = await AccountService.createUpdateMultiCliqueAccount(
+        payload
+      );
 
       return response;
     } catch (err) {

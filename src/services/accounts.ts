@@ -12,7 +12,7 @@ export interface ListMultiCliqueAccountsParams {
   signatories?: string;
 }
 
-export const createMultiCliqueAccount = async (
+export const createUpdateMultiCliqueAccount = async (
   payload: Multisig
 ): Promise<Multisig> => {
   const body = JSON.stringify(keysToSnakeCase(payload));
@@ -64,7 +64,7 @@ export const getMultiCliqueAccount = async (address: string) => {
 };
 
 export const AccountService = {
-  createMultiCliqueAccount,
+  createUpdateMultiCliqueAccount,
   listMultiCliqueAccounts,
   getMultiCliqueAccount,
 };

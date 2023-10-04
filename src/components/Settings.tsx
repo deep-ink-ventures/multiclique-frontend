@@ -1,5 +1,9 @@
 import { Accordion, PolicyAddressesForm, TransactionBadge } from '@/components';
 import CreateMultisigForm from '@/components/CreateMultisigForm';
+import { usePromise } from '@/hooks/usePromise';
+import { AccountService } from '@/services';
+import useMCStore from '@/stores/MCStore';
+import type { Signatory } from '@/types/multisig';
 import cn from 'classnames';
 import { useState } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
@@ -36,6 +40,7 @@ const PolicyForm = ({ formName }: { formName?: string }) => {
   const { handleSubmit } = formMethods;
 
   const onSubmit = () => {};
+
   return (
     <FormProvider {...formMethods}>
       <form
@@ -56,12 +61,53 @@ const PolicyForm = ({ formName }: { formName?: string }) => {
   );
 };
 
-// TODO: when integrating existing record, change CreateMultisigForm.Threshold minimumSigners to current signer count.
 const Settings = () => {
+  const [accountPage] = useMCStore((s) => [s.pages.account]);
   const [activeAccordion, setActiveAccordion] = useState<number | null>(null);
   const [activeSettingsTab, setActiveSettingsTab] = useState(
     SettingsTabs.at(0)?.id
   );
+
+  // @ts-ignore
+  const updateSigner = usePromise({
+    promiseFunction: async (signer: Signatory, isRemoval?: boolean) => {
+      if (accountPage.multisig.data?.address != null) {
+        const response = await AccountService.createUpdateMultiCliqueAccount({
+          ...accountPage.multisig.data,
+          signatories: isRemoval
+            ? (accountPage.multisig.data.signatories ?? []).filter(
+                (signerAddress) =>
+                  signerAddress.address.toLowerCase() ===
+                  signer.address.toLowerCase()
+              )
+            : [...(accountPage.multisig.data.signatories ?? []), signer],
+        });
+        return response;
+      }
+      return null;
+    },
+  });
+
+  const handleSubmitAddSigner = async (newSigner: Signatory) => {
+    // Uncomment after adding onchain data update
+    // await updateSigner.call(newSigner, false);
+    // if (accountPage.multisig.data?.address) {
+    //   accountPage.multisig.getMultisigAccount(
+    //     accountPage.multisig.data?.address
+    //   );
+    // }
+  };
+
+  const handleSubmitRemoveSigner = async (removeSigner: Signatory) => {
+    // Uncomment after adding onchain data update
+    // await updateSigner.call(removeSigner, true);
+    // if (accountPage.multisig.data?.address) {
+    //   accountPage.multisig.getMultisigAccount(
+    //     accountPage.multisig.data?.address
+    //   );
+    // }
+  };
+
   return (
     <>
       <div className='flex items-center'>
@@ -95,12 +141,14 @@ const Settings = () => {
         className={cn('!mt-0 space-y-3 rounded-lg bg-base-200 p-4', {
           hidden: activeSettingsTab !== SettingsTabs.at(0)?.id,
         })}>
-        <CreateMultisigForm onSubmit={() => {}}>
+        <CreateMultisigForm
+          onSubmit={(data) => {
+            handleSubmitAddSigner(data.signatories?.[0]);
+          }}>
           <CreateMultisigForm.Signers
             title='Add a Signer'
             subtitle=''
             disableCreator
-            // TODO: set MC signatories + 1 as maxSignatories
             maxSignatories={1}
             minSignatories={1}
           />
@@ -111,11 +159,13 @@ const Settings = () => {
         className={cn('!mt-0 space-y-3 rounded-lg bg-base-200 p-4', {
           hidden: activeSettingsTab !== SettingsTabs.at(1)?.id,
         })}>
-        <CreateMultisigForm onSubmit={() => {}}>
+        <CreateMultisigForm
+          onSubmit={(data) => {
+            handleSubmitRemoveSigner(data.signatories?.[0]);
+          }}>
           <CreateMultisigForm.Signers
             title='Remove a Signer'
             subtitle=''
-            // TODO: set MC signatories + 1 as maxSignatories
             minSignatories={1}
             maxSignatories={1}
             disableCreator
