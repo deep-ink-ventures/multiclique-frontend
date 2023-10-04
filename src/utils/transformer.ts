@@ -1,5 +1,5 @@
 export type CamelCase<S extends string> = S extends `${infer A}_${infer B}`
-  ? `${Lowercase<A>}${Capitalize<B>}`
+  ? `${Lowercase<A>}${Capitalize<CamelCase<B>>}`
   : Lowercase<S>;
 
 export type CamelCaseObject<T extends Record<string, any>> = {
@@ -27,15 +27,13 @@ export const keysToCamelCase = <T extends Record<any, any>>(
   }, {} as CamelCaseObject<T>);
 
 export type SnakeCase<S extends string> = S extends `${infer A}${infer B}`
-  ? B extends Uncapitalize<B>
-    ? `${Uncapitalize<A>}${SnakeCase<B>}`
-    : `${Uncapitalize<A>}_${Uncapitalize<B>}`
+  ? `${A extends Capitalize<A> ? '_' : ''}${Lowercase<A>}${SnakeCase<B>}`
   : S;
 
 export type SnakeCaseObject<T extends Record<string, any>> = {
   // @ts-ignore
   [K in keyof T as SnakeCase<K>]: T[K] extends any[]
-    ? CamelCaseObject<T[K][number]>[]
+    ? SnakeCaseObject<T[K][number]>[]
     : T[K] extends Date
     ? T[K]
     : T[K] extends Record<any, any>
