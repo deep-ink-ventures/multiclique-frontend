@@ -5,6 +5,7 @@ import useMCStore from '@/stores/MCStore';
 import { ErrorMessage } from '@hookform/error-message';
 import cn from 'classnames';
 import { FormProvider, useForm, type SubmitHandler } from 'react-hook-form';
+import StellarSdk from 'stellar-sdk';
 
 interface CreateTransactionFormValues {
   xdr: string | null;
@@ -29,6 +30,7 @@ const CreateTransaction = () => {
     register,
     watch,
     handleSubmit,
+    setError,
     formState: { errors },
   } = formMethods;
 
@@ -38,7 +40,15 @@ const CreateTransaction = () => {
     const { xdr } = data;
 
     try {
-      console.log('xdr', xdr);
+      const isValidXDR = StellarSdk.xdr.TransactionEnvelope.validateXDR(
+        xdr?.toString(),
+        'base64'
+      );
+
+      if (!isValidXDR)
+        return setError('xdr', {
+          message: 'Invalid XDR',
+        });
     } catch (err) {
       handleErrors('Error in creating transaction using XDR', err);
     }
@@ -73,10 +83,10 @@ const CreateTransaction = () => {
                         </p>
                       </div>
                       <div className='relative'>
-                        <input
-                          className={cn('input pr-[25%]')}
-                          type='text'
+                        <textarea
+                          className={cn('w-full p-2')}
                           placeholder=''
+                          rows={10}
                           disabled={isTxnProcessing}
                           {...register('xdr', {
                             required: 'Required',
@@ -84,20 +94,31 @@ const CreateTransaction = () => {
                               value: 3,
                               message: 'Minimum character count is 3',
                             },
+                            pattern: {
+                              value:
+                                /^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=|[A-Za-z0-9+/]{4})$/,
+                              message: 'Input is not a valid base64',
+                            },
                             max: {
                               value: MAX_XDR_CHAR_COUNT,
                               message: `Maximum character count is ${MAX_XDR_CHAR_COUNT}`,
                             },
                           })}
                         />
-                        <p
-                          className={`absolute right-2 top-3 opacity-60 ${
-                            !xdrWatch || xdrWatch?.length > MAX_XDR_CHAR_COUNT
-                              ? 'text-error-content'
-                              : null
-                          }`}>
-                          {xdrWatch?.length}/{MAX_XDR_CHAR_COUNT}
-                        </p>
+
+                        <div className='mt-2 flex  w-full items-center justify-between'>
+                          <p className='text-sm text-neutral-focus'>
+                            Input a base-64 encoded XDR blob
+                          </p>
+                          <p
+                            className={` text-right opacity-60 ${
+                              !xdrWatch || xdrWatch?.length > MAX_XDR_CHAR_COUNT
+                                ? 'text-error-content'
+                                : null
+                            }`}>
+                            {xdrWatch?.length}/{MAX_XDR_CHAR_COUNT}
+                          </p>
+                        </div>
                       </div>
                     </div>
                     <ErrorMessage
@@ -116,7 +137,7 @@ const CreateTransaction = () => {
                     className={cn(`btn btn-primary mr-3 w-48`, {
                       loading: isTxnProcessing,
                     })}
-                    disabled={isTxnProcessing || errors.xdr != null}
+                    disabled={isTxnProcessing}
                     type='submit'>
                     {`${isTxnProcessing ? 'Processing' : 'Submit'}`}
                   </button>
