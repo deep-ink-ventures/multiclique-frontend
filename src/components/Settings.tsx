@@ -72,7 +72,7 @@ const Settings = () => {
   const updateSigner = usePromise({
     promiseFunction: async (signer: Signatory, isRemoval?: boolean) => {
       if (accountPage.multisig.data?.address != null) {
-        const response = await AccountService.createUpdateMultiCliqueAccount({
+        const response = await AccountService.createMultiCliqueAccount({
           ...accountPage.multisig.data,
           signatories: isRemoval
             ? (accountPage.multisig.data.signatories ?? []).filter(

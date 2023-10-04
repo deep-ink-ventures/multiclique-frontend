@@ -21,7 +21,7 @@ export const BLOCK_TIME: number = 5;
 export const XLM_UNITS: BigNumber = BigNumber(10000000);
 
 /** In XLM */
-export const BASE_FEE: string = '100';
+export const BASE_FEE: string = '1000';
 
 export const NETWORK_PASSPHRASE: { [key in Network]: string } = {
   FUTURENET: 'Test SDF Future Network ; October 2022',

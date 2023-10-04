@@ -13,6 +13,8 @@ import * as SorobanClient from 'soroban-client';
 import type { Multisig } from '@/types/multisig';
 import type { MultisigTransaction } from '@/types/multisigTransaction';
 
+import { getConfig } from '@/services/config';
+import type { ElioConfig } from '@/types/elioConfig';
 import {
   NETWORK,
   NETWORK_PASSPHRASE,
@@ -77,6 +79,7 @@ export interface MCState {
   MCConfig: MCConfig;
   multisigAccounts: Multisig[];
   multisigTransactions: MultisigTransaction[];
+  elioConfig: ElioConfig | null;
   pages: PageSlices;
 }
 
@@ -103,6 +106,7 @@ export interface MCActions {
   updateIsTxnProcessing: (isProcessing: boolean) => void;
   updateMultisigAccounts: (accounts: Multisig[]) => void;
   updateMultisigTransactions: (transactions: MultisigTransaction[]) => void;
+  fetchConfig: () => void;
 }
 
 export interface MCStore extends MCState, MCActions {}
@@ -122,6 +126,7 @@ const useMCStore = create<MCStore>((set, get, store) => ({
   },
   multisigAccounts: fakeMultisigAccounts,
   multisigTransactions: fakeMultisigTransactions,
+  elioConfig: null,
   updateCurrentAccount: (account: WalletAccount | null) => {
     set({ currentAccount: account });
   },
@@ -293,6 +298,14 @@ const useMCStore = create<MCStore>((set, get, store) => ({
   updateMultisigTransactions: (transactions: MultisigTransaction[]) => {
     set({ multisigTransactions: transactions });
   },
+  fetchConfig: async () => {
+    try {
+      const config = await getConfig();
+      set({ elioConfig: config });
+    } catch (err) {
+      get().handleErrors('Error fetching config', err);
+    }
+  }, // <- Add comma here
   pages: {
     ...createAccountSlice(set, get, store),
   },

@@ -8,14 +8,21 @@ import useMCStore from '@/stores/MCStore';
 import type { SubmitHandler } from 'react-hook-form';
 
 const Create = () => {
-  const [currentAccount, handleErrors, updateIsTxnProcessing] = useMCStore(
-    (s) => [s.currentAccount, s.handleErrors, s.updateIsTxnProcessing]
-  );
+  const [currentAccount, handleErrors, elioConfig] = useMCStore((s) => [
+    s.currentAccount,
+    s.handleErrors,
+    s.elioConfig,
+  ]);
 
-  const { getMulticliqueAddresses, initMulticliqueCore } = useMC();
+  const {
+    getMulticliqueAddresses,
+    initMulticliqueCore,
+    initMulticliquePolicy,
+    createMultisigDB,
+  } = useMC();
 
   const onSubmit: SubmitHandler<ICreateMultisigFormProps> = async (data) => {
-    if (!currentAccount) return;
+    if (!currentAccount || !elioConfig) return;
 
     const { creatorAddress, signatories, threshold } = data;
 
@@ -35,21 +42,31 @@ const Create = () => {
       await getMulticliqueAddresses(
         multicliqueData,
         (addresses: { coreAddress: string; policyAddress: string }) => {
-          initMulticliqueCore(
-            addresses,
-            signerAddresses,
-            threshold,
-            async () => {
-              await new Promise((resolve) => {
-                setTimeout(resolve, 3000);
-              });
-              updateIsTxnProcessing(false);
-            }
-          );
+          initMulticliqueCore(addresses, signerAddresses, threshold, () => {
+            initMulticliquePolicy(
+              addresses.policyAddress,
+              {
+                multiclique: addresses.coreAddress,
+                elioCore: elioConfig?.coreContractAddress,
+                elioVotes: elioConfig?.votesContractAddress,
+                elioAssets: elioConfig?.votesContractAddress,
+              },
+              async () => {
+                const multisig = await createMultisigDB({
+                  name: data.accountName,
+                  address: addresses.coreAddress,
+                  signatories,
+                  defaultThreshold: threshold,
+                  policy: 'ELIO_DAO',
+                });
+                console.log('multisig account created: ', multisig);
+              }
+            );
+          });
         }
       );
-    } catch (err) {
-      handleErrors('Error in transferring ownership to multisig', err);
+    } catch (error) {
+      handleErrors('Error in creating Multisig, error');
     }
   };
 
