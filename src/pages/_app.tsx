@@ -31,7 +31,8 @@ const MyApp = ({ Component, pageProps }: AppProps) => {
 
   useEffect(() => {
     fetchConfigCb();
-  }, []);
+    console.log('fetching config');
+  }, [fetchConfigCb]);
 
   return (
     <div className='relative overflow-x-hidden'>
