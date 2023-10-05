@@ -1,5 +1,6 @@
 import LoadingModal from '@/components/LoadingModal';
 import SignatureLoading from '@/components/SignatureLoadingModal';
+import TransactionLoadingModal from '@/components/TransactionLoadingModal';
 import type { ReactNode } from 'react';
 import { createContext, useContext, useReducer } from 'react';
 import type { IAction } from './reducer';
@@ -51,6 +52,9 @@ export const LoadingScreenController = ({
         <LoadingModal isVisible={state.isVisible}>
           {state.modal === LoadingScreenModal.Signature && (
             <SignatureLoading {...state.modalProps} />
+          )}
+          {state.modal === LoadingScreenModal.Transaction && (
+            <TransactionLoadingModal {...state.modalProps} />
           )}
         </LoadingModal>
 

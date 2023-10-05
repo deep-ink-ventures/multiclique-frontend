@@ -1,10 +1,29 @@
 import ConnectWallet from '@/components/ConnectWallet';
 import Welcome from '@/components/Welcome';
+import { useLoadingScreenContext } from '@/context/LoadingScreen';
 import { MainLayout } from '@/layouts';
 import useMCStore from '@/stores/MCStore';
+import { useEffect } from 'react';
 
 const Index = () => {
-  const [currentAccount] = useMCStore((s) => [s.currentAccount]);
+  const [currentAccount, isTxnProcessing] = useMCStore((s) => [
+    s.currentAccount,
+    s.isTxnProcessing,
+  ]);
+
+  const loaderContext = useLoadingScreenContext();
+  useEffect(() => {
+    if (isTxnProcessing) {
+      loaderContext.setAction({
+        type: 'SHOW_TRANSACTION_PROCESSING',
+      });
+    } else {
+      loaderContext.setAction({
+        type: 'CLOSE',
+      });
+    }
+  }, [isTxnProcessing]);
+
   return (
     <MainLayout
       title={'MultiClique - Stellar Soroban Multisig Tools'}

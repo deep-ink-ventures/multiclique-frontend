@@ -16,8 +16,6 @@ const SignatureLoading = ({
 }: ISignatureLoadingProps) => {
   return (
     <>
-      <div className='text-2xl font-semibold'>Transaction Pending...</div>
-      {/*  TODO: add a spinner */}
       <div className='w-96'>
         <Stepper>
           {Array(totalSignCount)

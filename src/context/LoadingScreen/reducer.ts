@@ -1,25 +1,28 @@
-import type { ISignatureLoadingProps } from '@/components/SignatureLoadingModal';
-
+const SHOW_TRANSACTION_PROCESSING = 'SHOW_TRANSACTION_PROCESSING';
 const SHOW_SIGNATURE = 'SHOW_SIGNATURE';
 const CLOSE = 'CLOSE';
 
-export type IActionTypes = typeof SHOW_SIGNATURE | typeof CLOSE;
+export type IActionTypes =
+  | typeof SHOW_SIGNATURE
+  | typeof CLOSE
+  | typeof SHOW_TRANSACTION_PROCESSING;
 
-export type IModalProps = ISignatureLoadingProps;
+export type IModalProps = any;
 
 export interface IAction {
   type: IActionTypes;
-  payload: IModalProps;
+  payload?: IModalProps;
 }
 
 export interface ILoadingScreenState {
   isVisible: boolean;
   modal: LoadingScreenModal | null;
-  modalProps: IModalProps | null;
+  modalProps?: IModalProps | null;
 }
 
 export enum LoadingScreenModal {
   Signature = 'Signature',
+  Transaction = 'Trasaction',
 }
 const reducer = (
   state: ILoadingScreenState,
@@ -32,6 +35,11 @@ const reducer = (
         isVisible: true,
         modal: LoadingScreenModal.Signature,
         modalProps: action.payload,
+      };
+    case SHOW_TRANSACTION_PROCESSING:
+      return {
+        isVisible: true,
+        modal: LoadingScreenModal.Transaction,
       };
     case CLOSE:
       return {
