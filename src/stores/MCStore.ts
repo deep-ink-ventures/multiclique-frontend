@@ -213,7 +213,7 @@ const useMCStore = create<MCStore>((set, get, store) => ({
 
       let account;
 
-      const accountErrorMessage = `We're unable to locate your account or it may not have been funded yet. Please review your account information, or ensure there are sufficient funds available.`;
+      const accountErrorMessage = `We're unable to locate your account or it may not have been funded yet.`;
 
       try {
         account = await server.loadAccount(publicKey);
