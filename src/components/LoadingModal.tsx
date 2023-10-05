@@ -10,7 +10,7 @@ const LoadingModal = ({ isVisible = true, children }: ILoadingModalProps) => {
   return (
     <div
       className={cn(
-        'fixed left-0 top-0 z-[1000] flex h-full w-full items-center justify-center',
+        'fixed left-0 top-0 z-[900] flex h-full w-full items-center justify-center',
         {
           hidden: !isVisible,
         }
