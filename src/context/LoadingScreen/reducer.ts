@@ -20,6 +20,10 @@ export type IAction =
   | {
       type: typeof SHOW_TRANSACTION_PROCESSING;
       payload?: ITransactionLoadingModalProps;
+    }
+  | {
+      type: typeof CLOSE;
+      payload?: null;
     };
 
 export interface ILoadingScreenState {

@@ -89,8 +89,7 @@ const Create = () => {
             useLoadingScreen.setAction({
               type: 'SHOW_SIGNATURE',
               payload: {
-                totalSignCount: 4,
-                currentSignCount: 4,
+                isComplete: true,
               },
             });
             initMulticliquePolicy(
@@ -104,9 +103,6 @@ const Create = () => {
               async () => {
                 useLoadingScreen.setAction({
                   type: 'CLOSE',
-                  payload: {
-                    isComplete: true,
-                  },
                 });
                 const multisigPayload = {
                   name: data.accountName,
