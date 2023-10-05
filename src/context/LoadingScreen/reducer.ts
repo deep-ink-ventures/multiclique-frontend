@@ -1,3 +1,6 @@
+import type { ISignatureLoadingProps } from '@/components/SignatureLoadingModal';
+import type { ITransactionLoadingModalProps } from '@/components/TransactionLoadingModal';
+
 const SHOW_TRANSACTION_PROCESSING = 'SHOW_TRANSACTION_PROCESSING';
 const SHOW_SIGNATURE = 'SHOW_SIGNATURE';
 const CLOSE = 'CLOSE';
@@ -9,10 +12,15 @@ export type IActionTypes =
 
 export type IModalProps = any;
 
-export interface IAction {
-  type: IActionTypes;
-  payload?: IModalProps;
-}
+export type IAction =
+  | {
+      type: typeof SHOW_SIGNATURE;
+      payload?: ISignatureLoadingProps;
+    }
+  | {
+      type: typeof SHOW_TRANSACTION_PROCESSING;
+      payload?: ITransactionLoadingModalProps;
+    };
 
 export interface ILoadingScreenState {
   isVisible: boolean;
