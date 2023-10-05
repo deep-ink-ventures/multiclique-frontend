@@ -1,4 +1,4 @@
-import { Accordion,PolicyAddressesForm,TransactionBadge } from '@/components';
+import { Accordion, PolicyAddressesForm, TransactionBadge } from '@/components';
 import CreateMultisigForm from '@/components/CreateMultisigForm';
 import { usePromise } from '@/hooks/usePromise';
 import { AccountService } from '@/services';
@@ -6,7 +6,7 @@ import useMCStore from '@/stores/MCStore';
 import type { Signatory } from '@/types/multisig';
 import cn from 'classnames';
 import { useState } from 'react';
-import { FormProvider,useForm } from 'react-hook-form';
+import { FormProvider, useForm } from 'react-hook-form';
 
 const SettingsTabs: Array<{ id: string; label: string }> = [
   {
