@@ -338,6 +338,9 @@ const useMC = () => {
         'Error in Multiclique core contract installation',
         'multicliqueCore',
         async () => {
+          if (firstCb) {
+            firstCb();
+          }
           await new Promise((resolve) => {
             setTimeout(resolve, 2000);
           });
@@ -386,6 +389,7 @@ const useMC = () => {
               };
               // eslint-disable-next-line
               console.log('contract addresses', contractAddresses)
+
               if (secondCb) {
                 secondCb(contractAddresses);
               }

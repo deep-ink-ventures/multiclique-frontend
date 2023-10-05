@@ -45,7 +45,7 @@ const SignatureLoading = ({
           {isComplete ? totalSignCount : currentSignCount - 1} out of{' '}
           {totalSignCount}
         </div>
-        <div>approvals{totalSignCount > 1 && 's'} complete</div>
+        <div>approval{totalSignCount > 1 && 's'} complete</div>
       </div>
     </>
   );
