@@ -16,9 +16,9 @@ This is the frontend UI for MultiClique Protocol. Users can use this interface t
 This application is built with React and Next.js. We use Tailwind for CSS and [Zustand](https://github.com/pmndrs/zustand) for state management.
 
 
-Zustand stores folder is [here](./src/stores/). Query actions are also in the [`useMCStore`](./src/stores/MCStore.tsx) file. 
+Zustand stores folder is [here](./src/stores/). Query actions are also in the [`useMCStore`](./src/stores/MCStore.ts) file. 
 
-Most of the transaction actions are in the [`useMC`](./src/hooks/useMC.tsx) hook
+Most of the transaction actions are in the [`useMC`](./src/hooks/useMC.ts) hook
 
 ## Getting Started
 
@@ -72,4 +72,4 @@ This repo uses [Conventional Commits](https://www.conventionalcommits.org/en/v1.
 
 
 ## License
-[APACHE 2.0 License](https://github.com/deep-ink-ventures/multiclique-frontend/blob/main/LICENSE)
+[APACHE 2.0 License](https://github.com/deep-ink-ventures/multiclique-frontend/blob/main/LICENCE)
