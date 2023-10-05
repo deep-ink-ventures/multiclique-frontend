@@ -16,12 +16,13 @@ const SignatureLoading = ({
 }: ISignatureLoadingProps) => {
   return (
     <>
-      <div className='text-2xl font-semibold'>Transaction Pending</div>
+      <div className='text-2xl font-semibold'>Transaction Pending...</div>
+      {/*  TODO: add a spinner */}
       <div className='w-96'>
         <Stepper>
           {Array(totalSignCount)
             .fill(null)
-            .map((item, index) => (
+            .map((_item, index) => (
               <Stepper.Step
                 key={index}
                 isLast={index + 1 === totalSignCount}
@@ -44,7 +45,7 @@ const SignatureLoading = ({
           {isComplete ? totalSignCount : currentSignCount - 1} out of{' '}
           {totalSignCount}
         </div>
-        <div>signature{totalSignCount > 1 && 's'} complete</div>
+        <div>approvals{totalSignCount > 1 && 's'} complete</div>
       </div>
     </>
   );

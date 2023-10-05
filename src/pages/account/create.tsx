@@ -2,17 +2,32 @@ import ConnectWallet from '@/components/ConnectWallet';
 import type { ICreateMultisigFormProps } from '@/components/CreateMultisigForm';
 import CreateMultisigForm from '@/components/CreateMultisigForm';
 import useMC from '@/hooks/useMC';
-
 import { MainLayout } from '@/layouts';
 import useMCStore from '@/stores/MCStore';
+import { useRouter } from 'next/router';
 import type { SubmitHandler } from 'react-hook-form';
+import { useLoadingScreenContext } from '../../context/LoadingScreen/index';
 
 const Create = () => {
-  const [currentAccount, handleErrors, elioConfig] = useMCStore((s) => [
+  const [
+    currentAccount,
+    handleErrors,
+    elioConfig,
+    updateIsTxProcessing,
+    updateMultisigAccounts,
+    multisigAccounts,
+  ] = useMCStore((s) => [
     s.currentAccount,
     s.handleErrors,
     s.elioConfig,
+    s.updateIsTxnProcessing,
+    s.updateMultisigAccounts,
+    s.multisigAccounts,
   ]);
+
+  const router = useRouter();
+
+  const useLoadingScreen = useLoadingScreenContext();
 
   const {
     getMulticliqueAddresses,
@@ -24,7 +39,12 @@ const Create = () => {
   const onSubmit: SubmitHandler<ICreateMultisigFormProps> = async (data) => {
     if (!currentAccount || !elioConfig) return;
 
-    const { creatorAddress, signatories, threshold } = data;
+    const { creatorName, creatorAddress, signatories, threshold } = data;
+
+    const creatorSignatory = {
+      name: creatorName,
+      address: creatorAddress,
+    };
 
     const signerAddresses = [
       creatorAddress,
@@ -37,12 +57,42 @@ const Create = () => {
       source: currentAccount.publicKey,
       policy_preset: 'ELIO_DAO',
     };
-    //
+    // TODO: if users reject, the loading screen won't disappear
     try {
+      useLoadingScreen.setAction({
+        type: 'SHOW_SIGNATURE',
+        payload: {
+          totalSignCount: 4,
+          currentSignCount: 1,
+        },
+      });
       await getMulticliqueAddresses(
         multicliqueData,
+        () => {
+          useLoadingScreen.setAction({
+            type: 'SHOW_SIGNATURE',
+            payload: {
+              totalSignCount: 4,
+              currentSignCount: 2,
+            },
+          });
+        },
         (addresses: { coreAddress: string; policyAddress: string }) => {
+          useLoadingScreen.setAction({
+            type: 'SHOW_SIGNATURE',
+            payload: {
+              totalSignCount: 4,
+              currentSignCount: 3,
+            },
+          });
           initMulticliqueCore(addresses, signerAddresses, threshold, () => {
+            useLoadingScreen.setAction({
+              type: 'SHOW_SIGNATURE',
+              payload: {
+                totalSignCount: 4,
+                currentSignCount: 4,
+              },
+            });
             initMulticliquePolicy(
               addresses.policyAddress,
               {
@@ -52,14 +102,26 @@ const Create = () => {
                 elioAssets: elioConfig?.votesContractAddress,
               },
               async () => {
-                const multisig = await createMultisigDB({
+                useLoadingScreen.setAction({
+                  type: 'CLOSE',
+                  payload: {
+                    isComplete: true,
+                  },
+                });
+                const multisigPayload = {
                   name: data.accountName,
                   address: addresses.coreAddress,
-                  signatories,
+                  signatories: [creatorSignatory, ...signatories],
                   defaultThreshold: threshold,
                   policy: 'ELIO_DAO',
-                });
-                console.log('multisig account created: ', multisig);
+                };
+                const multisig = await createMultisigDB(multisigPayload);
+                if (multisig) {
+                  updateMultisigAccounts([multisig, ...multisigAccounts]);
+                }
+                updateIsTxProcessing(false);
+                // route to the index page
+                router.push(`/`);
               }
             );
           });

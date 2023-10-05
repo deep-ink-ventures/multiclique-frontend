@@ -305,7 +305,7 @@ const useMCStore = create<MCStore>((set, get, store) => ({
     } catch (err) {
       get().handleErrors('Error fetching config', err);
     }
-  }, // <- Add comma here
+  },
   pages: {
     ...createAccountSlice(set, get, store),
   },

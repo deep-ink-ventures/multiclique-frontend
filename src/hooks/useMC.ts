@@ -317,7 +317,8 @@ const useMC = () => {
       source: string;
       policy_preset: string;
     },
-    cb?: Function
+    firstCb?: Function,
+    secondCb?: Function
   ) => {
     let contractAddresses:
       | {
@@ -385,8 +386,8 @@ const useMC = () => {
               };
               // eslint-disable-next-line
               console.log('contract addresses', contractAddresses)
-              if (cb) {
-                cb(contractAddresses);
+              if (secondCb) {
+                secondCb(contractAddresses);
               }
 
               return contractAddresses;
