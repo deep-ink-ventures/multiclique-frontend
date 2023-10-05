@@ -94,7 +94,8 @@ export interface MCActions {
     contractName?: ContractName
   ) => void;
   fetchNativeTokenBalance: (
-    publickey: string
+    publickey: string,
+    onError?: (err: any) => void
   ) => Promise<string | null | undefined>;
   updateIsConnectModalOpen: (isOpen: boolean) => void;
   fetchMCAccounts: (publickey: string) => Promise<Multisig[] | null>;
@@ -136,32 +137,42 @@ const useMCStore = create<MCStore>((set, get, store) => ({
   getWallet: async () => {
     // wallet is automatically injected to the window, we just need to get the values
 
-    const connected = await isConnected();
-    const publicKey = await getPublicKey();
-    if (!publicKey || !connected) {
-      get().addTxnNotification({
-        title: 'Please install Freighter Wallet',
-        message: 'You need to install Freighter Wallet to continue',
-        type: TxnResponse.Error,
-        timestamp: Date.now(),
-      });
-    }
-    const networkDetails = await getNetworkDetails();
-    const nativeBalance = await get().fetchNativeTokenBalance(publicKey);
-    const MCaccounts = await get().fetchMCAccounts(publicKey);
+    try {
+      const connected = await isConnected();
+      const publicKey = await getPublicKey();
+      if (!publicKey || !connected) {
+        get().addTxnNotification({
+          title: 'Please install Freighter Wallet',
+          message: 'You need to install Freighter Wallet to continue',
+          type: TxnResponse.Error,
+          timestamp: Date.now(),
+        });
+      }
+      const networkDetails = await getNetworkDetails();
 
-    const wallet: WalletAccount = {
-      isConnected: connected,
-      network: networkDetails.network,
-      networkPassphrase: networkDetails.networkPassphrase,
-      publicKey,
-      networkUrl: networkDetails.networkUrl,
-      nativeTokenBalance: nativeBalance
-        ? BigNumber(nativeBalance).multipliedBy(XLM_UNITS)
-        : BigNumber(0),
-      MCAccounts: MCaccounts || [],
-    };
-    set({ currentAccount: wallet });
+      const nativeBalance = await get().fetchNativeTokenBalance(
+        publicKey,
+        (err) => {
+          throw new Error(err);
+        }
+      );
+      const MCaccounts = await get().fetchMCAccounts(publicKey);
+
+      const wallet: WalletAccount = {
+        isConnected: connected,
+        network: networkDetails.network,
+        networkPassphrase: networkDetails.networkPassphrase,
+        publicKey,
+        networkUrl: networkDetails.networkUrl,
+        nativeTokenBalance: nativeBalance
+          ? BigNumber(nativeBalance).multipliedBy(XLM_UNITS)
+          : BigNumber(0),
+        MCAccounts: MCaccounts || [],
+      };
+      set({ currentAccount: wallet });
+    } catch (ex) {
+      console.error(ex);
+    }
   },
   addTxnNotification: (newNotification) => {
     const oldTxnNotis = get().txnNotifications;
@@ -191,22 +202,38 @@ const useMCStore = create<MCStore>((set, get, store) => ({
 
     get().addTxnNotification(noti);
   },
-  fetchNativeTokenBalance: async (publicKey: string) => {
+  fetchNativeTokenBalance: async (
+    publicKey: string,
+    onError?: (error: any) => void
+  ) => {
     try {
       const server = new StellarSdk.Server(
         'https://horizon-futurenet.stellar.org/'
       );
-      const account = await server.loadAccount(publicKey);
-      if (!account.accountId()) {
-        get().handleErrors('We cannot find your account');
-        return;
+
+      let account;
+
+      const accountErrorMessage = `We're unable to locate your account or it may not have been funded yet. Please review your account information, or ensure there are sufficient funds available.`;
+
+      try {
+        account = await server.loadAccount(publicKey);
+        if (!account.accountId()) {
+          get().handleErrors(accountErrorMessage);
+          return;
+        }
+      } catch (ex) {
+        throw new Error(accountErrorMessage);
       }
+
       const nativeBalance = account.balances.filter((balance: any) => {
         return balance.asset_type === 'native';
       })[0]?.balance;
       return nativeBalance;
     } catch (err) {
       get().handleErrors(err);
+      if (onError) {
+        onError(err);
+      }
       return null;
     }
   },
