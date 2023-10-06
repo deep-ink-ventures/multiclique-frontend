@@ -7,6 +7,7 @@ import StellarSdk from 'stellar-sdk';
 import TransactionNotification from '@/components/Notification';
 import { LoadingScreenController } from '@/context/LoadingScreen';
 
+import useNetworkStatus from '@/hooks/useNetworkStatus';
 import useMCStore from '@/stores/MCStore';
 import '@/styles/global.css';
 import { useCallback, useEffect } from 'react';
@@ -33,6 +34,8 @@ const MyApp = ({ Component, pageProps }: AppProps) => {
     fetchConfigCb();
     console.log('fetching config');
   }, [fetchConfigCb]);
+
+  useNetworkStatus();
 
   return (
     <div className='relative overflow-x-hidden'>
