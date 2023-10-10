@@ -122,7 +122,7 @@ const Account = () => {
             </Sidebar>
           </div>
           <div className='grow space-y-4 p-6'>
-            {currentTab === 'Dashboard' && (
+            {currentTab === 'Transactions' && (
               <Transactions address={accountId?.toString()} />
             )}
             {currentTab === 'Settings' && <Settings />}

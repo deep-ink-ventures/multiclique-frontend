@@ -5,6 +5,7 @@ import useMCStore from '@/stores/MCStore';
 
 const Index = () => {
   const [currentAccount] = useMCStore((s) => [s.currentAccount]);
+
   return (
     <MainLayout
       title={'MultiClique - Stellar Soroban Multisig Tools'}

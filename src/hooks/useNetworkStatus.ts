@@ -22,7 +22,10 @@ const useNetworkStatus = () => {
       if (currentAccount) {
         const networkDetails = await getNetworkDetails();
         setCurrentNetwork(networkDetails);
-        setIsSupportedNetwork(networkDetails.network === NETWORK);
+        setIsSupportedNetwork(
+          networkDetails.network === NETWORK ||
+            currentAccount?.network === NETWORK
+        );
       }
     } catch (error) {
       console.error('Error checking network:', error);
@@ -78,10 +81,16 @@ const useNetworkStatus = () => {
   }, []);
 
   useEffect(() => {
-    if (!isSupportedNetwork && currentAccount) {
+    if (
+      !isSupportedNetwork &&
+      currentAccount &&
+      currentAccount.network !== NETWORK
+    ) {
       addTxnNotification({
         title: 'Unsupported Network',
-        message: `Network ${currentNetwork?.network} is not supported. Please connect to FutureNet`,
+        message: `Network ${
+          currentNetwork?.network ?? currentAccount.network
+        } is not supported. Please connect to FutureNet`,
         type: TxnResponse.Error,
         timestamp: Date.now(),
       });

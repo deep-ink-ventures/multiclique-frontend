@@ -97,9 +97,6 @@ const Create = () => {
                 async () => {
                   useLoadingScreen.setAction({
                     type: 'CLOSE',
-                    payload: {
-                      isComplete: true,
-                    },
                   });
                   const multisigPayload = {
                     name: data.accountName,
@@ -125,9 +122,6 @@ const Create = () => {
       updateIsTxProcessing(false);
       useLoadingScreen.setAction({
         type: 'CLOSE',
-        payload: {
-          isComplete: true,
-        },
       });
     }
   };
