@@ -1,7 +1,7 @@
 import { NETWORK } from '@/config';
-import useMCStore,{ TxnResponse } from '@/stores/MCStore';
+import useMCStore, { TxnResponse } from '@/stores/MCStore';
 import { getNetworkDetails } from '@stellar/freighter-api';
-import { useEffect,useState } from 'react';
+import { useEffect, useState } from 'react';
 
 const IDLE_INTERVAL = 5000;
 const ACTIVE_INTERVAL = 1000;
