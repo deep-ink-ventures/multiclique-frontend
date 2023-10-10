@@ -30,10 +30,11 @@ const Create = () => {
   const useLoadingScreen = useLoadingScreenContext();
 
   const {
-    getMulticliqueAddresses,
     initMulticliqueCore,
     initMulticliquePolicy,
     createMultisigDB,
+    installCoreContract,
+    installPolicyContract,
   } = useMC();
 
   const onSubmit: SubmitHandler<ICreateMultisigFormProps> = async (data) => {
@@ -53,11 +54,6 @@ const Create = () => {
         .map((signer) => signer.address) ?? []),
     ];
 
-    const multicliqueData = {
-      source: currentAccount.publicKey,
-      policy_preset: 'ELIO_DAO',
-    };
-    // TODO: if users reject, the loading screen won't disappear
     try {
       useLoadingScreen.setAction({
         type: 'SHOW_SIGNATURE',
@@ -66,65 +62,67 @@ const Create = () => {
           currentSignCount: 1,
         },
       });
-      await getMulticliqueAddresses(
-        multicliqueData,
-        () => {
-          useLoadingScreen.setAction({
-            type: 'SHOW_SIGNATURE',
-            payload: {
-              totalSignCount: 4,
-              currentSignCount: 2,
-            },
-          });
-        },
-        (addresses: { coreAddress: string; policyAddress: string }) => {
-          useLoadingScreen.setAction({
-            type: 'SHOW_SIGNATURE',
-            payload: {
-              totalSignCount: 4,
-              currentSignCount: 3,
-            },
-          });
-          initMulticliqueCore(addresses, signerAddresses, threshold, () => {
+
+      await installCoreContract(async (coreAddress: string) => {
+        useLoadingScreen.setAction({
+          type: 'SHOW_SIGNATURE',
+          payload: {
+            totalSignCount: 4,
+            currentSignCount: 2,
+          },
+        });
+
+        await initMulticliqueCore(
+          coreAddress,
+          signerAddresses,
+          threshold,
+          async () => {
             useLoadingScreen.setAction({
               type: 'SHOW_SIGNATURE',
               payload: {
-                isComplete: true,
+                totalSignCount: 4,
+                currentSignCount: 3,
               },
             });
-            initMulticliquePolicy(
-              addresses.policyAddress,
-              {
-                multiclique: addresses.coreAddress,
-                elioCore: elioConfig?.coreContractAddress,
-                elioVotes: elioConfig?.votesContractAddress,
-                elioAssets: elioConfig?.votesContractAddress,
-              },
-              async () => {
-                useLoadingScreen.setAction({
-                  type: 'CLOSE',
-                });
-                const multisigPayload = {
-                  name: data.accountName,
-                  address: addresses.coreAddress,
-                  signatories: [creatorSignatory, ...signatories],
-                  defaultThreshold: threshold,
-                  policy: 'ELIO_DAO',
-                };
-                const multisig = await createMultisigDB(multisigPayload);
-                if (multisig) {
-                  updateMultisigAccounts([multisig, ...multisigAccounts]);
+
+            await installPolicyContract((policyAddress: string) => {
+              initMulticliquePolicy(
+                policyAddress,
+                {
+                  multiclique: coreAddress,
+                  elioCore: elioConfig?.coreContractAddress,
+                  elioVotes: elioConfig?.votesContractAddress,
+                  elioAssets: elioConfig?.votesContractAddress,
+                },
+                async () => {
+                  useLoadingScreen.setAction({
+                    type: 'CLOSE',
+                  });
+                  const multisigPayload = {
+                    name: data.accountName,
+                    address: coreAddress,
+                    signatories: [creatorSignatory, ...signatories],
+                    defaultThreshold: threshold,
+                    policy: 'ELIO_DAO',
+                  };
+                  const multisig = await createMultisigDB(multisigPayload);
+                  if (multisig) {
+                    updateMultisigAccounts([multisig, ...multisigAccounts]);
+                  }
+                  updateIsTxProcessing(false);
+                  router.push(`/`);
                 }
-                updateIsTxProcessing(false);
-                // route to the index page
-                router.push(`/`);
-              }
-            );
-          });
-        }
-      );
+              );
+            });
+          }
+        );
+      });
     } catch (error) {
-      handleErrors('Error in creating Multisig, error');
+      handleErrors('Error in creating MultiClique Account', error);
+      updateIsTxProcessing(false);
+      useLoadingScreen.setAction({
+        type: 'CLOSE',
+      });
     }
   };
 
