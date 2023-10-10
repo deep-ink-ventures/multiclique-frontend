@@ -1,4 +1,4 @@
-import { Accordion, PolicyAddressesForm, TransactionBadge } from '@/components';
+import { Accordion, TransactionBadge } from '@/components';
 import CreateMultisigForm from '@/components/CreateMultisigForm';
 import { usePromise } from '@/hooks/usePromise';
 import { AccountService } from '@/services';
@@ -6,7 +6,7 @@ import useMCStore from '@/stores/MCStore';
 import type { Signatory } from '@/types/multisig';
 import cn from 'classnames';
 import { useState } from 'react';
-import { FormProvider, useForm } from 'react-hook-form';
+import PolicyForm from './PolicyForm';
 
 const SettingsTabs: Array<{ id: string; label: string }> = [
   {
@@ -26,40 +26,6 @@ const SettingsTabs: Array<{ id: string; label: string }> = [
     label: 'Attach policy',
   },
 ];
-
-const PolicyForm = ({ formName }: { formName?: string }) => {
-  const formMethods = useForm({
-    defaultValues: {
-      [`${formName}Addresses`]: [
-        {
-          address: '',
-        },
-      ],
-    },
-  });
-  const { handleSubmit } = formMethods;
-
-  const onSubmit = () => {};
-
-  return (
-    <FormProvider {...formMethods}>
-      <form
-        onSubmit={(e) => {
-          e.stopPropagation();
-          e.preventDefault();
-          handleSubmit(onSubmit)();
-        }}
-        className='flex w-full flex-col items-center justify-center gap-2'>
-        <PolicyAddressesForm formName={`${formName}Addresses`} />
-        <button
-          className='btn btn-primary ml-auto w-full max-w-[20%] flex-1 self-end truncate'
-          onClick={() => {}}>
-          Activate
-        </button>
-      </form>
-    </FormProvider>
-  );
-};
 
 const Settings = () => {
   const [accountPage] = useMCStore((s) => [s.pages.account]);
@@ -188,9 +154,9 @@ const Settings = () => {
         })}>
         <div className='w-full space-y-2'>
           <h4 className='text-center'>Attach Policy</h4>
-          {Array(4)
+          {Array(1)
             .fill(null)
-            .map((item, index) => {
+            .map((_item, index) => {
               return (
                 <Accordion.Container
                   key={index}
@@ -205,7 +171,7 @@ const Settings = () => {
                     <TransactionBadge status='Active' />
                   </Accordion.Header>
                   <Accordion.Content className='flex'>
-                    <PolicyForm formName={`${index}`} />
+                    <PolicyForm formName={`ELIO_DAO`} />
                   </Accordion.Content>
                 </Accordion.Container>
               );
