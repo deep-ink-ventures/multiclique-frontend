@@ -186,37 +186,31 @@ const Settings = () => {
         className={cn('!mt-0 space-y-3 rounded-lg bg-base-200 p-4', {
           hidden: activeSettingsTab !== SettingsTabs.at(3)?.id,
         })}>
-        <CreateMultisigForm onSubmit={() => {}}>
-          <div className='w-full space-y-2'>
-            <h4 className='text-center'>Attach Policy</h4>
-            {Array(4)
-              .fill(null)
-              .map((item, index) => {
-                return (
-                  <Accordion.Container
-                    key={index}
-                    id={index}
-                    onClick={() =>
-                      setActiveAccordion(
-                        activeAccordion === index ? null : index
-                      )
-                    }
-                    color='base'
-                    expanded={index === activeAccordion}>
-                    <Accordion.Header className='flex gap-2 text-sm'>
-                      <div className='grow font-semibold'>
-                        {'{Policy Name}'}
-                      </div>
-                      <TransactionBadge status='Active' />
-                    </Accordion.Header>
-                    <Accordion.Content className='flex'>
-                      <PolicyForm formName={`${index}`} />
-                    </Accordion.Content>
-                  </Accordion.Container>
-                );
-              })}
-          </div>
-        </CreateMultisigForm>
+        <div className='w-full space-y-2'>
+          <h4 className='text-center'>Attach Policy</h4>
+          {Array(4)
+            .fill(null)
+            .map((item, index) => {
+              return (
+                <Accordion.Container
+                  key={index}
+                  id={index}
+                  onClick={() =>
+                    setActiveAccordion(activeAccordion === index ? null : index)
+                  }
+                  color='base'
+                  expanded={index === activeAccordion}>
+                  <Accordion.Header className='flex gap-2 text-sm'>
+                    <div className='grow font-semibold'>{'{Policy Name}'}</div>
+                    <TransactionBadge status='Active' />
+                  </Accordion.Header>
+                  <Accordion.Content className='flex'>
+                    <PolicyForm formName={`${index}`} />
+                  </Accordion.Content>
+                </Accordion.Container>
+              );
+            })}
+        </div>
       </div>
     </>
   );

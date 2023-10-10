@@ -16,9 +16,9 @@ This is the frontend UI for MultiClique Protocol. Users can use this interface t
 This application is built with React and Next.js. We use Tailwind for CSS and [Zustand](https://github.com/pmndrs/zustand) for state management.
 
 
-Zustand stores folder is [here](./src/stores/). Query actions are also in the [`useElioStore`](./src/stores/elioStore.tsx) file. 
+Zustand stores folder is [here](./src/stores/). Query actions are also in the [`useMCStore`](./src/stores/MCStore.ts) file. 
 
-Most of the transaction actions are in the [`useElioDao`](./src/hooks/useElioDao.tsx) hook
+Most of the transaction actions are in the [`useMC`](./src/hooks/useMC.ts) hook
 
 ## Getting Started
 
@@ -27,7 +27,7 @@ Most of the transaction actions are in the [`useElioDao`](./src/hooks/useElioDao
 - You will need some Stellar XLM tokens to do transactions. For now, you can use the friendbot on Freighter wallet to fund your account. As of now, you will need 1000 XLM tokens to create a DAO.
 - Check the [config](./src/config) folder if you want to customize configurations. 
 
-> The frontend defaults to the service of the Elio DAO test environment.
+> The frontend defaults to the service of the MultiClique test environment.
 
 ### Docker setup
 
@@ -52,9 +52,6 @@ bun dev
 
 3. Now you can open http://localhost:3000 on your browser to see the application.
 
-We obtain contract addresses and some config values from our service at ```https://service.elio-dao.org/config/``` If you need to change the node endpoint, you can go to the [config](./src/config) folder
-
-
 ## Before commit
 
 Please run this script to test, format, and lint code. 
@@ -75,4 +72,4 @@ This repo uses [Conventional Commits](https://www.conventionalcommits.org/en/v1.
 
 
 ## License
-[APACHE 2.0 License](https://github.com/deep-ink-ventures/elio-dao-frontend/blob/main/LICENSE)
+[APACHE 2.0 License](https://github.com/deep-ink-ventures/multiclique-frontend/blob/main/LICENCE)

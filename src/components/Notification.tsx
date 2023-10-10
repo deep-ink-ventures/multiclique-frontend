@@ -16,7 +16,11 @@ const TransactionNotification = () => {
               key={uuidv4()}
               type={noti.type}
               title={noti.title}
-              message={noti.message}
+              message={
+                typeof noti.message === 'string'
+                  ? noti.message
+                  : (noti.message as any)?.message ?? ''
+              }
               timestamp={noti.timestamp}
               txnHash={noti.txnHash}
             />
