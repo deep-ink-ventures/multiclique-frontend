@@ -1,4 +1,5 @@
 import MemberSign from '@/svg/components/MemberSign';
+import Spinner from '@/svg/components/Spinner';
 import cn from 'classnames';
 import Stepper from './Stepper';
 
@@ -17,6 +18,9 @@ const SignatureLoading = ({
   return (
     <>
       <div className='text-2xl font-semibold'>Transaction Pending...</div>
+      <div className='flex w-full items-center justify-center'>
+        <Spinner className='my-2 h-12 w-12 fill-card-primary text-base-300' />
+      </div>
       <div className='w-96'>
         <Stepper>
           {Array(totalSignCount)

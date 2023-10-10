@@ -125,6 +125,10 @@ const Create = () => {
       );
     } catch (error) {
       handleErrors('Error in creating Multisig, error');
+    } finally {
+      useLoadingScreen.setAction({
+        type: 'CLOSE',
+      });
     }
   };
 
