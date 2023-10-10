@@ -4,10 +4,7 @@ import { MainLayout } from '@/layouts';
 import useMCStore from '@/stores/MCStore';
 
 const Index = () => {
-  const [currentAccount] = useMCStore((s) => [
-    s.currentAccount,
-    s.isTxnProcessing,
-  ]);
+  const [currentAccount] = useMCStore((s) => [s.currentAccount]);
 
   return (
     <MainLayout
