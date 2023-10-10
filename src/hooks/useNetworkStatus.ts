@@ -1,34 +1,45 @@
-import { NETWORK } from '@/config';
+import { NETWORK, NETWORK_PASSPHRASE } from '@/config';
 import useMCStore, { TxnResponse } from '@/stores/MCStore';
 import { getNetworkDetails } from '@stellar/freighter-api';
 import { useEffect, useState } from 'react';
 
-const IDLE_INTERVAL = 5000;
-const ACTIVE_INTERVAL = 1000;
-const INACTIVITY_INTERVAL = 1000;
+const IDLE_INTERVAL = 10000;
+const ACTIVE_INTERVAL = 3000;
+const INACTIVITY_INTERVAL = 5000;
 
 const useNetworkStatus = () => {
   const [currentAccount, addTxnNotification, updateCurrentAccount] = useMCStore(
     (s) => [s.currentAccount, s.addTxnNotification, s.updateCurrentAccount]
   );
   const [isSupportedNetwork, setIsSupportedNetwork] = useState(false);
-  const [currentNetwork, setCurrentNetwork] = useState<{ network?: string }>();
+  const [currentNetwork, setCurrentNetwork] = useState<{
+    networkPassphrase?: string;
+  }>();
 
   let timeoutId: any;
   let lastActivityTimestamp = Date.now();
 
   const checkNetworkStatus = async () => {
-    try {
-      if (currentAccount) {
+    if (!currentAccount) {
+      try {
         const networkDetails = await getNetworkDetails();
         setCurrentNetwork(networkDetails);
         setIsSupportedNetwork(
-          networkDetails.network === NETWORK ||
-            currentAccount?.network === NETWORK
+          networkDetails.networkPassphrase === NETWORK_PASSPHRASE[NETWORK]
         );
+      } catch (error) {
+        console.error('Error checking network:', error);
       }
-    } catch (error) {
-      console.error('Error checking network:', error);
+    } else {
+      try {
+        const networkDetails = await getNetworkDetails();
+        setCurrentNetwork(networkDetails);
+        setIsSupportedNetwork(
+          currentAccount.networkPassphrase === NETWORK_PASSPHRASE[NETWORK]
+        );
+      } catch (error) {
+        console.error('Error checking network:', error);
+      }
     }
   };
 
@@ -84,13 +95,11 @@ const useNetworkStatus = () => {
     if (
       !isSupportedNetwork &&
       currentAccount &&
-      currentAccount.network !== NETWORK
+      currentNetwork?.networkPassphrase !== NETWORK_PASSPHRASE[NETWORK]
     ) {
       addTxnNotification({
         title: 'Unsupported Network',
-        message: `Network ${
-          currentNetwork?.network ?? currentAccount.network
-        } is not supported. Please connect to FutureNet`,
+        message: 'Please connect to FUTURENET',
         type: TxnResponse.Error,
         timestamp: Date.now(),
       });

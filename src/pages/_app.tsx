@@ -32,7 +32,6 @@ const MyApp = ({ Component, pageProps }: AppProps) => {
 
   useEffect(() => {
     fetchConfigCb();
-    console.log('fetching config');
   }, [fetchConfigCb]);
 
   useNetworkStatus();
