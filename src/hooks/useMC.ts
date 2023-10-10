@@ -273,144 +273,141 @@ const useMC = () => {
     }
   };
 
-  /**
-   *
-   * @param policyData source is the caller's address
-   * @returns
-   */
-  const makeInstallMulticliqueTxns = async (policyData: {
-    source: string;
-    policy_preset: string;
-  }) => {
+  const makeCoreInstallationTxn = async () => {
+    if (!currentAccount) {
+      return;
+    }
     try {
       const response = await fetch(
-        'https://service.elio-dao.org/multiclique/accounts/install',
+        'https://service.elio-dao.org/multiclique/contracts/create-multiclique-xdr/',
         {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify(policyData),
+          body: JSON.stringify({
+            source_account_address: currentAccount.publicKey,
+          }),
         }
       );
       const data = await response.json();
-      const coreXdr = data.core_xdr;
-      const policyXdr = data.policy_xdr;
-      return {
-        coreTransaction: new SorobanClient.Transaction(
-          coreXdr,
-          MCConfig.networkPassphrase
-        ),
-        policyTransaction: new SorobanClient.Transaction(
-          policyXdr,
-          MCConfig.networkPassphrase
-        ),
-      };
+      return data.xdr;
     } catch (err) {
-      handleErrors('Error in installing Multiclique policy', err);
+      handleErrors('Error in getting multiclique core contract address', err);
       return null;
     }
   };
 
-  const getMulticliqueAddresses = async (
-    policyData: {
-      source: string;
-      policy_preset: string;
-    },
-    firstCb?: Function,
-    secondCb?: Function
-  ) => {
-    let contractAddresses:
-      | {
-          coreAddress?: string;
-          policyAddress?: string;
-        }
-      | undefined;
+  const makePolicyInstallationTxn = async () => {
+    if (!currentAccount) {
+      return;
+    }
     try {
-      const txns = await makeInstallMulticliqueTxns(policyData);
-      if (!txns) {
-        return;
-      }
-      let policyResult: any;
-      const coreResult = await submitTxn(
-        txns.coreTransaction,
-        'Multiclique core contract installed',
-        'Error in Multiclique core contract installation',
-        'multicliqueCore',
-        async () => {
-          if (firstCb) {
-            firstCb();
-          }
-          await new Promise((resolve) => {
-            setTimeout(resolve, 2000);
-          });
-          policyResult = await submitTxn(
-            txns.policyTransaction,
-            'Multiclique policy contract installed',
-            'Error in Multiclique policy installation',
-            'multicliquePolicy',
-            async () => {
-              await new Promise((resolve) => {
-                setTimeout(resolve, 2000);
-              });
-              if (!coreResult || coreResult.status === 'FAILED') {
-                throw new Error('Cannot get multiclique core address');
-              }
-
-              if (!policyResult || policyResult.stats === 'FAILED') {
-                throw new Error('Cannot get multiclique policy address');
-              }
-
-              const coreId = coreResult.resultMetaXdr
-                .v3()
-                ?.sorobanMeta()
-                ?.returnValue()
-                .address()
-                .contractId();
-
-              const policyId = policyResult.resultMetaXdr
-                .v3()
-                ?.sorobanMeta()
-                ?.returnValue()
-                .address()
-                .contractId();
-
-              if (!coreId) {
-                throw new Error('Cannot decode coreId');
-              }
-
-              if (!policyId) {
-                throw new Error('Cannot decode policyId');
-              }
-
-              contractAddresses = {
-                coreAddress: SorobanClient.StrKey.encodeContract(coreId),
-                policyAddress: SorobanClient.StrKey.encodeContract(policyId),
-              };
-              // eslint-disable-next-line
-              console.log('contract addresses', contractAddresses)
-
-              if (secondCb) {
-                secondCb(contractAddresses);
-              }
-
-              return contractAddresses;
-            }
-          );
+      const response = await fetch(
+        'https://service.elio-dao.org/multiclique/contracts/create-policy-xdr/',
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            source_account_address: currentAccount.publicKey,
+            policy_preset: 'ELIO_DAO',
+          }),
         }
       );
-      return contractAddresses;
+      const data = await response.json();
+      return data.xdr;
     } catch (err) {
-      handleErrors('Error in getting multiclique addresses', err);
+      handleErrors('Error in getting multiclique policy contract address', err);
+      return null;
+    }
+  };
+
+  const installCoreContract = async (cb?: Function) => {
+    if (!currentAccount) {
+      return;
+    }
+    try {
+      const coreXdr = await makeCoreInstallationTxn();
+
+      const txn = new SorobanClient.Transaction(
+        coreXdr,
+        MCConfig.networkPassphrase
+      );
+      const coreResult = await submitTxn(
+        txn,
+        'Multiclique core contract installed',
+        'Error in Multiclique core contract installation',
+        'multicliqueCore'
+      );
+      if (!coreResult || coreResult.status === 'FAILED') {
+        throw new Error('Cannot get multiclique core address');
+      }
+      const coreId = coreResult.resultMetaXdr
+        .v3()
+        ?.sorobanMeta()
+        ?.returnValue()
+        .address()
+        .contractId();
+      if (!coreId) {
+        throw new Error('Cannot decode policyId');
+      }
+      const coreContractAddress = SorobanClient.StrKey.encodeContract(coreId);
+      if (cb) {
+        cb(coreContractAddress);
+      }
+      return coreContractAddress;
+    } catch (err) {
+      handleErrors('Error in installing Multiclique core contract', err);
+      return null;
+    }
+  };
+
+  const installPolicyContract = async (cb?: Function) => {
+    if (!currentAccount) {
+      return;
+    }
+    try {
+      const coreXdr = await makePolicyInstallationTxn();
+
+      const txn = new SorobanClient.Transaction(
+        coreXdr,
+        MCConfig.networkPassphrase
+      );
+      const policyResult = await submitTxn(
+        txn,
+        'Multiclique core contract installed',
+        'Error in Multiclique core contract installation',
+        'multicliqueCore'
+      );
+      if (!policyResult || policyResult.status === 'FAILED') {
+        throw new Error('Cannot get multiclique policy address');
+      }
+      const policyId = policyResult.resultMetaXdr
+        .v3()
+        ?.sorobanMeta()
+        ?.returnValue()
+        .address()
+        .contractId();
+
+      if (!policyId) {
+        throw new Error('Cannot decode policyId');
+      }
+      const policyContractAddress =
+        SorobanClient.StrKey.encodeContract(policyId);
+      if (cb) {
+        cb(policyContractAddress);
+      }
+      return policyContractAddress;
+    } catch (err) {
+      handleErrors('Error in installing Multiclique core contract', err);
       return null;
     }
   };
 
   const initMulticliqueCore = async (
-    contractAddresses: {
-      coreAddress: string;
-      policyAddress: string;
-    },
+    coreAddress: string,
     signerAddresses: string[],
     threshold: number,
     cb: Function
@@ -423,9 +420,7 @@ const useMC = () => {
       return SorobanClient.Keypair.fromPublicKey(addy).rawPublicKey();
     });
 
-    const coreContract = new SorobanClient.Contract(
-      contractAddresses.coreAddress
-    );
+    const coreContract = new SorobanClient.Contract(coreAddress);
     const txnBuilder = await getTxnBuilder(currentAccount?.publicKey);
     const txn = txnBuilder
       .addOperation(
@@ -517,7 +512,6 @@ const useMC = () => {
 
   return {
     handleTxnResponse,
-    getMulticliqueAddresses,
     initMulticliqueCore,
     makeContractTxn,
     submitReadTxn,
@@ -526,6 +520,8 @@ const useMC = () => {
     createMultisigDB,
     attachPolicy,
     initMulticliquePolicy,
+    installCoreContract,
+    installPolicyContract,
   };
 };
 
