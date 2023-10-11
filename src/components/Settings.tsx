@@ -3,10 +3,10 @@ import CreateMultisigForm from '@/components/CreateMultisigForm';
 import useMC from '@/hooks/useMC';
 import { usePromise } from '@/hooks/usePromise';
 import { AccountService } from '@/services';
+import { TransactionService } from '@/services/transaction';
 import useMCStore from '@/stores/MCStore';
 import type { Signatory } from '@/types/multisig';
 import cn from 'classnames';
-import { useRouter } from 'next/router';
 import { useState } from 'react';
 import PolicyForm from './PolicyForm';
 
@@ -30,15 +30,15 @@ const SettingsTabs: Array<{ id: string; label: string }> = [
 ];
 
 const Settings = (props: { accountId: string }) => {
-  const router = useRouter();
-  // get url params
-  const { accountId } = router.query;
-  const [accountPage] = useMCStore((s) => [s.pages.account]);
+  const [accountPage, handleErrors] = useMCStore((s) => [
+    s.pages.account,
+    s.handleErrors,
+  ]);
   const [activeAccordion, setActiveAccordion] = useState<number | null>(null);
   const [activeSettingsTab, setActiveSettingsTab] = useState(
     SettingsTabs.at(0)?.id
   );
-  const { makeAddSignerTxn } = useMC();
+  const { makeAddSignerTxn, makeRemoveSignerTxn, getJwtToken } = useMC();
   // const useLoadingScreen = useLoadingScreenContext();
 
   // @ts-ignore
@@ -63,31 +63,51 @@ const Settings = (props: { accountId: string }) => {
 
   const handleSubmitAddSigner = async (newSigner: Signatory) => {
     try {
-      const txn = await makeAddSignerTxn(
-        accountId as string,
-        newSigner.address
+      const txn = await makeAddSignerTxn(props.accountId, newSigner.address);
+      if (!txn) {
+        return;
+      }
+      const jwt = await getJwtToken(props.accountId);
+      if (!jwt) {
+        return;
+      }
+
+      await TransactionService.createMultiCliqueTransaction(
+        {
+          xdr: txn?.toXDR(),
+          multicliqueAddress: props.accountId,
+        },
+        jwt
       );
-      console.log(txn);
     } catch (err) {
-      console.log(err);
+      handleErrors('Error in adding signer', err);
     }
-
-    // Uncomment after adding onchain data update
   };
 
-  const handleSubmitRemoveSigner = async (removeSigner: Signatory) => {
-    // Uncomment after adding onchain data update
-    // await updateSigner.call(removeSigner, true);
-    // if (accountPage.multisig.data?.address) {
-    //   accountPage.multisig.getMultisigAccount(
-    //     accountPage.multisig.data?.address
-    //   );
-    // }
+  const handleSubmitRemoveSigner = async (signerToRemove: Signatory) => {
+    try {
+      const txn = await makeRemoveSignerTxn(
+        props.accountId,
+        signerToRemove.address
+      );
+      if (!txn) {
+        return;
+      }
+      const jwt = await getJwtToken(props.accountId);
+      if (!jwt) {
+        return;
+      }
+      await TransactionService.createMultiCliqueTransaction(
+        {
+          xdr: txn?.toXDR(),
+          multicliqueAddress: props.accountId,
+        },
+        jwt
+      );
+    } catch (err) {
+      handleErrors('Error in removing signer', err);
+    }
   };
-
-  // useEffect(() => {
-  //   accountPage.multisig.getMultisigAccount()
-  // })
 
   return (
     <>
@@ -190,7 +210,7 @@ const Settings = (props: { accountId: string }) => {
                   <Accordion.Content className='flex'>
                     <PolicyForm
                       formName={`ELIO_DAO`}
-                      accountId={accountId as string}
+                      accountId={props.accountId}
                     />
                   </Accordion.Content>
                 </Accordion.Container>

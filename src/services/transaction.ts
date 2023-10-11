@@ -1,4 +1,5 @@
 import { SERVICE_URL } from '@/config';
+import type { JwtToken } from '@/types/auth';
 import type {
   MultisigTransaction,
   RawMultisigTransaction,
@@ -22,7 +23,8 @@ export interface CreateMultiCliqueTransactionRequestPayload {
 }
 
 export const createMultiCliqueTransaction = async (
-  payload: CreateMultiCliqueTransactionRequestPayload
+  payload: CreateMultiCliqueTransactionRequestPayload,
+  jwt: JwtToken
 ): Promise<MultisigTransaction> => {
   const body = JSON.stringify(keysToSnakeCase(payload));
 
@@ -31,6 +33,7 @@ export const createMultiCliqueTransaction = async (
     body,
     headers: {
       'Content-Type': 'application/json',
+      'JWT Token': jwt.access,
     },
   });
 

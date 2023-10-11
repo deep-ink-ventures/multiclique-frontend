@@ -11,6 +11,7 @@ import type { Multisig } from '@/types/multisig';
 import { accountToScVal, decodeXdr, numberToU32ScVal, toBase64 } from '@/utils';
 import { signBlob, signTransaction } from '@stellar/freighter-api';
 import * as SorobanClient from 'soroban-client';
+import { JwtService } from '../services/jwt';
 
 export enum TxnStatus {
   PENDING = 'pending',
@@ -25,6 +26,7 @@ const useMC = () => {
     handleErrors,
     handleTxnSuccessNotification,
     MCConfig,
+    updateJwt,
   ] = useMCStore((s) => [
     s.currentAccount,
     s.sorobanServer,
@@ -32,6 +34,7 @@ const useMC = () => {
     s.handleErrors,
     s.handleTxnSuccessNotification,
     s.MCConfig,
+    s.updateJwt,
   ]);
 
   const handleTxnResponse = async (
@@ -246,10 +249,10 @@ const useMC = () => {
   /**
    * Authenticate users access to post request
    */
-  const doChallenge = async (daoId: string) => {
+  const doChallenge = async (mcAccountAddress: string) => {
     try {
       const challengeRes = await fetch(
-        `${SERVICE_URL}/daos/${daoId}/challenge/`
+        `${SERVICE_URL}/multiclique/accounts/${mcAccountAddress}/challenge/`
       );
       const { challenge } = await challengeRes.json();
 
@@ -265,10 +268,33 @@ const useMC = () => {
         handleErrors('Not able to validate ownership');
         return null;
       }
-
+      console.log('singer result', signerResult);
       return toBase64(signerResult);
     } catch (err) {
       handleErrors(err);
+      return null;
+    }
+  };
+
+  const getJwtToken = async (mcAccountAddress: string) => {
+    try {
+      const sig = await doChallenge(mcAccountAddress);
+      if (!sig) {
+        return null;
+      }
+      const token = await JwtService.createJWT(mcAccountAddress, {
+        signature: sig,
+      });
+      console.log('token', token);
+      const refreshedToken = await JwtService.refreshJWT(mcAccountAddress, {
+        access: token.access,
+        refresh: token.refresh,
+      });
+      console.log('refreshed', refreshedToken);
+      updateJwt(refreshedToken);
+      return refreshedToken;
+    } catch (err) {
+      handleErrors('Error in getting jwt token', err);
       return null;
     }
   };
@@ -560,6 +586,7 @@ const useMC = () => {
     sendTxn,
     prepareTxn,
     getTxnBuilder,
+    getJwtToken,
   };
 };
 

@@ -14,6 +14,7 @@ import type { Multisig } from '@/types/multisig';
 import type { MultisigTransaction } from '@/types/multisigTransaction';
 
 import { getConfig } from '@/services/config';
+import type { JwtToken } from '@/types/auth';
 import type { ElioConfig } from '@/types/elioConfig';
 import {
   NETWORK,
@@ -81,6 +82,7 @@ export interface MCState {
   multisigTransactions: MultisigTransaction[];
   elioConfig: ElioConfig | null;
   pages: PageSlices;
+  jwt: JwtToken | null;
 }
 
 export interface MCActions {
@@ -108,6 +110,7 @@ export interface MCActions {
   updateMultisigAccounts: (accounts: Multisig[]) => void;
   updateMultisigTransactions: (transactions: MultisigTransaction[]) => void;
   fetchConfig: () => void;
+  updateJwt: (jwt: JwtToken) => void;
 }
 
 export interface MCStore extends MCState, MCActions {}
@@ -128,6 +131,7 @@ const useMCStore = create<MCStore>((set, get, store) => ({
   multisigAccounts: fakeMultisigAccounts,
   multisigTransactions: fakeMultisigTransactions,
   elioConfig: null,
+  jwt: null,
   updateCurrentAccount: (account: WalletAccount | null) => {
     set({ currentAccount: account });
   },
@@ -332,6 +336,9 @@ const useMCStore = create<MCStore>((set, get, store) => ({
     } catch (err) {
       get().handleErrors('Error fetching config', err);
     }
+  },
+  updateJwt: (jwt: JwtToken) => {
+    set({ jwt });
   },
   pages: {
     ...createAccountSlice(set, get, store),
