@@ -1,11 +1,14 @@
 import ConnectWallet from '@/components/ConnectWallet';
+import { useLoadingScreenContext } from '@/context/LoadingScreen';
+import useMC from '@/hooks/useMC';
 
 import { MainLayout } from '@/layouts';
+import { TransactionService } from '@/services';
 import useMCStore from '@/stores/MCStore';
+import { validateXDR } from '@/utils/helpers';
 import { ErrorMessage } from '@hookform/error-message';
 import cn from 'classnames';
 import { FormProvider, useForm, type SubmitHandler } from 'react-hook-form';
-import StellarSdk from 'stellar-sdk';
 
 interface CreateTransactionFormValues {
   xdr: string | null;
@@ -14,11 +17,13 @@ interface CreateTransactionFormValues {
 const MAX_XDR_CHAR_COUNT = 4096;
 
 const CreateTransaction = () => {
-  const [currentAccount, handleErrors, isTxnProcessing] = useMCStore((s) => [
-    s.currentAccount,
-    s.handleErrors,
-    s.isTxnProcessing,
-  ]);
+  const [currentAccount, handleErrors, isTxnProcessing, MCConfig] = useMCStore(
+    (s) => [s.currentAccount, s.handleErrors, s.isTxnProcessing, s.MCConfig]
+  );
+
+  const { getJwtToken } = useMC();
+
+  const loaders = useLoadingScreenContext();
 
   const formMethods = useForm<CreateTransactionFormValues>({
     defaultValues: {
@@ -31,6 +36,7 @@ const CreateTransaction = () => {
     watch,
     handleSubmit,
     setError,
+    reset,
     formState: { errors },
   } = formMethods;
 
@@ -40,17 +46,38 @@ const CreateTransaction = () => {
     const { xdr } = data;
 
     try {
-      const isValidXDR = StellarSdk.xdr.TransactionEnvelope.validateXDR(
-        xdr?.toString(),
-        'base64'
-      );
+      loaders.setAction({
+        type: 'SHOW_TRANSACTION_PROCESSING',
+      });
 
-      if (!isValidXDR)
-        return setError('xdr', {
+      const isValidXDR =
+        MCConfig &&
+        xdr &&
+        validateXDR(xdr.trim().toString(), MCConfig.networkPassphrase);
+
+      if (isValidXDR) {
+        const jwt = await getJwtToken(currentAccount?.publicKey);
+        if (!jwt) {
+          return;
+        }
+        await TransactionService.createMultiCliqueTransaction(
+          {
+            xdr,
+          },
+          jwt
+        );
+        reset();
+      } else {
+        setError('xdr', {
           message: 'Invalid XDR',
         });
+      }
     } catch (err) {
       handleErrors('Error in creating transaction using XDR', err);
+    } finally {
+      loaders.setAction({
+        type: 'CLOSE',
+      });
     }
   };
 

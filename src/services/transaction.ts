@@ -1,12 +1,12 @@
 import { SERVICE_URL } from '@/config';
 import type { JwtToken } from '@/types/auth';
 import type {
-  MultisigTransaction,
-  RawMultisigTransaction,
+MultisigTransaction,
+RawMultisigTransaction,
 } from '@/types/multisigTransaction';
 import type { Paginated } from '@/types/response';
 import { convertToQueryString } from '@/utils/api';
-import { keysToCamelCase, keysToSnakeCase } from '@/utils/transformer';
+import { keysToCamelCase,keysToSnakeCase } from '@/utils/transformer';
 
 export interface ListMultiCliqueTransactionsParams {
   search?: string;
@@ -19,7 +19,7 @@ export interface ListMultiCliqueTransactionsParams {
 
 export interface CreateMultiCliqueTransactionRequestPayload {
   xdr: string;
-  multicliqueAddress: string;
+  multicliqueAddress?: string;
 }
 
 export const createMultiCliqueTransaction = async (
@@ -28,13 +28,14 @@ export const createMultiCliqueTransaction = async (
 ): Promise<MultisigTransaction> => {
   const body = JSON.stringify(keysToSnakeCase(payload));
 
+  const headers = new Headers();
+  headers.append('Content-Type', 'application/json');
+  headers.append('Authorization', `Bearer ${jwt.access}`);
+
   const response = await fetch(`${SERVICE_URL}/multiclique/transactions/`, {
     method: 'POST',
     body,
-    headers: {
-      'Content-Type': 'application/json',
-      'JWT Token': jwt.access,
-    },
+    headers,
   });
 
   const objResponse: RawMultisigTransaction = await response.json();

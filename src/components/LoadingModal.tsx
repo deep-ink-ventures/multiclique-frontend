@@ -1,4 +1,3 @@
-import useMCStore from '@/stores/MCStore';
 import cn from 'classnames';
 import type { ReactNode } from 'react';
 
@@ -8,14 +7,14 @@ interface ILoadingModalProps {
 }
 
 const LoadingModal = ({ isVisible = true, children }: ILoadingModalProps) => {
-  const [isTxnProcessing] = useMCStore((s) => [s.isTxnProcessing]);
+  // const [isTxnProcessing] = useMCStore((s) => [s.isTxnProcessing]);
 
   return (
     <div
       className={cn(
         'fixed left-0 top-0 z-[900] flex h-full w-full items-center justify-center',
         {
-          hidden: !isVisible || !isTxnProcessing,
+          hidden: !isVisible,
         }
       )}>
       <div className='absolute h-full w-full bg-black opacity-50' />
