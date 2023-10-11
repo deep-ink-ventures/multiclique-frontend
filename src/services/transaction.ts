@@ -33,7 +33,7 @@ export const createMultiCliqueTransaction = async (
     body,
     headers: {
       'Content-Type': 'application/json',
-      'JWT Token': jwt.access,
+      Authorization: `Bearer ${jwt.access}`,
     },
   });
 
@@ -45,12 +45,19 @@ export const createMultiCliqueTransaction = async (
 };
 
 export const listMultiCliqueTransactions = async (
-  params: ListMultiCliqueTransactionsParams
+  params: ListMultiCliqueTransactionsParams,
+  jwt: JwtToken
 ): Promise<Paginated<MultisigTransaction[]>> => {
   const queryString = convertToQueryString(params);
 
   const response = await fetch(
-    `${SERVICE_URL}/multiclique/transactions/?${queryString}`
+    `${SERVICE_URL}/multiclique/transactions/?${queryString}`,
+    {
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${jwt.access}`,
+      },
+    }
   );
 
   const objResponse: Paginated<RawMultisigTransaction[]> =
@@ -64,9 +71,15 @@ export const listMultiCliqueTransactions = async (
   return formattedResponse;
 };
 
-export const getMultiCliqueTransaction = async (id: string) => {
+export const getMultiCliqueTransaction = async (id: string, jwt: JwtToken) => {
   const response = await fetch(
-    `${SERVICE_URL}/multiclique/transactions/${id}/`
+    `${SERVICE_URL}/multiclique/transactions/${id}/`,
+    {
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${jwt.access}`,
+      },
+    }
   );
 
   const objResponse: RawMultisigTransaction = await response.json();
@@ -78,7 +91,8 @@ export const getMultiCliqueTransaction = async (id: string) => {
 
 export const updateMultiCliqueTransaction = async (
   id: string,
-  payload: MultisigTransaction
+  payload: MultisigTransaction,
+  jwt: JwtToken
 ): Promise<MultisigTransaction> => {
   const body = JSON.stringify(keysToSnakeCase(payload));
 
@@ -89,6 +103,7 @@ export const updateMultiCliqueTransaction = async (
       body,
       headers: {
         'Content-Type': 'application/json',
+        Authorization: `Bearer ${jwt.access}`,
       },
     }
   );
@@ -102,7 +117,8 @@ export const updateMultiCliqueTransaction = async (
 
 export const patchMultiCliqueTransaction = async (
   id: string,
-  payload: Partial<MultisigTransaction>
+  payload: Partial<MultisigTransaction>,
+  jwt: JwtToken
 ): Promise<MultisigTransaction> => {
   const body = JSON.stringify(keysToSnakeCase(payload));
 
@@ -113,6 +129,7 @@ export const patchMultiCliqueTransaction = async (
       body,
       headers: {
         'Content-Type': 'application/json',
+        Authorization: `Bearer ${jwt.access}`,
       },
     }
   );

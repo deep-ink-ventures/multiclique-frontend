@@ -5,6 +5,7 @@ import type { StateCreator } from 'zustand';
 
 import type { ListMultiCliqueTransactionsParams } from '@/services';
 import { AccountService, TransactionService } from '@/services';
+import type { JwtToken } from '@/types/auth';
 import type { Multisig } from '@/types/multisig';
 import type { MultisigTransaction } from '@/types/multisigTransaction';
 import type { Paginated } from '@/types/response';
@@ -27,7 +28,10 @@ export type AccountSlice = {
     loading: boolean;
     failed: boolean;
     data: Paginated<MultisigTransaction[]> | null;
-    getMultisigTransaction: (params: ListMultiCliqueTransactionsParams) => void;
+    getMultisigTransaction: (
+      params: ListMultiCliqueTransactionsParams,
+      jwt: JwtToken
+    ) => void;
   };
 };
 
@@ -110,13 +114,13 @@ export const createAccountSlice: StateCreator<
       loading: false,
       data: null,
       failed: false,
-      getMultisigTransaction: (params) => {
+      getMultisigTransaction: (params, jwt) => {
         set(
           produce((state: MCState) => {
             state.pages.account.multisig.loading = true;
           })
         );
-        TransactionService.listMultiCliqueTransactions(params)
+        TransactionService.listMultiCliqueTransactions(params, jwt)
           .then(async (response) => {
             set(
               produce((state: MCState) => {
