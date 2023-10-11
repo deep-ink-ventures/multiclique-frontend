@@ -125,7 +125,9 @@ const Account = () => {
             {currentTab === 'Transactions' && (
               <Transactions address={accountId?.toString()} />
             )}
-            {currentTab === 'Settings' && <Settings />}
+            {currentTab === 'Settings' && (
+              <Settings accountId={accountId as string} />
+            )}
           </div>
         </div>
       ) : (

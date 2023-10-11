@@ -13,7 +13,7 @@ const AccountCard = ({ account }: { account: Multisig }) => {
       <div className='flex items-center gap-2'>
         <Avatar width={45} height={45} src={AvatarImage} />
         <div>
-          {account.name}
+          <p className='text-lg font-semibold'>{account.name}</p>
           <div className=''>{truncateMiddle(account.address, 5, 3)}</div>
         </div>
       </div>

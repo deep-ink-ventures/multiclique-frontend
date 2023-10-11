@@ -1,10 +1,12 @@
 import { Accordion, TransactionBadge } from '@/components';
 import CreateMultisigForm from '@/components/CreateMultisigForm';
+import useMC from '@/hooks/useMC';
 import { usePromise } from '@/hooks/usePromise';
 import { AccountService } from '@/services';
 import useMCStore from '@/stores/MCStore';
 import type { Signatory } from '@/types/multisig';
 import cn from 'classnames';
+import { useRouter } from 'next/router';
 import { useState } from 'react';
 import PolicyForm from './PolicyForm';
 
@@ -27,12 +29,17 @@ const SettingsTabs: Array<{ id: string; label: string }> = [
   },
 ];
 
-const Settings = () => {
+const Settings = (props: { accountId: string }) => {
+  const router = useRouter();
+  // get url params
+  const { accountId } = router.query;
   const [accountPage] = useMCStore((s) => [s.pages.account]);
   const [activeAccordion, setActiveAccordion] = useState<number | null>(null);
   const [activeSettingsTab, setActiveSettingsTab] = useState(
     SettingsTabs.at(0)?.id
   );
+  const { makeAddSignerTxn } = useMC();
+  // const useLoadingScreen = useLoadingScreenContext();
 
   // @ts-ignore
   const updateSigner = usePromise({
@@ -55,13 +62,17 @@ const Settings = () => {
   });
 
   const handleSubmitAddSigner = async (newSigner: Signatory) => {
+    try {
+      const txn = await makeAddSignerTxn(
+        accountId as string,
+        newSigner.address
+      );
+      console.log(txn);
+    } catch (err) {
+      console.log(err);
+    }
+
     // Uncomment after adding onchain data update
-    // await updateSigner.call(newSigner, false);
-    // if (accountPage.multisig.data?.address) {
-    //   accountPage.multisig.getMultisigAccount(
-    //     accountPage.multisig.data?.address
-    //   );
-    // }
   };
 
   const handleSubmitRemoveSigner = async (removeSigner: Signatory) => {
@@ -73,6 +84,10 @@ const Settings = () => {
     //   );
     // }
   };
+
+  // useEffect(() => {
+  //   accountPage.multisig.getMultisigAccount()
+  // })
 
   return (
     <>
@@ -117,6 +132,7 @@ const Settings = () => {
             disableCreator
             maxSignatories={1}
             minSignatories={1}
+            disableCount={true}
           />
         </CreateMultisigForm>
       </div>
@@ -135,6 +151,7 @@ const Settings = () => {
             minSignatories={1}
             maxSignatories={1}
             disableCreator
+            disableCount={true}
           />
         </CreateMultisigForm>
       </div>
@@ -167,11 +184,14 @@ const Settings = () => {
                   color='base'
                   expanded={index === activeAccordion}>
                   <Accordion.Header className='flex gap-2 text-sm'>
-                    <div className='grow font-semibold'>{'{Policy Name}'}</div>
+                    <div className='grow font-semibold'>{'ELIO_DAO'}</div>
                     <TransactionBadge status='Active' />
                   </Accordion.Header>
                   <Accordion.Content className='flex'>
-                    <PolicyForm formName={`ELIO_DAO`} />
+                    <PolicyForm
+                      formName={`ELIO_DAO`}
+                      accountId={accountId as string}
+                    />
                   </Accordion.Content>
                 </Accordion.Container>
               );

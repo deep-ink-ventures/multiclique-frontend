@@ -357,6 +357,7 @@ const useMC = () => {
       if (cb) {
         cb(coreContractAddress);
       }
+      console.log(coreContractAddress);
       return coreContractAddress;
     } catch (err) {
       handleErrors('Error in installing Multiclique core contract', err);
@@ -432,7 +433,6 @@ const useMC = () => {
       )
       .setTimeout(0)
       .build();
-
     await submitTxn(
       txn,
       'Initialized Multiclique ',
@@ -510,6 +510,38 @@ const useMC = () => {
     );
   };
 
+  const makeAddSignerTxn = async (
+    coreAddress: string,
+    signerAddress: string
+  ) => {
+    if (!currentAccount?.publicKey) {
+      return;
+    }
+    const txn = await makeContractTxn(
+      currentAccount?.publicKey,
+      coreAddress,
+      'add_signer',
+      accountToScVal(signerAddress)
+    );
+    return txn;
+  };
+
+  const makeRemoveSignerTxn = async (
+    coreAddress: string,
+    signerAddress: string
+  ) => {
+    if (!currentAccount?.publicKey) {
+      return;
+    }
+    const txn = await makeContractTxn(
+      currentAccount?.publicKey,
+      coreAddress,
+      'remove_signer',
+      accountToScVal(signerAddress)
+    );
+    return txn;
+  };
+
   return {
     handleTxnResponse,
     initMulticliqueCore,
@@ -522,6 +554,12 @@ const useMC = () => {
     initMulticliquePolicy,
     installCoreContract,
     installPolicyContract,
+    makeAddSignerTxn,
+    makeRemoveSignerTxn,
+    signTxn,
+    sendTxn,
+    prepareTxn,
+    getTxnBuilder,
   };
 };
 

@@ -87,7 +87,7 @@ export const splitCamelCase = (str: string): string => {
 };
 
 export const numberToU32ScVal = (number: number) => {
-  return SorobanClient.xdr.ScVal.scvU32(number);
+  return SorobanClient.xdr.ScVal.scvU32(Number(number));
 };
 
 export const toBase64 = (str: string): string => {

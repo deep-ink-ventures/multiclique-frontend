@@ -55,7 +55,6 @@ const CreateTransaction = () => {
   };
 
   const xdrWatch = watch('xdr');
-
   return (
     <MainLayout
       title={'MultiClique - Create Account'}

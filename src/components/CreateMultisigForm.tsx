@@ -32,12 +32,14 @@ const Signers = ({
   maxSignatories,
   minSignatories,
   disableCreator,
+  disableCount,
 }: {
   title?: string;
   subtitle?: string;
   maxSignatories?: number;
   minSignatories?: number;
   disableCreator?: boolean;
+  disableCount?: boolean;
 }) => {
   const [currentAccount, isTxnProcessing] = useMCStore((s) => [
     s.currentAccount,
@@ -99,6 +101,7 @@ const Signers = ({
         disabled={isTxnProcessing}
         maxCount={maxSignatories}
         minCount={minSignatories}
+        disableCount={disableCount}
       />
     </>
   );

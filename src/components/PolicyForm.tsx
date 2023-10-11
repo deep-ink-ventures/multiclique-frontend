@@ -1,5 +1,7 @@
 import { PolicyAddressesForm } from '@/components';
+// import useMC from '@/hooks/useMC';
 import { FormProvider, useForm, type SubmitHandler } from 'react-hook-form';
+// import useMCStore from '@/stores/MCStore';
 
 interface PolicyFormValues {
   [x: string]: {
@@ -7,10 +9,19 @@ interface PolicyFormValues {
   }[];
 }
 
-const PolicyForm = ({ formName }: { formName: string }) => {
+interface PolicyFormProps {
+  formName: string;
+  accountId: string;
+}
+
+const PolicyForm = (props: PolicyFormProps) => {
+  // const {attachPolicy, installPolicyContract, initMulticliquePolicy} = useMC();
+
+  // const [currentAccount, mcAccount] = useMCStore((s) => [s.currentAccount, s.pages.account]);
+
   const formMethods = useForm<PolicyFormValues>({
     defaultValues: {
-      [`${formName}`]: [
+      [`${props.formName}`]: [
         {
           address: '',
         },
@@ -19,8 +30,8 @@ const PolicyForm = ({ formName }: { formName: string }) => {
   });
   const { handleSubmit } = formMethods;
 
-  const onSubmit: SubmitHandler<PolicyFormValues> = (data) => {
-    console.log(data.formName);
+  const onSubmit: SubmitHandler<PolicyFormValues> = async (data) => {
+    console.log(data);
   };
 
   return (
@@ -28,7 +39,7 @@ const PolicyForm = ({ formName }: { formName: string }) => {
       <form
         onSubmit={handleSubmit(onSubmit)}
         className='flex w-full flex-col items-center justify-center gap-2'>
-        <PolicyAddressesForm formName={formName} />
+        <PolicyAddressesForm formName={props.formName} />
         <button className='btn btn-primary ml-auto w-full max-w-[20%] flex-1 self-end truncate'>
           Submit
         </button>
