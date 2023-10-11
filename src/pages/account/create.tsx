@@ -119,6 +119,7 @@ const Create = () => {
       });
     } catch (error) {
       handleErrors('Error in creating MultiClique Account', error);
+    } finally {
       updateIsTxProcessing(false);
       useLoadingScreen.setAction({
         type: 'CLOSE',

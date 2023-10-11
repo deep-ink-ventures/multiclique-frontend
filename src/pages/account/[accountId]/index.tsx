@@ -76,9 +76,10 @@ const Account = () => {
                 {accountPage.multisig.data?.address && (
                   <>
                     <div className='mx-auto flex w-1/2'>
-                      <div
-                        className='inline-block grow truncate text-center'
-                        ref={textRef}>
+                      <span className='hidden' ref={textRef}>
+                        {accountPage.multisig.data?.address?.toString()}
+                      </span>
+                      <div className='inline-block grow truncate text-center'>
                         {truncateMiddle(
                           accountPage.multisig.data?.address?.toString(),
                           5,
