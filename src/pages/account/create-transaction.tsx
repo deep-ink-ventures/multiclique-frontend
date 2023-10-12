@@ -4,11 +4,14 @@ import useMC from '@/hooks/useMC';
 
 import { MainLayout } from '@/layouts';
 import { TransactionService } from '@/services';
-import useMCStore from '@/stores/MCStore';
+import useMCStore, { TxnResponse } from '@/stores/MCStore';
+import { toBase64 } from '@/utils';
 import { validateXDR } from '@/utils/helpers';
 import { ErrorMessage } from '@hookform/error-message';
+import { signBlob } from '@stellar/freighter-api';
 import cn from 'classnames';
-import { FormProvider, useForm, type SubmitHandler } from 'react-hook-form';
+import type { SubmitHandler } from 'react-hook-form';
+import { FormProvider, useForm } from 'react-hook-form';
 
 interface CreateTransactionFormValues {
   xdr: string | null;
@@ -17,9 +20,19 @@ interface CreateTransactionFormValues {
 const MAX_XDR_CHAR_COUNT = 4096;
 
 const CreateTransaction = () => {
-  const [currentAccount, handleErrors, isTxnProcessing, MCConfig] = useMCStore(
-    (s) => [s.currentAccount, s.handleErrors, s.isTxnProcessing, s.MCConfig]
-  );
+  const [
+    currentAccount,
+    handleErrors,
+    isTxnProcessing,
+    MCConfig,
+    addTxnNotification,
+  ] = useMCStore((s) => [
+    s.currentAccount,
+    s.handleErrors,
+    s.isTxnProcessing,
+    s.MCConfig,
+    s.addTxnNotification,
+  ]);
 
   const { getJwtToken } = useMC();
 
@@ -60,12 +73,44 @@ const CreateTransaction = () => {
         if (!jwt) {
           return;
         }
-        await TransactionService.createMultiCliqueTransaction(
+
+        const response = await TransactionService.createMultiCliqueTransaction(
           {
             xdr,
           },
           jwt
         );
+
+        // CHECK IF THIS IS CORRECT
+        const signedTx = await signBlob(toBase64(response.preimageHash), {
+          accountToSign: currentAccount?.publicKey,
+        });
+
+        const updateTx = await TransactionService.patchMultiCliqueTransaction(
+          response.id.toString(),
+          {
+            approvals: [
+              {
+                signatory: {
+                  name: currentAccount.publicKey,
+                  address: currentAccount.publicKey,
+                },
+                signature: toBase64(signedTx),
+              },
+            ],
+          },
+          jwt
+        );
+
+        console.log('updateTx', updateTx);
+
+        addTxnNotification({
+          type: TxnResponse.Warning,
+          title: 'Import XDR',
+          timestamp: Date.now(),
+          message: updateTx.status,
+        });
+
         reset();
       } else {
         setError('xdr', {

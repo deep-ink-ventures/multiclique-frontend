@@ -8,6 +8,7 @@ export enum MultiSigTransactionStatus {
 }
 
 export interface RawMultisigTransaction {
+  id: number;
   xdr: string;
   preimage_hash: string;
   call_func: string;

@@ -1,12 +1,29 @@
 import { SERVICE_URL } from '@/config';
 import type { JwtToken } from '@/types/auth';
 import type {
-MultisigTransaction,
-RawMultisigTransaction,
+  MultisigTransaction,
+  RawMultisigTransaction,
 } from '@/types/multisigTransaction';
 import type { Paginated } from '@/types/response';
 import { convertToQueryString } from '@/utils/api';
-import { keysToCamelCase,keysToSnakeCase } from '@/utils/transformer';
+import { keysToCamelCase, keysToSnakeCase } from '@/utils/transformer';
+
+export interface PatchMultiCliqueTransactionPayload {
+  approvals?: Array<{
+    signature: string;
+    signatory: {
+      address: string;
+      name: string;
+    };
+  }>;
+  rejections?: Array<{
+    signature: string;
+    signatory: {
+      address: string;
+      name: string;
+    };
+  }>;
+}
 
 export interface ListMultiCliqueTransactionsParams {
   search?: string;
@@ -103,18 +120,21 @@ export const updateMultiCliqueTransaction = async (
 
 export const patchMultiCliqueTransaction = async (
   id: string,
-  payload: Partial<MultisigTransaction>
+  payload: PatchMultiCliqueTransactionPayload,
+  jwt: JwtToken
 ): Promise<MultisigTransaction> => {
   const body = JSON.stringify(keysToSnakeCase(payload));
 
+  const headers = new Headers();
+  headers.append('Content-Type', 'application/json');
+  headers.append('Authorization', `Bearer ${jwt.access}`);
+
   const response = await fetch(
-    `${SERVICE_URL}/multiclique/transactions/${id}`,
+    `${SERVICE_URL}/multiclique/transactions/${id}/`,
     {
       method: 'PATCH',
       body,
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers,
     }
   );
 
