@@ -3,18 +3,24 @@ export type Signatory = {
   address: string;
 };
 
-export interface RawMultisig {
+export interface RawMultiCliqueAccount {
   name: string;
   address: string;
   signatories: Signatory[];
   default_threshold: number;
-  policy: string;
+  policy: MultiCliquePolicy;
 }
 
-export interface Multisig {
+export interface MultiCliqueAccount {
   name: string;
   address: string;
   signatories: Signatory[];
   defaultThreshold: number;
-  policy: string;
+  policy: MultiCliquePolicy;
 }
+
+export type MultiCliquePolicy = {
+  address: string;
+  name: string;
+  active: boolean;
+};

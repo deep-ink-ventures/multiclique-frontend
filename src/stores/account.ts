@@ -6,7 +6,7 @@ import type { StateCreator } from 'zustand';
 import type { ListMultiCliqueTransactionsParams } from '@/services';
 import { AccountService, TransactionService } from '@/services';
 import type { JwtToken } from '@/types/auth';
-import type { Multisig } from '@/types/multisig';
+import type { MultiCliqueAccount } from '@/types/multiCliqueAccount';
 import type { MultisigTransaction } from '@/types/multisigTransaction';
 import type { Paginated } from '@/types/response';
 import type { MCState } from './MCStore';
@@ -15,13 +15,13 @@ export type AccountSlice = {
   multisig: {
     loading: boolean;
     failed: boolean;
-    data: Multisig | null;
+    data: MultiCliqueAccount | null;
     getMultisigAccount: (address: string) => void;
   };
   multisigAccounts: {
     loading: boolean;
     failed: boolean;
-    data: Paginated<Multisig[]> | null;
+    data: Paginated<MultiCliqueAccount[]> | null;
     getMultisigAccounts: (params: ListMultiCliqueAccountsParams) => void;
   };
   transactions: {

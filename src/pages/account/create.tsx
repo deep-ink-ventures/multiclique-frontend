@@ -4,20 +4,21 @@ import CreateMultisigForm from '@/components/CreateMultisigForm';
 import useMC from '@/hooks/useMC';
 import { MainLayout } from '@/layouts';
 import useMCStore from '@/stores/MCStore';
+import type { MultiCliqueAccount } from '@/types/multiCliqueAccount';
 import { useRouter } from 'next/router';
 import type { SubmitHandler } from 'react-hook-form';
 import { useLoadingScreenContext } from '../../context/LoadingScreen/index';
 
 const Create = () => {
   const [
-    currentAccount,
+    currentWalletAccount,
     handleErrors,
     elioConfig,
     updateIsTxProcessing,
     updateMultisigAccounts,
     multisigAccounts,
   ] = useMCStore((s) => [
-    s.currentAccount,
+    s.currentWalletAccount,
     s.handleErrors,
     s.elioConfig,
     s.updateIsTxnProcessing,
@@ -38,7 +39,7 @@ const Create = () => {
   } = useMC();
 
   const onSubmit: SubmitHandler<ICreateMultisigFormProps> = async (data) => {
-    if (!currentAccount || !elioConfig) return;
+    if (!currentWalletAccount || !elioConfig) return;
 
     const { creatorName, creatorAddress, signatories, threshold } = data;
 
@@ -98,12 +99,16 @@ const Create = () => {
                   useLoadingScreen.setAction({
                     type: 'CLOSE',
                   });
-                  const multisigPayload = {
+                  const multisigPayload: MultiCliqueAccount = {
                     name: data.accountName,
                     address: coreAddress,
                     signatories: [creatorSignatory, ...signatories],
                     defaultThreshold: threshold,
-                    policy: 'ELIO_DAO',
+                    policy: {
+                      address: policyAddress,
+                      name: 'ELIO_DAO',
+                      active: false,
+                    },
                   };
                   const multisig = await createMultisigDB(multisigPayload);
                   if (multisig) {
@@ -119,6 +124,7 @@ const Create = () => {
       });
     } catch (error) {
       handleErrors('Error in creating MultiClique Account', error);
+    } finally {
       updateIsTxProcessing(false);
       useLoadingScreen.setAction({
         type: 'CLOSE',
@@ -136,7 +142,7 @@ const Create = () => {
             <h1>Create new account</h1>
           </div>
           <div>
-            {currentAccount?.isConnected ? (
+            {currentWalletAccount?.isConnected ? (
               <CreateMultisigForm onSubmit={onSubmit}>
                 <CreateMultisigForm.AccountName />
                 <CreateMultisigForm.Signers />

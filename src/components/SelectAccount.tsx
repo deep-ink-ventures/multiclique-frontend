@@ -8,7 +8,7 @@ import useMCStore from '@/stores/MCStore';
 import AccountCards from './AccountCards';
 
 const SelectAccount = () => {
-  const [currentAccount] = useMCStore((s) => [s.currentAccount]);
+  const [currentWalletAccount] = useMCStore((s) => [s.currentWalletAccount]);
 
   const [searchTerm, setSearchTerm] = useState('');
   const debouncedSearchTerm = useDebounce(searchTerm, 3000);
@@ -21,16 +21,16 @@ const SelectAccount = () => {
   });
 
   useEffect(() => {
-    if (currentAccount?.publicKey) {
+    if (currentWalletAccount?.publicKey) {
       listMultiCliqueAccounts.call({
         offset: 0,
         limit: 10,
         search: debouncedSearchTerm,
-        signatories: currentAccount?.publicKey,
+        signatories: currentWalletAccount?.publicKey,
       });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [debouncedSearchTerm, currentAccount]);
+  }, [debouncedSearchTerm, currentWalletAccount]);
 
   const filteredDaos = useMemo(() => {
     return listMultiCliqueAccounts.value?.results?.filter((account) => {

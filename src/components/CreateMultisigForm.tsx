@@ -3,7 +3,7 @@ import { ErrorMessage } from '@hookform/error-message';
 import type { ReactNode } from 'react';
 import { FormProvider, useForm, useFormContext } from 'react-hook-form';
 
-import type { Signatory } from '@/types/multisig';
+import type { Signatory } from '@/types/multiCliqueAccount';
 import { truncateMiddle } from '@/utils';
 import cn from 'classnames';
 import SignatoriesForm from './SignatoriesForm';
@@ -41,8 +41,8 @@ const Signers = ({
   disableCreator?: boolean;
   disableCount?: boolean;
 }) => {
-  const [currentAccount, isTxnProcessing] = useMCStore((s) => [
-    s.currentAccount,
+  const [currentWalletAccount, isTxnProcessing] = useMCStore((s) => [
+    s.currentWalletAccount,
     s.isTxnProcessing,
   ]);
 
@@ -89,8 +89,8 @@ const Signers = ({
             <p className='ml-1'>Wallet Address</p>
             <input type='text' hidden {...register('creatorAddress')} />
             <div className='flex h-12 items-center rounded-[10px] border-[0.3px] bg-base-100 px-2 opacity-50'>
-              {currentAccount
-                ? truncateMiddle(currentAccount?.publicKey, 5, 5)
+              {currentWalletAccount
+                ? truncateMiddle(currentWalletAccount?.publicKey, 5, 5)
                 : 'Please Connect Wallet'}
             </div>
           </div>
@@ -245,15 +245,15 @@ const CreateMultisigForm = ({
   children?: ReactNode;
   onSubmit: (data: any) => void;
 }) => {
-  const [currentAccount, isTxnProcessing] = useMCStore((s) => [
-    s.currentAccount,
+  const [currentWalletAccount, isTxnProcessing] = useMCStore((s) => [
+    s.currentWalletAccount,
     s.isTxnProcessing,
   ]);
 
   const formMethods = useForm<ICreateMultisigFormProps>({
     defaultValues: {
       creatorName: '',
-      creatorAddress: currentAccount?.publicKey,
+      creatorAddress: currentWalletAccount?.publicKey,
       signatories: [
         {
           name: '',
@@ -283,7 +283,9 @@ const CreateMultisigForm = ({
               className={cn(`btn btn-primary mr-3 w-48`, {
                 loading: isTxnProcessing,
               })}
-              disabled={isTxnProcessing || !currentAccount || membersCount < 2}
+              disabled={
+                isTxnProcessing || !currentWalletAccount || membersCount < 2
+              }
               type='submit'>
               {`${isTxnProcessing ? 'Processing' : 'Approve and Sign'}`}
             </button>

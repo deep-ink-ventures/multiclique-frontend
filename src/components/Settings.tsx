@@ -1,11 +1,12 @@
 import { Accordion, TransactionBadge } from '@/components';
 import CreateMultisigForm from '@/components/CreateMultisigForm';
+import { useLoadingScreenContext } from '@/context/LoadingScreen';
 import useMC from '@/hooks/useMC';
 import { usePromise } from '@/hooks/usePromise';
 import { AccountService } from '@/services';
 import { TransactionService } from '@/services/transaction';
-import useMCStore from '@/stores/MCStore';
-import type { Signatory } from '@/types/multisig';
+import useMCStore, { TxnResponse } from '@/stores/MCStore';
+import type { Signatory } from '@/types/multiCliqueAccount';
 import cn from 'classnames';
 import { useState } from 'react';
 import PolicyForm from './PolicyForm';
@@ -30,16 +31,17 @@ const SettingsTabs: Array<{ id: string; label: string }> = [
 ];
 
 const Settings = (props: { accountId: string }) => {
-  const [accountPage, handleErrors] = useMCStore((s) => [
+  const [accountPage, handleErrors, addTxnNotification] = useMCStore((s) => [
     s.pages.account,
     s.handleErrors,
+    s.addTxnNotification,
   ]);
   const [activeAccordion, setActiveAccordion] = useState<number | null>(null);
   const [activeSettingsTab, setActiveSettingsTab] = useState(
     SettingsTabs.at(0)?.id
   );
   const { makeAddSignerTxn, makeRemoveSignerTxn, getJwtToken } = useMC();
-  // const useLoadingScreen = useLoadingScreenContext();
+  const useLoadingModal = useLoadingScreenContext();
 
   // @ts-ignore
   const updateSigner = usePromise({
@@ -49,9 +51,8 @@ const Settings = (props: { accountId: string }) => {
           ...accountPage.multisig.data,
           signatories: isRemoval
             ? (accountPage.multisig.data.signatories ?? []).filter(
-                (signerAddress) =>
-                  signerAddress.address.toLowerCase() ===
-                  signer.address.toLowerCase()
+                (sig: Signatory) =>
+                  sig.address.toLowerCase() === signer.address.toLowerCase()
               )
             : [...(accountPage.multisig.data.signatories ?? []), signer],
         });
@@ -62,6 +63,9 @@ const Settings = (props: { accountId: string }) => {
   });
 
   const handleSubmitAddSigner = async (newSigner: Signatory) => {
+    useLoadingModal.setAction({
+      type: 'SHOW_TRANSACTION_PROCESSING',
+    });
     try {
       const txn = await makeAddSignerTxn(props.accountId, newSigner.address);
       if (!txn) {
@@ -72,19 +76,36 @@ const Settings = (props: { accountId: string }) => {
         return;
       }
 
-      await TransactionService.createMultiCliqueTransaction(
+      const mcTxn = await TransactionService.createMultiCliqueTransaction(
         {
           xdr: txn?.toXDR(),
           multicliqueAddress: props.accountId,
         },
         jwt
       );
+      addTxnNotification({
+        title: 'Success',
+        message: 'Add a signer transaction has been submitted',
+        type: TxnResponse.Success,
+        timestamp: Date.now(),
+      });
+      console.log('mcTxn', mcTxn);
     } catch (err) {
       handleErrors('Error in adding signer', err);
+      useLoadingModal.setAction({
+        type: 'CLOSE',
+      });
+    } finally {
+      useLoadingModal.setAction({
+        type: 'CLOSE',
+      });
     }
   };
 
   const handleSubmitRemoveSigner = async (signerToRemove: Signatory) => {
+    useLoadingModal.setAction({
+      type: 'SHOW_TRANSACTION_PROCESSING',
+    });
     try {
       const txn = await makeRemoveSignerTxn(
         props.accountId,
@@ -104,8 +125,15 @@ const Settings = (props: { accountId: string }) => {
         },
         jwt
       );
+
+      useLoadingModal.setAction({
+        type: 'CLOSE',
+      });
     } catch (err) {
       handleErrors('Error in removing signer', err);
+      useLoadingModal.setAction({
+        type: 'CLOSE',
+      });
     }
   };
 

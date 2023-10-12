@@ -14,11 +14,9 @@ interface CreateTransactionFormValues {
 const MAX_XDR_CHAR_COUNT = 4096;
 
 const CreateTransaction = () => {
-  const [currentAccount, handleErrors, isTxnProcessing] = useMCStore((s) => [
-    s.currentAccount,
-    s.handleErrors,
-    s.isTxnProcessing,
-  ]);
+  const [currentWalletAccount, handleErrors, isTxnProcessing] = useMCStore(
+    (s) => [s.currentWalletAccount, s.handleErrors, s.isTxnProcessing]
+  );
 
   const formMethods = useForm<CreateTransactionFormValues>({
     defaultValues: {
@@ -35,7 +33,7 @@ const CreateTransaction = () => {
   } = formMethods;
 
   const onSubmit: SubmitHandler<CreateTransactionFormValues> = async (data) => {
-    if (!currentAccount) return;
+    if (!currentWalletAccount) return;
 
     const { xdr } = data;
 
@@ -60,7 +58,7 @@ const CreateTransaction = () => {
       title={'MultiClique - Create Account'}
       description={'Create a new Multisig Account'}>
       <div className='container mx-auto mt-5 w-full min-w-[600px] max-w-[820px] overflow-hidden p-4'>
-        {currentAccount?.isConnected ? (
+        {currentWalletAccount?.isConnected ? (
           <>
             <div className='my-3 w-full text-center'>
               <h1 className='text-xl'>Create transaction</h1>

@@ -12,8 +12,10 @@ import { useDebounce } from '@/hooks/useDebounce';
 import { usePromise } from '@/hooks/usePromise';
 import type { ListMultiCliqueTransactionsParams } from '@/services';
 import { TransactionService } from '@/services';
+import useMCStore from '@/stores/MCStore';
 import Copy from '@/svg/components/Copy';
 import Search from '@/svg/components/Search';
+import type { JwtToken } from '@/types/auth';
 import { MultiSigTransactionStatus } from '@/types/multisigTransaction';
 import { truncateMiddle } from '@/utils';
 import dayjs from 'dayjs';
@@ -30,6 +32,7 @@ const StatusStepMap: Record<MultiSigTransactionStatus, number> = {
 };
 
 const Transactions = ({ address }: ITransactionsProps) => {
+  const [jwt] = useMCStore((s) => [s.jwt]);
   const [activeAccordion, setActiveAccordion] = useState<number | null>(null);
 
   const [searchTerm, setSearchTerm] = useState('');
@@ -42,22 +45,30 @@ const Transactions = ({ address }: ITransactionsProps) => {
   });
 
   const listTransactions = usePromise({
-    promiseFunction: async (params: ListMultiCliqueTransactionsParams) => {
+    promiseFunction: async (
+      params: ListMultiCliqueTransactionsParams,
+      jwtToken: JwtToken
+    ) => {
       const response = await TransactionService.listMultiCliqueTransactions(
-        params
+        params,
+        jwtToken
       );
       return response;
     },
   });
 
   useEffect(() => {
-    if (address) {
-      listTransactions.call({
-        offset: Math.max(pagination.offset - 1, 0),
-        limit: 5,
-        search: debouncedSearchTerm,
-        multicliqueAccountAddress: `${address}`,
-      });
+    // fixme - change when we have a new jwt feature
+    if (address && jwt) {
+      listTransactions.call(
+        {
+          offset: Math.max(pagination.offset - 1, 0),
+          limit: 5,
+          search: debouncedSearchTerm,
+          multicliqueAccountAddress: `${address}`,
+        },
+        jwt
+      );
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [address, debouncedSearchTerm, JSON.stringify(pagination)]);
