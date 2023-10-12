@@ -1,5 +1,5 @@
 import type { CamelCaseObject } from '@/utils/transformer';
-import type { Signatory } from './multisig';
+import type { Signatory } from './multiCliqueAccount';
 
 export enum MultiSigTransactionStatus {
   Pending = 'PENDING',

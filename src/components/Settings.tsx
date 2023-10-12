@@ -1,12 +1,15 @@
-import { Accordion, PolicyAddressesForm, TransactionBadge } from '@/components';
+import { Accordion, TransactionBadge } from '@/components';
 import CreateMultisigForm from '@/components/CreateMultisigForm';
+import { useLoadingScreenContext } from '@/context/LoadingScreen';
+import useMC from '@/hooks/useMC';
 import { usePromise } from '@/hooks/usePromise';
 import { AccountService } from '@/services';
-import useMCStore from '@/stores/MCStore';
-import type { Signatory } from '@/types/multisig';
+import { TransactionService } from '@/services/transaction';
+import useMCStore, { TxnResponse } from '@/stores/MCStore';
+import type { Signatory } from '@/types/multiCliqueAccount';
 import cn from 'classnames';
 import { useState } from 'react';
-import { FormProvider, useForm } from 'react-hook-form';
+import PolicyForm from './PolicyForm';
 
 const SettingsTabs: Array<{ id: string; label: string }> = [
   {
@@ -27,46 +30,18 @@ const SettingsTabs: Array<{ id: string; label: string }> = [
   },
 ];
 
-const PolicyForm = ({ formName }: { formName?: string }) => {
-  const formMethods = useForm({
-    defaultValues: {
-      [`${formName}Addresses`]: [
-        {
-          address: '',
-        },
-      ],
-    },
-  });
-  const { handleSubmit } = formMethods;
-
-  const onSubmit = () => {};
-
-  return (
-    <FormProvider {...formMethods}>
-      <form
-        onSubmit={(e) => {
-          e.stopPropagation();
-          e.preventDefault();
-          handleSubmit(onSubmit)();
-        }}
-        className='flex w-full flex-col items-center justify-center gap-2'>
-        <PolicyAddressesForm formName={`${formName}Addresses`} />
-        <button
-          className='btn btn-primary ml-auto w-full max-w-[20%] flex-1 self-end truncate'
-          onClick={() => {}}>
-          Activate
-        </button>
-      </form>
-    </FormProvider>
-  );
-};
-
-const Settings = () => {
-  const [accountPage] = useMCStore((s) => [s.pages.account]);
+const Settings = (props: { accountId: string }) => {
+  const [accountPage, handleErrors, addTxnNotification] = useMCStore((s) => [
+    s.pages.account,
+    s.handleErrors,
+    s.addTxnNotification,
+  ]);
   const [activeAccordion, setActiveAccordion] = useState<number | null>(null);
   const [activeSettingsTab, setActiveSettingsTab] = useState(
     SettingsTabs.at(0)?.id
   );
+  const { makeAddSignerTxn, makeRemoveSignerTxn, getJwtToken } = useMC();
+  const useLoadingModal = useLoadingScreenContext();
 
   // @ts-ignore
   const updateSigner = usePromise({
@@ -76,9 +51,8 @@ const Settings = () => {
           ...accountPage.multisig.data,
           signatories: isRemoval
             ? (accountPage.multisig.data.signatories ?? []).filter(
-                (signerAddress) =>
-                  signerAddress.address.toLowerCase() ===
-                  signer.address.toLowerCase()
+                (sig: Signatory) =>
+                  sig.address.toLowerCase() === signer.address.toLowerCase()
               )
             : [...(accountPage.multisig.data.signatories ?? []), signer],
         });
@@ -89,23 +63,78 @@ const Settings = () => {
   });
 
   const handleSubmitAddSigner = async (newSigner: Signatory) => {
-    // Uncomment after adding onchain data update
-    // await updateSigner.call(newSigner, false);
-    // if (accountPage.multisig.data?.address) {
-    //   accountPage.multisig.getMultisigAccount(
-    //     accountPage.multisig.data?.address
-    //   );
-    // }
+    useLoadingModal.setAction({
+      type: 'SHOW_TRANSACTION_PROCESSING',
+    });
+    try {
+      const txn = await makeAddSignerTxn(props.accountId, newSigner.address);
+      if (!txn) {
+        return;
+      }
+      const jwt = await getJwtToken(props.accountId);
+      if (!jwt) {
+        return;
+      }
+
+      const mcTxn = await TransactionService.createMultiCliqueTransaction(
+        {
+          xdr: txn?.toXDR(),
+          multicliqueAddress: props.accountId,
+        },
+        jwt
+      );
+      addTxnNotification({
+        title: 'Success',
+        message: 'Add a signer transaction has been submitted',
+        type: TxnResponse.Success,
+        timestamp: Date.now(),
+      });
+      console.log('mcTxn', mcTxn);
+    } catch (err) {
+      handleErrors('Error in adding signer', err);
+      useLoadingModal.setAction({
+        type: 'CLOSE',
+      });
+    } finally {
+      useLoadingModal.setAction({
+        type: 'CLOSE',
+      });
+    }
   };
 
-  const handleSubmitRemoveSigner = async (removeSigner: Signatory) => {
-    // Uncomment after adding onchain data update
-    // await updateSigner.call(removeSigner, true);
-    // if (accountPage.multisig.data?.address) {
-    //   accountPage.multisig.getMultisigAccount(
-    //     accountPage.multisig.data?.address
-    //   );
-    // }
+  const handleSubmitRemoveSigner = async (signerToRemove: Signatory) => {
+    useLoadingModal.setAction({
+      type: 'SHOW_TRANSACTION_PROCESSING',
+    });
+    try {
+      const txn = await makeRemoveSignerTxn(
+        props.accountId,
+        signerToRemove.address
+      );
+      if (!txn) {
+        return;
+      }
+      const jwt = await getJwtToken(props.accountId);
+      if (!jwt) {
+        return;
+      }
+      await TransactionService.createMultiCliqueTransaction(
+        {
+          xdr: txn?.toXDR(),
+          multicliqueAddress: props.accountId,
+        },
+        jwt
+      );
+
+      useLoadingModal.setAction({
+        type: 'CLOSE',
+      });
+    } catch (err) {
+      handleErrors('Error in removing signer', err);
+      useLoadingModal.setAction({
+        type: 'CLOSE',
+      });
+    }
   };
 
   return (
@@ -151,6 +180,7 @@ const Settings = () => {
             disableCreator
             maxSignatories={1}
             minSignatories={1}
+            disableCount={true}
           />
         </CreateMultisigForm>
       </div>
@@ -169,6 +199,7 @@ const Settings = () => {
             minSignatories={1}
             maxSignatories={1}
             disableCreator
+            disableCount={true}
           />
         </CreateMultisigForm>
       </div>
@@ -188,9 +219,9 @@ const Settings = () => {
         })}>
         <div className='w-full space-y-2'>
           <h4 className='text-center'>Attach Policy</h4>
-          {Array(4)
+          {Array(1)
             .fill(null)
-            .map((item, index) => {
+            .map((_item, index) => {
               return (
                 <Accordion.Container
                   key={index}
@@ -201,11 +232,14 @@ const Settings = () => {
                   color='base'
                   expanded={index === activeAccordion}>
                   <Accordion.Header className='flex gap-2 text-sm'>
-                    <div className='grow font-semibold'>{'{Policy Name}'}</div>
+                    <div className='grow font-semibold'>{'ELIO_DAO'}</div>
                     <TransactionBadge status='Active' />
                   </Accordion.Header>
                   <Accordion.Content className='flex'>
-                    <PolicyForm formName={`${index}`} />
+                    <PolicyForm
+                      formName={`ELIO_DAO`}
+                      accountId={props.accountId}
+                    />
                   </Accordion.Content>
                 </Accordion.Container>
               );

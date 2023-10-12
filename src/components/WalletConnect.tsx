@@ -22,13 +22,13 @@ const WalletConnect = (props: WalletConnectProps) => {
     isConnectModalOpen,
     updateIsConnectModalOpen,
     currentWalletAccount,
-    updateCurrentAccount,
+    updateCurrentWalletAccount,
     isTxnProcessing,
   ] = useMCStore((s) => [
     s.isConnectModalOpen,
     s.updateIsConnectModalOpen,
-    s.currentAccount,
-    s.updateCurrentAccount,
+    s.currentWalletAccount,
+    s.updateCurrentWalletAccount,
     s.isTxnProcessing,
   ]);
 
@@ -47,7 +47,7 @@ const WalletConnect = (props: WalletConnectProps) => {
   };
 
   const handleDisconnect = () => {
-    updateCurrentAccount(null);
+    updateCurrentWalletAccount(null);
     setDropdownOpen(false);
   };
 

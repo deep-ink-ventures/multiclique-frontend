@@ -43,8 +43,8 @@ const TABS: { icon: ReactNode; label: AccountTabs }[] = [
 const Account = () => {
   const router = useRouter();
   const { accountId } = router.query;
-  const [currentAccount, accountPage] = useMCStore((s) => [
-    s.currentAccount,
+  const [currentWalletAccount, accountPage] = useMCStore((s) => [
+    s.currentWalletAccount,
     s.pages.account,
   ]);
   const [currentTab, setCurrentTab] = useState<AccountTabs>('Dashboard');
@@ -67,7 +67,7 @@ const Account = () => {
 
   return (
     <MainLayout title='MultiClique' description=''>
-      {currentAccount?.publicKey ? (
+      {currentWalletAccount?.publicKey ? (
         <div className='flex w-full'>
           <div className='w-1/4 shrink-0'>
             <Sidebar>
@@ -105,7 +105,7 @@ const Account = () => {
                     </div>
                   </>
                 )}
-                {!currentAccount?.publicKey && (
+                {!currentWalletAccount?.publicKey && (
                   <WalletConnect text='Connect your wallet' />
                 )}
               </Sidebar.Content>
@@ -126,7 +126,9 @@ const Account = () => {
             {currentTab === 'Transactions' && (
               <Transactions address={accountId?.toString()} />
             )}
-            {currentTab === 'Settings' && <Settings />}
+            {currentTab === 'Settings' && (
+              <Settings accountId={accountId as string} />
+            )}
           </div>
         </div>
       ) : (

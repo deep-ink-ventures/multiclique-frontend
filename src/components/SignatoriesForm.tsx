@@ -12,6 +12,7 @@ const SignatoriesForm = (props: {
   disabled?: boolean;
   maxCount?: number;
   minCount?: number;
+  disableCount?: boolean;
   onAddSigner?: () => void;
   onDeleteSigner?: () => void;
 }) => {
@@ -19,6 +20,7 @@ const SignatoriesForm = (props: {
     onAddSigner,
     onDeleteSigner,
     listStartCount = 1,
+    disableCount,
     disabled,
     maxCount,
     minCount,
@@ -54,7 +56,7 @@ const SignatoriesForm = (props: {
                 <p className='pl-8'>Name</p>
                 <div className='flex '>
                   <div className='mr-4 flex flex-col justify-center'>
-                    {index + listStartCount}
+                    {disableCount ? null : index + listStartCount}
                   </div>
                   <input
                     type='text'

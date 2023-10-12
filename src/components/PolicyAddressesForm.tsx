@@ -1,4 +1,3 @@
-import { isValidEd25519PublicKey } from '@/utils/index';
 import { ErrorMessage } from '@hookform/error-message';
 import Image from 'next/image';
 import { useFieldArray, useFormContext } from 'react-hook-form';
@@ -40,16 +39,14 @@ export const PolicyAddressesForm = (props: {
           <div className='flex w-full px-4' key={item.id} data-k={item.id}>
             <div className='flex w-full'>
               <div className='flex flex-auto flex-col'>
-                <p className='ml-1'>Wallet Address</p>
+                <p className='ml-1'>Contract Address</p>
                 <input
                   type='text'
-                  placeholder='Wallet Address'
+                  placeholder='Contract Address'
                   className='input input-primary'
                   disabled={disabled}
                   {...register(`${props.formName}.${index}.address`, {
                     required: 'Required',
-                    validate: (add) =>
-                      isValidEd25519PublicKey(add) || 'Not a valid address',
                   })}
                 />
                 <ErrorMessage

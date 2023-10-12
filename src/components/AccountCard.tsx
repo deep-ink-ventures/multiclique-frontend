@@ -1,11 +1,11 @@
 import AvatarImage from '@/svg/avatar.svg';
 import MemberSign from '@/svg/components/MemberSign';
-import type { Multisig } from '@/types/multisig';
+import type { MultiCliqueAccount } from '@/types/multiCliqueAccount';
 import { truncateMiddle } from '@/utils';
 import Link from 'next/link';
 import { Avatar } from '.';
 
-const AccountCard = ({ account }: { account: Multisig }) => {
+const AccountCard = ({ account }: { account: MultiCliqueAccount }) => {
   return (
     <Link
       href={`/account/${account.address}`}
@@ -13,7 +13,7 @@ const AccountCard = ({ account }: { account: Multisig }) => {
       <div className='flex items-center gap-2'>
         <Avatar width={45} height={45} src={AvatarImage} />
         <div>
-          {account.name}
+          <p className='text-lg font-semibold'>{account.name}</p>
           <div className=''>{truncateMiddle(account.address, 5, 3)}</div>
         </div>
       </div>

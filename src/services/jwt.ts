@@ -32,7 +32,7 @@ export const createJWT = async (
 
 export const refreshJWT = async (
   address: string,
-  payload: CreateJwtRequestPayload
+  payload: JwtToken
 ): Promise<JwtToken> => {
   const body = JSON.stringify(keysToSnakeCase(payload));
 

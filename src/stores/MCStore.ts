@@ -10,10 +10,11 @@ import {
 } from '@stellar/freighter-api';
 import * as SorobanClient from 'soroban-client';
 
-import type { Multisig } from '@/types/multisig';
+import type { MultiCliqueAccount } from '@/types/multiCliqueAccount';
 import type { MultisigTransaction } from '@/types/multisigTransaction';
 
 import { getConfig } from '@/services/config';
+import type { JwtToken } from '@/types/auth';
 import type { ElioConfig } from '@/types/elioConfig';
 import {
   NETWORK,
@@ -24,10 +25,6 @@ import {
 import type { AccountSlice } from './account';
 import { createAccountSlice } from './account';
 import { contractErrorCodes } from './errors';
-import {
-  fakeMultisigAccounts,
-  fakeMultisigTransactions,
-} from './placeholderData';
 
 export interface MCConfig {
   /** Block time in seconds */
@@ -44,7 +41,6 @@ export interface WalletAccount {
   networkUrl: string;
   networkPassphrase: string;
   nativeTokenBalance: BigNumber;
-  MCAccounts: Multisig[];
 }
 
 export enum TxnResponse {
@@ -69,7 +65,7 @@ interface PageSlices {
 }
 
 export interface MCState {
-  currentAccount: WalletAccount | null;
+  currentWalletAccount: WalletAccount | null;
   txnNotifications: TxnNotification[];
   isTxnProcessing: boolean;
   isConnectModalOpen: boolean;
@@ -77,14 +73,15 @@ export interface MCState {
   showCongrats: boolean;
   currentBlockNumber: number | null;
   MCConfig: MCConfig;
-  multisigAccounts: Multisig[];
+  multisigAccounts: MultiCliqueAccount[];
   multisigTransactions: MultisigTransaction[];
   elioConfig: ElioConfig | null;
   pages: PageSlices;
+  jwt: JwtToken | null;
 }
 
 export interface MCActions {
-  updateCurrentAccount: (account: WalletAccount | null) => void;
+  updateCurrentWalletAccount: (account: WalletAccount | null) => void;
   getWallet: () => void;
   addTxnNotification: (notification: TxnNotification) => void;
   removeTxnNotification: () => void;
@@ -98,22 +95,22 @@ export interface MCActions {
     onError?: (err: any) => void
   ) => Promise<string | null | undefined>;
   updateIsConnectModalOpen: (isOpen: boolean) => void;
-  fetchMCAccounts: (publickey: string) => Promise<Multisig[] | null>;
   handleTxnSuccessNotification: (
     response: SorobanClient.SorobanRpc.GetTransactionResponse,
     successMsg: string,
     txnHash?: string
   ) => void;
   updateIsTxnProcessing: (isProcessing: boolean) => void;
-  updateMultisigAccounts: (accounts: Multisig[]) => void;
+  updateMultisigAccounts: (accounts: MultiCliqueAccount[]) => void;
   updateMultisigTransactions: (transactions: MultisigTransaction[]) => void;
   fetchConfig: () => void;
+  updateJwt: (jwt: JwtToken) => void;
 }
 
 export interface MCStore extends MCState, MCActions {}
 
 const useMCStore = create<MCStore>((set, get, store) => ({
-  currentAccount: null,
+  currentWalletAccount: null,
   txnNotifications: [],
   isTxnProcessing: false,
   isConnectModalOpen: false,
@@ -125,11 +122,12 @@ const useMCStore = create<MCStore>((set, get, store) => ({
     networkPassphrase: NETWORK_PASSPHRASE[NETWORK],
     rpcEndpoint: SOROBAN_RPC_ENDPOINT[NETWORK],
   },
-  multisigAccounts: fakeMultisigAccounts,
-  multisigTransactions: fakeMultisigTransactions,
+  multisigAccounts: [],
+  multisigTransactions: [],
   elioConfig: null,
-  updateCurrentAccount: (account: WalletAccount | null) => {
-    set({ currentAccount: account });
+  jwt: null,
+  updateCurrentWalletAccount: (account: WalletAccount | null) => {
+    set({ currentWalletAccount: account });
   },
   updateIsConnectModalOpen: (isOpen: boolean) => {
     set({ isConnectModalOpen: isOpen });
@@ -156,7 +154,6 @@ const useMCStore = create<MCStore>((set, get, store) => ({
           throw new Error(err);
         }
       );
-      const MCaccounts = await get().fetchMCAccounts(publicKey);
 
       const wallet: WalletAccount = {
         isConnected: connected,
@@ -167,9 +164,8 @@ const useMCStore = create<MCStore>((set, get, store) => ({
         nativeTokenBalance: nativeBalance
           ? BigNumber(nativeBalance).multipliedBy(XLM_UNITS)
           : BigNumber(0),
-        MCAccounts: MCaccounts || [],
       };
-      set({ currentAccount: wallet });
+      set({ currentWalletAccount: wallet });
     } catch (ex) {
       console.error(ex);
     }
@@ -309,17 +305,10 @@ const useMCStore = create<MCStore>((set, get, store) => ({
 
     get().addTxnNotification(newNoti);
   },
-  fetchMCAccounts: async (publicKey: string) => {
-    // fixme: this is a placeholder
-    if (publicKey) {
-      return Promise.resolve(fakeMultisigAccounts);
-    }
-    return Promise.resolve(null);
-  },
   updateIsTxnProcessing: (isProcessing: boolean) => {
     set({ isTxnProcessing: isProcessing });
   },
-  updateMultisigAccounts: (accounts: Multisig[]) => {
+  updateMultisigAccounts: (accounts: MultiCliqueAccount[]) => {
     set({ multisigAccounts: accounts });
   },
   updateMultisigTransactions: (transactions: MultisigTransaction[]) => {
@@ -332,6 +321,9 @@ const useMCStore = create<MCStore>((set, get, store) => ({
     } catch (err) {
       get().handleErrors('Error fetching config', err);
     }
+  },
+  updateJwt: (jwt: JwtToken) => {
+    set({ jwt });
   },
   pages: {
     ...createAccountSlice(set, get, store),
