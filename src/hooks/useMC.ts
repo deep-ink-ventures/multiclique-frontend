@@ -631,7 +631,7 @@ const useMC = () => {
                 name: currentWalletAccount.publicKey,
                 address: currentWalletAccount.publicKey,
               },
-              signature: signedHash,
+              signature: toBase64(signedHash),
             },
           ],
         },
