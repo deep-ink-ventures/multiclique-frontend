@@ -16,6 +16,7 @@ import {
   isValidXDR,
   numberToU32ScVal,
   toBase64,
+  toScValBytes,
 } from '@/utils';
 import { signBlob, signTransaction } from '@stellar/freighter-api';
 import * as SorobanClient from 'soroban-client';
@@ -560,7 +561,7 @@ const useMC = () => {
       currentWalletAccount?.publicKey,
       coreAddress,
       'add_signer',
-      accountToScVal(signerAddress)
+      toScValBytes(signerAddress)
     );
     return txn;
   };
@@ -576,7 +577,7 @@ const useMC = () => {
       currentWalletAccount?.publicKey,
       coreAddress,
       'remove_signer',
-      accountToScVal(signerAddress)
+      toScValBytes(signerAddress)
     );
     return txn;
   };
@@ -618,6 +619,11 @@ const useMC = () => {
         },
         jwtToken
       );
+
+      if (!mcTxnRes?.preimageHash) {
+        throw new Error('Error creating a Multiclique Transaction');
+      }
+
       const signedHash = await signBlob(mcTxnRes.preimageHash, {
         accountToSign: currentWalletAccount?.publicKey,
       });
@@ -631,7 +637,7 @@ const useMC = () => {
                 name: currentWalletAccount.publicKey,
                 address: currentWalletAccount.publicKey,
               },
-              signature: signedHash,
+              signature: toBase64(signedHash),
             },
           ],
         },

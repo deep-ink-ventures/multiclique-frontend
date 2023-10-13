@@ -24,3 +24,8 @@ export type MultiCliquePolicy = {
   name: string;
   active: boolean;
 };
+
+export interface Signature {
+  signature: string;
+  signatory: Signatory;
+}

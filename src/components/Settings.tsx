@@ -93,19 +93,18 @@ const Settings = (props: { accountId: string }) => {
         return;
       }
 
-      await createMCTransactionDB(txn.toXDR(), jwt);
+      const response = await createMCTransactionDB(txn.toXDR(), jwt);
 
-      addTxnNotification({
-        title: 'Success',
-        message: 'Add a signer transaction has been submitted',
-        type: TxnResponse.Success,
-        timestamp: Date.now(),
-      });
+      if (response?.id != null) {
+        addTxnNotification({
+          title: 'Success',
+          message: 'Change threshold transaction has been submitted',
+          type: TxnResponse.Success,
+          timestamp: Date.now(),
+        });
+      }
     } catch (err) {
       handleErrors('Error in changing threshold', err);
-      useLoadingModal.setAction({
-        type: 'CLOSE',
-      });
     } finally {
       useLoadingModal.setAction({
         type: 'CLOSE',
@@ -126,18 +125,19 @@ const Settings = (props: { accountId: string }) => {
       if (!jwt) {
         return;
       }
-      await createMCTransactionDB(txn.toXDR(), jwt);
-      addTxnNotification({
-        title: 'Success',
-        message: 'Add a signer transaction has been submitted',
-        type: TxnResponse.Success,
-        timestamp: Date.now(),
-      });
+
+      const response = await createMCTransactionDB(txn.toXDR(), jwt);
+
+      if (response?.id != null) {
+        addTxnNotification({
+          title: 'Success',
+          message: 'Add a signer transaction has been submitted',
+          type: TxnResponse.Success,
+          timestamp: Date.now(),
+        });
+      }
     } catch (err) {
       handleErrors('Error in adding signer', err);
-      useLoadingModal.setAction({
-        type: 'CLOSE',
-      });
     } finally {
       useLoadingModal.setAction({
         type: 'CLOSE',
@@ -161,13 +161,20 @@ const Settings = (props: { accountId: string }) => {
       if (!jwt) {
         return;
       }
-      await createMCTransactionDB(txn.toXDR(), jwt);
 
-      useLoadingModal.setAction({
-        type: 'CLOSE',
-      });
+      const response = await createMCTransactionDB(txn.toXDR(), jwt);
+
+      if (response?.id != null) {
+        addTxnNotification({
+          title: 'Success',
+          message: 'Remove a signer transaction has been submitted',
+          type: TxnResponse.Success,
+          timestamp: Date.now(),
+        });
+      }
     } catch (err) {
       handleErrors('Error in removing signer', err);
+    } finally {
       useLoadingModal.setAction({
         type: 'CLOSE',
       });
@@ -247,7 +254,7 @@ const Settings = (props: { accountId: string }) => {
         })}>
         <CreateMultisigForm
           onSubmit={(data) => {
-            handleChangeThreshold(data?.threshold);
+            handleChangeThreshold(data);
           }}>
           <CreateMultisigForm.Threshold
             minimumSigners={1}

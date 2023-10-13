@@ -33,6 +33,13 @@ const StatusStepMap: Record<MultiSigTransactionStatus, number> = {
   [MultiSigTransactionStatus.Executed]: 3,
 };
 
+const StatusBadgeMap: Record<MultiSigTransactionStatus, string> = {
+  [MultiSigTransactionStatus.Executable]: 'Active',
+  [MultiSigTransactionStatus.Pending]: 'Pending',
+  [MultiSigTransactionStatus.Executed]: 'Approved',
+  [MultiSigTransactionStatus.Rejected]: 'Cancelled',
+};
+
 const Transactions = ({ address }: ITransactionsProps) => {
   const [jwt] = useMCStore((s) => [s.jwt]);
   const { getJwtToken } = useMC();
@@ -68,7 +75,6 @@ const Transactions = ({ address }: ITransactionsProps) => {
           offset: Math.max(pagination.offset - 1, 0),
           limit: 5,
           search: debouncedSearchTerm,
-          multicliqueAccountAddress: `${address}`,
         },
         jwt
       );
@@ -121,70 +127,78 @@ const Transactions = ({ address }: ITransactionsProps) => {
         {!listTransactions.pending &&
           listTransactions.fulfilled &&
           !listTransactions.value?.results?.length && <EmptyPlaceholder />}
-        {listTransactions?.value?.results?.map((item, index) => {
-          return (
-            <Accordion.Container
-              key={index}
-              id={index}
-              onClick={() =>
-                setActiveAccordion(activeAccordion === index ? null : index)
-              }
-              color='base'
-              expanded={index === activeAccordion}>
-              <Accordion.Header className='flex gap-2 text-sm'>
-                <div className='grow font-semibold'>{item.callFunc}</div>
-                <div>
-                  {dayjs(item.createdAt).format('MMMM D, YYYY - h:mm:ss A')}
-                </div>
-                <UserTally
-                  value={item.approvals?.length}
-                  over={item.signatories?.length}
-                />
-                <TransactionBadge status='Active' />
-              </Accordion.Header>
-              <Accordion.Content className='flex divide-x'>
-                <div className='w-2/3 px-2 pr-4'>
-                  <div className='flex items-center gap-2'>
-                    <div className='shrink-0 font-semibold'>Call hash:</div>
-                    <div ref={textRef}>
-                      {/* TODO: update hash */}
-                      {truncateMiddle(item.preimageHash, 16, 3)}
+        {!listTransactions.pending &&
+          listTransactions?.value?.results?.map((item, index) => {
+            return (
+              <Accordion.Container
+                key={index}
+                id={index}
+                onClick={() =>
+                  setActiveAccordion(activeAccordion === index ? null : index)
+                }
+                color='base'
+                expanded={index === activeAccordion}>
+                <Accordion.Header className='flex gap-2 text-sm'>
+                  <div className='grow font-semibold'>{item.callFunc}</div>
+                  <div>
+                    {dayjs(item.createdAt).format('MMMM D, YYYY - h:mm:ss A')}
+                  </div>
+                  <UserTally
+                    value={item.approvals?.length}
+                    over={item.signatories?.length}
+                  />
+                  <TransactionBadge
+                    status={StatusBadgeMap[item.status] as any}
+                  />
+                </Accordion.Header>
+                <Accordion.Content className='flex divide-x'>
+                  <div className='w-2/3 px-2 pr-4'>
+                    <div className='flex items-center gap-2'>
+                      <div className='shrink-0 font-semibold'>Call hash:</div>
+                      <div className='hidden' ref={textRef}>
+                        {item.preimageHash}
+                      </div>
+                      <div>
+                        {/* TODO: update hash */}
+                        {truncateMiddle(item.preimageHash, 16, 3)}
+                      </div>
+                      <span
+                        onClick={copyToClipboard}
+                        className='rounded-full p-1 hover:bg-base-200'>
+                        <Copy className='h-4 w-4 cursor-pointer' />
+                      </span>
                     </div>
-                    <span
-                      onClick={copyToClipboard}
-                      className='rounded-full p-1 hover:bg-base-200'>
-                      <Copy className='h-4 w-4 cursor-pointer' />
-                    </span>
                   </div>
-                </div>
-                <div className='grow space-y-2 px-3'>
-                  <Timeline>
-                    {['Created', 'Approved', 'Executed'].map(
-                      (step, stepIndex) => (
-                        <Timeline.Item
-                          key={`${stepIndex}-${step}`}
-                          {...(stepIndex <= StatusStepMap[item.status] && {
-                            status:
-                              stepIndex === StatusStepMap[item.status]
-                                ? 'active'
-                                : 'completed',
-                          })}>
-                          {step}
-                        </Timeline.Item>
-                      )
-                    )}
-                  </Timeline>
-                  <div>Can be executed once threshold is reached</div>
-                  <div className='flex w-full gap-2'>
-                    <button className='btn btn-outline flex-1'>Reject</button>
-                    <button className='btn btn-primary flex-1'>Approve</button>
-                    {/* TODO add execute button */}
+                  <div className='grow space-y-2 px-3'>
+                    <Timeline>
+                      {['Created', 'Approved', 'Executed'].map(
+                        (step, stepIndex) => (
+                          <Timeline.Item
+                            key={`${stepIndex}-${step}`}
+                            {...(stepIndex <= StatusStepMap[item.status] && {
+                              status:
+                                stepIndex === StatusStepMap[item.status]
+                                  ? 'active'
+                                  : 'completed',
+                            })}>
+                            {step}
+                          </Timeline.Item>
+                        )
+                      )}
+                    </Timeline>
+                    <div>Can be executed once threshold is reached</div>
+                    <div className='flex w-full gap-2'>
+                      <button className='btn btn-outline flex-1'>Reject</button>
+                      <button className='btn btn-primary flex-1'>
+                        Approve
+                      </button>
+                      {/* TODO add execute button */}
+                    </div>
                   </div>
-                </div>
-              </Accordion.Content>
-            </Accordion.Container>
-          );
-        })}
+                </Accordion.Content>
+              </Accordion.Container>
+            );
+          })}
       </div>
       {!listTransactions.pending &&
         Boolean(listTransactions.value?.results?.length) && (
