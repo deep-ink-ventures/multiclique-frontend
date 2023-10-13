@@ -322,7 +322,7 @@ const useMCStore = create<MCStore>((set, get, store) => ({
       get().handleErrors('Error fetching config', err);
     }
   },
-  updateJwt: (jwt: JwtToken) => {
+  updateJwt: (jwt?: JwtToken) => {
     set({ jwt });
   },
   pages: {
