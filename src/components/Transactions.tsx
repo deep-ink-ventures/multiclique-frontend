@@ -33,6 +33,13 @@ const StatusStepMap: Record<MultiSigTransactionStatus, number> = {
   [MultiSigTransactionStatus.Executed]: 3,
 };
 
+const StatusBadgeMap: Record<MultiSigTransactionStatus, string> = {
+  [MultiSigTransactionStatus.Executable]: 'Active',
+  [MultiSigTransactionStatus.Pending]: 'Pending',
+  [MultiSigTransactionStatus.Executed]: 'Approved',
+  [MultiSigTransactionStatus.Rejected]: 'Cancelled',
+};
+
 const Transactions = ({ address }: ITransactionsProps) => {
   const [jwt] = useMCStore((s) => [s.jwt]);
   const { getJwtToken } = useMC();
@@ -140,13 +147,16 @@ const Transactions = ({ address }: ITransactionsProps) => {
                   value={item.approvals?.length}
                   over={item.signatories?.length}
                 />
-                <TransactionBadge status='Active' />
+                <TransactionBadge status={StatusBadgeMap[item.status] as any} />
               </Accordion.Header>
               <Accordion.Content className='flex divide-x'>
                 <div className='w-2/3 px-2 pr-4'>
                   <div className='flex items-center gap-2'>
                     <div className='shrink-0 font-semibold'>Call hash:</div>
-                    <div ref={textRef}>
+                    <div className='hidden' ref={textRef}>
+                      {item.preimageHash}
+                    </div>
+                    <div>
                       {/* TODO: update hash */}
                       {truncateMiddle(item.preimageHash, 16, 3)}
                     </div>
