@@ -94,7 +94,7 @@ const Settings = (props: { accountId: string }) => {
       if (response?.id != null) {
         addTxnNotification({
           title: 'Success',
-          message: 'Add a signer transaction has been submitted',
+          message: 'Change threshold transaction has been submitted',
           type: TxnResponse.Success,
           timestamp: Date.now(),
         });
@@ -250,7 +250,7 @@ const Settings = (props: { accountId: string }) => {
         })}>
         <CreateMultisigForm
           onSubmit={(data) => {
-            handleChangeThreshold(data?.threshold);
+            handleChangeThreshold(data);
           }}>
           <CreateMultisigForm.Threshold
             minimumSigners={1}
