@@ -1,4 +1,4 @@
-import { Accordion,TransactionBadge } from '@/components';
+import { Accordion, TransactionBadge } from '@/components';
 import CreateMultisigForm from '@/components/CreateMultisigForm';
 import { useLoadingScreenContext } from '@/context/LoadingScreen';
 import useMC from '@/hooks/useMC';
