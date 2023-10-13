@@ -1,14 +1,15 @@
 import {
-  Accordion,
-  EmptyPlaceholder,
-  LoadingPlaceholder,
-  Pagination,
-  Timeline,
-  TransactionBadge,
-  UserTally,
+Accordion,
+EmptyPlaceholder,
+LoadingPlaceholder,
+Pagination,
+Timeline,
+TransactionBadge,
+UserTally,
 } from '@/components';
 import useCopyToClipboard from '@/hooks/useCopyToClipboard';
 import { useDebounce } from '@/hooks/useDebounce';
+import useMC from '@/hooks/useMC';
 import { usePromise } from '@/hooks/usePromise';
 import type { ListMultiCliqueTransactionsParams } from '@/services';
 import { TransactionService } from '@/services';
@@ -19,7 +20,7 @@ import type { JwtToken } from '@/types/auth';
 import { MultiSigTransactionStatus } from '@/types/multisigTransaction';
 import { truncateMiddle } from '@/utils';
 import dayjs from 'dayjs';
-import { useEffect, useState } from 'react';
+import { useEffect,useState } from 'react';
 
 interface ITransactionsProps {
   address?: string;
@@ -33,6 +34,7 @@ const StatusStepMap: Record<MultiSigTransactionStatus, number> = {
 
 const Transactions = ({ address }: ITransactionsProps) => {
   const [jwt] = useMCStore((s) => [s.jwt]);
+  const { getJwtToken } = useMC();
   const [activeAccordion, setActiveAccordion] = useState<number | null>(null);
 
   const [searchTerm, setSearchTerm] = useState('');
@@ -71,10 +73,16 @@ const Transactions = ({ address }: ITransactionsProps) => {
       );
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [address, debouncedSearchTerm, JSON.stringify(pagination)]);
+  }, [address, debouncedSearchTerm, JSON.stringify(pagination), jwt]);
 
   const handleSearch = (e: any) => {
     setSearchTerm(e.target.value);
+  };
+
+  const handleLoadTransactions = async () => {
+    if (address) {
+      await getJwtToken(address);
+    }
   };
 
   return (
@@ -91,6 +99,23 @@ const Transactions = ({ address }: ITransactionsProps) => {
         </div>
       </div>
       <div className='space-y-3'>
+        {!jwt && (
+          <EmptyPlaceholder
+            label={
+              <div className='flex w-full flex-col items-center justify-center space-y-2'>
+                <div>
+                  At the moment, we require users to authenticate to view
+                  transactions
+                </div>
+                <button
+                  className='btn btn-primary'
+                  onClick={handleLoadTransactions}>
+                  Load Transactions
+                </button>
+              </div>
+            }
+          />
+        )}
         {listTransactions.pending && <LoadingPlaceholder />}
         {!listTransactions.pending &&
           listTransactions.fulfilled &&
