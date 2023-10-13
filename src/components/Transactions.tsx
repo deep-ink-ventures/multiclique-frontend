@@ -1,11 +1,11 @@
 import {
-  Accordion,
-  EmptyPlaceholder,
-  LoadingPlaceholder,
-  Pagination,
-  Timeline,
-  TransactionBadge,
-  UserTally,
+Accordion,
+EmptyPlaceholder,
+LoadingPlaceholder,
+Pagination,
+Timeline,
+TransactionBadge,
+UserTally,
 } from '@/components';
 import useCopyToClipboard from '@/hooks/useCopyToClipboard';
 import { useDebounce } from '@/hooks/useDebounce';
@@ -20,7 +20,7 @@ import type { JwtToken } from '@/types/auth';
 import { MultiSigTransactionStatus } from '@/types/multisigTransaction';
 import { truncateMiddle } from '@/utils';
 import dayjs from 'dayjs';
-import { useEffect, useState } from 'react';
+import { useEffect,useState } from 'react';
 
 interface ITransactionsProps {
   address?: string;
@@ -31,6 +31,13 @@ const StatusStepMap: Record<MultiSigTransactionStatus, number> = {
   [MultiSigTransactionStatus.Pending]: 1,
   [MultiSigTransactionStatus.Executable]: 2,
   [MultiSigTransactionStatus.Executed]: 3,
+};
+
+const StatusBadgeMap: Record<MultiSigTransactionStatus, string> = {
+  [MultiSigTransactionStatus.Executable]: 'Active',
+  [MultiSigTransactionStatus.Pending]: 'Pending',
+  [MultiSigTransactionStatus.Executed]: 'Approved',
+  [MultiSigTransactionStatus.Rejected]: 'Cancelled',
 };
 
 const Transactions = ({ address }: ITransactionsProps) => {
@@ -140,7 +147,7 @@ const Transactions = ({ address }: ITransactionsProps) => {
                   value={item.approvals?.length}
                   over={item.signatories?.length}
                 />
-                <TransactionBadge status='Active' />
+                <TransactionBadge status={StatusBadgeMap[item.status] as any} />
               </Accordion.Header>
               <Accordion.Content className='flex divide-x'>
                 <div className='w-2/3 px-2 pr-4'>
