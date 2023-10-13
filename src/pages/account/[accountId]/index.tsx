@@ -1,7 +1,7 @@
 import { Avatar, Sidebar } from '@/components';
 import ConnectWallet from '@/components/ConnectWallet';
 import Dashboard from '@/components/Dashboard';
-import ImportXdrModal from '@/components/ImportXdrModal';
+import ImportTransactionModal from '@/components/ImportTransactionModal';
 import WalletConnect from '@/components/WalletConnect';
 import useCopyToClipboard from '@/hooks/useCopyToClipboard';
 import { MainLayout } from '@/layouts';
@@ -146,7 +146,7 @@ const Account = () => {
               +
             </button>
           </div>
-          <ImportXdrModal
+          <ImportTransactionModal
             isVisible={isImportXdrVisible}
             accountId={accountId?.toString()}
             onClose={() => setIsImportXdrVisible(false)}

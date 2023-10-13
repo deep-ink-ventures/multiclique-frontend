@@ -9,7 +9,7 @@ import cn from 'classnames';
 import { useState, type ReactNode } from 'react';
 import { FormProvider, useForm, type SubmitHandler } from 'react-hook-form';
 
-interface IImportXdrProps {
+interface IImportTransactionProps {
   isVisible?: boolean;
   accountId?: string;
   children?: ReactNode;
@@ -22,7 +22,7 @@ interface CreateTransactionFormValues {
 
 const MAX_XDR_CHAR_COUNT = 4096;
 
-const ImportXdrModal = (props: IImportXdrProps) => {
+const ImportTransactionModal = (props: IImportTransactionProps) => {
   const { isVisible, accountId, onClose } = props;
 
   const [loading, setIsLoading] = useState(false);
@@ -224,4 +224,4 @@ const ImportXdrModal = (props: IImportXdrProps) => {
   );
 };
 
-export default ImportXdrModal;
+export default ImportTransactionModal;
