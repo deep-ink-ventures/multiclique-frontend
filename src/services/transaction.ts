@@ -130,7 +130,7 @@ export const patchMultiCliqueTransaction = async (
   const body = JSON.stringify(keysToSnakeCase(payload));
 
   const response = await fetch(
-    `${SERVICE_URL}/multiclique/transactions/${id}`,
+    `${SERVICE_URL}/multiclique/transactions/${id}/`,
     {
       method: 'PATCH',
       body,
