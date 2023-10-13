@@ -17,6 +17,13 @@ const Dashboard = () => {
       </div>
       <div className='text-lg font-semibold'>Threshold:</div>
       <div>{account.multisig.data?.defaultThreshold}</div>
+      <div>
+        <div className='text-lg font-semibold'>Policy:</div>
+        <div>
+          {account.multisig.data?.policy.name} is{' '}
+          {account.multisig.data?.policy.active ? 'Active' : 'Inactive'}
+        </div>
+      </div>
     </div>
   );
 };
