@@ -39,7 +39,7 @@ const Settings = (props: { accountId: string }) => {
     s.handleErrors,
     s.addTxnNotification,
   ]);
-  const [activeAccordion, setActiveAccordion] = useState<number | null>(null);
+  const [activeAccordion, setActiveAccordion] = useState<PolicyFormAccordion | null>(null);
   // make this global?
   const [activeSettingsTab, setActiveSettingsTab] = useState(
     SettingsTabs.at(0)?.id
