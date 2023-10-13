@@ -1,5 +1,6 @@
 import { Avatar, Sidebar } from '@/components';
 import ConnectWallet from '@/components/ConnectWallet';
+import Dashboard from '@/components/Dashboard';
 import WalletConnect from '@/components/WalletConnect';
 import useCopyToClipboard from '@/hooks/useCopyToClipboard';
 import { MainLayout } from '@/layouts';
@@ -47,7 +48,7 @@ const Account = () => {
     s.currentWalletAccount,
     s.pages.account,
   ]);
-  const [currentTab, setCurrentTab] = useState<AccountTabs>('Dashboard');
+  const [currentTab, setCurrentTab] = useState<AccountTabs>('Transactions');
 
   const { textRef, copyToClipboard } = useCopyToClipboard<HTMLDivElement>();
 
@@ -123,6 +124,7 @@ const Account = () => {
             </Sidebar>
           </div>
           <div className='grow space-y-4 p-6'>
+            {currentTab === 'Dashboard' && <Dashboard />}
             {currentTab === 'Transactions' && (
               <Transactions address={accountId?.toString()} />
             )}

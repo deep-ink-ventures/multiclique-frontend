@@ -4,14 +4,21 @@ import {
   NETWORK_PASSPHRASE,
   SERVICE_URL,
 } from '@/config/index';
-import { AccountService } from '@/services';
+import { useLoadingScreenContext } from '@/context/LoadingScreen';
+import { AccountService, JwtService, TransactionService } from '@/services';
 import type { ContractName } from '@/stores/MCStore';
 import useMCStore from '@/stores/MCStore';
+import type { JwtToken } from '@/types/auth';
 import type { MultiCliqueAccount } from '@/types/multiCliqueAccount';
-import { accountToScVal, decodeXdr, numberToU32ScVal, toBase64 } from '@/utils';
+import {
+  accountToScVal,
+  decodeXdr,
+  isValidXDR,
+  numberToU32ScVal,
+  toBase64,
+} from '@/utils';
 import { signBlob, signTransaction } from '@stellar/freighter-api';
 import * as SorobanClient from 'soroban-client';
-import { JwtService } from '../services/jwt';
 
 export enum TxnStatus {
   PENDING = 'pending',
@@ -27,6 +34,7 @@ const useMC = () => {
     handleTxnSuccessNotification,
     MCConfig,
     updateJwt,
+    jwt,
   ] = useMCStore((s) => [
     s.currentWalletAccount,
     s.sorobanServer,
@@ -35,7 +43,10 @@ const useMC = () => {
     s.handleTxnSuccessNotification,
     s.MCConfig,
     s.updateJwt,
+    s.jwt,
   ]);
+
+  const loadingModal = useLoadingScreenContext();
 
   const handleTxnResponse = async (
     sendTxnResponse: SorobanClient.SorobanRpc.SendTransactionResponse,
@@ -281,13 +292,22 @@ const useMC = () => {
       if (!sig) {
         return null;
       }
-      const token = await JwtService.createJWT(mcAccountAddress, {
-        signature: sig,
-      });
-      const refreshedToken = await JwtService.refreshJWT(mcAccountAddress, {
-        access: token.access,
-        refresh: token.refresh,
-      });
+      let refreshedToken: JwtToken;
+      if (jwt) {
+        refreshedToken = await JwtService.refreshJWT(mcAccountAddress, {
+          access: jwt.access,
+          refresh: jwt.refresh,
+        });
+      } else {
+        const token = await JwtService.createJWT(mcAccountAddress, {
+          signature: sig,
+        });
+        refreshedToken = await JwtService.refreshJWT(mcAccountAddress, {
+          access: token.access,
+          refresh: token.refresh,
+        });
+      }
+      console.log(refreshedToken);
       updateJwt(refreshedToken);
       return refreshedToken;
     } catch (err) {
@@ -571,15 +591,60 @@ const useMC = () => {
     const txn = await makeContractTxn(
       currentWalletAccount?.publicKey,
       coreAddress,
-      'change_threshold',
+      'set_default_threshold',
       numberToU32ScVal(newThreshold)
     );
     return txn;
   };
 
-  // const createMultiCliqueTransaction = async (xdr: string, jwt: JwtToken) => {
+  const createMCTransactionDB = async (xdr: string, jwtToken: JwtToken) => {
+    if (!currentWalletAccount) {
+      return;
+    }
 
-  // }
+    if (!isValidXDR(xdr.trim().toString(), MCConfig.networkPassphrase)) {
+      handleErrors('Invalid XDR');
+      return null;
+    }
+
+    try {
+      loadingModal.setAction({
+        type: 'SHOW_TRANSACTION_PROCESSING',
+      });
+
+      const mcTxnRes = await TransactionService.createMultiCliqueTransaction(
+        {
+          xdr: xdr.trim().toString(),
+        },
+        jwtToken
+      );
+      const signedHash = await signBlob(mcTxnRes.preimageHash, {
+        accountToSign: currentWalletAccount?.publicKey,
+      });
+
+      const updatedTxn = await TransactionService.patchMultiCliqueTransaction(
+        mcTxnRes.id.toString(),
+        {
+          approvals: [
+            {
+              signatory: {
+                name: currentWalletAccount.publicKey,
+                address: currentWalletAccount.publicKey,
+              },
+              signature: signedHash,
+            },
+          ],
+        },
+        jwtToken
+      );
+
+      console.log('updatedTxn', updatedTxn);
+      return updatedTxn;
+    } catch (err) {
+      handleErrors('Error in creating multiclique offchain transaction ', err);
+      return null;
+    }
+  };
 
   return {
     handleTxnResponse,
@@ -601,6 +666,7 @@ const useMC = () => {
     getTxnBuilder,
     getJwtToken,
     makeChangeThresholdTxn,
+    createMCTransactionDB,
   };
 };
 

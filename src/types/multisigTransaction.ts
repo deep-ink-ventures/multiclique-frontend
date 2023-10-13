@@ -9,12 +9,13 @@ export enum MultiSigTransactionStatus {
 }
 
 export interface RawMultisigTransaction {
+  id: number;
   xdr: string;
   preimage_hash: string;
   call_func: string;
   call_args: Record<string, any>;
-  approvals: string[];
-  rejections: string[];
+  approvals: { signature: string; signatory: Signatory }[];
+  rejections: { signature: string; signatory: Signatory }[];
   status: MultiSigTransactionStatus;
   executed_at: string;
   created_at: string;

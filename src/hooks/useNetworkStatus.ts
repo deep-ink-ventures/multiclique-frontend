@@ -8,7 +8,7 @@ const ACTIVE_INTERVAL = 3000;
 const INACTIVITY_INTERVAL = 5000;
 
 const useNetworkStatus = () => {
-  const [currentWalletAccount, addTxnNotification, updatecurrentWalletAccount] =
+  const [currentWalletAccount, addTxnNotification, updateCurrentWalletAccount] =
     useMCStore((s) => [
       s.currentWalletAccount,
       s.addTxnNotification,
@@ -106,7 +106,7 @@ const useNetworkStatus = () => {
         type: TxnResponse.Error,
         timestamp: Date.now(),
       });
-      updatecurrentWalletAccount(null);
+      updateCurrentWalletAccount(null);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isSupportedNetwork, currentWalletAccount]);

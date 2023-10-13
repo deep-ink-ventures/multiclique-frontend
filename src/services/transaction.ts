@@ -19,7 +19,6 @@ export interface ListMultiCliqueTransactionsParams {
 
 export interface CreateMultiCliqueTransactionRequestPayload {
   xdr: string;
-  multicliqueAddress: string;
 }
 
 export const createMultiCliqueTransaction = async (
