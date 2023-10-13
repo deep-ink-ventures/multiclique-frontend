@@ -1,11 +1,11 @@
 import {
-Accordion,
-EmptyPlaceholder,
-LoadingPlaceholder,
-Pagination,
-Timeline,
-TransactionBadge,
-UserTally,
+  Accordion,
+  EmptyPlaceholder,
+  LoadingPlaceholder,
+  Pagination,
+  Timeline,
+  TransactionBadge,
+  UserTally,
 } from '@/components';
 import useCopyToClipboard from '@/hooks/useCopyToClipboard';
 import { useDebounce } from '@/hooks/useDebounce';
@@ -20,7 +20,7 @@ import type { JwtToken } from '@/types/auth';
 import { MultiSigTransactionStatus } from '@/types/multisigTransaction';
 import { truncateMiddle } from '@/utils';
 import dayjs from 'dayjs';
-import { useEffect,useState } from 'react';
+import { useEffect, useState } from 'react';
 
 interface ITransactionsProps {
   address?: string;
