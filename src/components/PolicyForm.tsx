@@ -102,7 +102,7 @@ const ElioDAOPolicyForm = (props: { disabled?: boolean; formName: string }) => {
 const PolicyForm = (props: PolicyFormProps) => {
   // const {attachPolicy, installPolicyContract, initMulticliquePolicy} = useMC();
 
-  // const [currentAccount, mcAccount] = useMCStore((s) => [s.currentAccount, s.pages.account]);
+  // const [currentWalletAccount, mcAccount] = useMCStore((s) => [s.currentWalletAccount, s.pages.account]);
 
   const formMethods = useForm<PolicyFormValues>({
     defaultValues: {

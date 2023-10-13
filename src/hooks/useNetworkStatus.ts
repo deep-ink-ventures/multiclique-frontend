@@ -8,9 +8,12 @@ const ACTIVE_INTERVAL = 3000;
 const INACTIVITY_INTERVAL = 5000;
 
 const useNetworkStatus = () => {
-  const [currentAccount, addTxnNotification, updateCurrentAccount] = useMCStore(
-    (s) => [s.currentAccount, s.addTxnNotification, s.updateCurrentAccount]
-  );
+  const [currentWalletAccount, addTxnNotification, updateCurrentWalletAccount] =
+    useMCStore((s) => [
+      s.currentWalletAccount,
+      s.addTxnNotification,
+      s.updateCurrentWalletAccount,
+    ]);
   const [isSupportedNetwork, setIsSupportedNetwork] = useState(false);
   const [currentNetwork, setCurrentNetwork] = useState<{
     networkPassphrase?: string;
@@ -20,7 +23,7 @@ const useNetworkStatus = () => {
   let lastActivityTimestamp = Date.now();
 
   const checkNetworkStatus = async () => {
-    if (!currentAccount) {
+    if (!currentWalletAccount) {
       try {
         const networkDetails = await getNetworkDetails();
         setCurrentNetwork(networkDetails);
@@ -35,7 +38,7 @@ const useNetworkStatus = () => {
         const networkDetails = await getNetworkDetails();
         setCurrentNetwork(networkDetails);
         setIsSupportedNetwork(
-          currentAccount.networkPassphrase === NETWORK_PASSPHRASE[NETWORK]
+          currentWalletAccount.networkPassphrase === NETWORK_PASSPHRASE[NETWORK]
         );
       } catch (error) {
         console.error('Error checking network:', error);
@@ -94,7 +97,7 @@ const useNetworkStatus = () => {
   useEffect(() => {
     if (
       !isSupportedNetwork &&
-      currentAccount &&
+      currentWalletAccount &&
       currentNetwork?.networkPassphrase !== NETWORK_PASSPHRASE[NETWORK]
     ) {
       addTxnNotification({
@@ -103,10 +106,10 @@ const useNetworkStatus = () => {
         type: TxnResponse.Error,
         timestamp: Date.now(),
       });
-      updateCurrentAccount(null);
+      updateCurrentWalletAccount(null);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isSupportedNetwork, currentAccount]);
+  }, [isSupportedNetwork, currentWalletAccount]);
 
   return isSupportedNetwork;
 };

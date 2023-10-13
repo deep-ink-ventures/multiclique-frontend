@@ -3,7 +3,7 @@ import { ErrorMessage } from '@hookform/error-message';
 import type { ReactNode } from 'react';
 import { FormProvider, useForm, useFormContext } from 'react-hook-form';
 
-import type { Signatory } from '@/types/multisig';
+import type { Signatory } from '@/types/multiCliqueAccount';
 import { truncateMiddle } from '@/utils';
 import cn from 'classnames';
 import SignatoriesForm from './SignatoriesForm';
@@ -41,8 +41,8 @@ const Signers = ({
   disableCreator?: boolean;
   disableCount?: boolean;
 }) => {
-  const [currentAccount, isTxnProcessing] = useMCStore((s) => [
-    s.currentAccount,
+  const [currentWalletAccount, isTxnProcessing] = useMCStore((s) => [
+    s.currentWalletAccount,
     s.isTxnProcessing,
   ]);
 
@@ -89,8 +89,8 @@ const Signers = ({
             <p className='ml-1'>Wallet Address</p>
             <input type='text' hidden {...register('creatorAddress')} />
             <div className='flex h-12 items-center rounded-[10px] border-[0.3px] bg-base-100 px-2 opacity-50'>
-              {currentAccount
-                ? truncateMiddle(currentAccount?.publicKey, 5, 5)
+              {currentWalletAccount
+                ? truncateMiddle(currentWalletAccount?.publicKey, 5, 5)
                 : 'Please Connect Wallet'}
             </div>
           </div>
@@ -109,8 +109,12 @@ const Signers = ({
 
 const SigningThreshold = ({
   minimumSigners = 1,
+  maxSigners,
+  title = 'Enter Signing Threshold',
 }: {
   minimumSigners?: number;
+  maxSigners?: number;
+  title?: string;
 }) => {
   const [isTxnProcessing] = useMCStore((s) => [s.isTxnProcessing]);
 
@@ -130,7 +134,7 @@ const SigningThreshold = ({
   return (
     <>
       <div>
-        <h4 className='text-center'>Enter Signing Threshold</h4>
+        <h4 className='text-center'>{title}</h4>
         <p className='px-20 text-center text-sm'>
           The signing threshold is a the minimum number of signatures needed to
           approve a multi-signature transaction. The minimum threshold is{' '}
@@ -147,7 +151,7 @@ const SigningThreshold = ({
             required: 'Required',
             min: { value: minimumSigners, message: 'Minimum is 1' },
             max: {
-              value: maxThreshold,
+              value: maxSigners ?? maxThreshold,
               message: 'Cannot exceed # of council members',
             },
           })}
@@ -162,7 +166,9 @@ const SigningThreshold = ({
       />
       <p className='text-lg'>
         {`Out of `}
-        <span className='text-xl text-warning-content'>{membersCount}</span>
+        <span className='text-xl text-warning-content'>
+          {maxSigners ?? maxThreshold}
+        </span>
         {` Signers Needed To Approve a Transaction`}
       </p>
     </>
@@ -245,15 +251,15 @@ const CreateMultisigForm = ({
   children?: ReactNode;
   onSubmit: (data: any) => void;
 }) => {
-  const [currentAccount, isTxnProcessing] = useMCStore((s) => [
-    s.currentAccount,
+  const [currentWalletAccount, isTxnProcessing] = useMCStore((s) => [
+    s.currentWalletAccount,
     s.isTxnProcessing,
   ]);
 
   const formMethods = useForm<ICreateMultisigFormProps>({
     defaultValues: {
       creatorName: '',
-      creatorAddress: currentAccount?.publicKey,
+      creatorAddress: currentWalletAccount?.publicKey,
       signatories: [
         {
           name: '',
@@ -283,7 +289,9 @@ const CreateMultisigForm = ({
               className={cn(`btn btn-primary mr-3 w-48`, {
                 loading: isTxnProcessing,
               })}
-              disabled={isTxnProcessing || !currentAccount || membersCount < 2}
+              disabled={
+                isTxnProcessing || !currentWalletAccount || membersCount < 2
+              }
               type='submit'>
               {`${isTxnProcessing ? 'Processing' : 'Approve and Sign'}`}
             </button>

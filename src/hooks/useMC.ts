@@ -4,14 +4,21 @@ import {
   NETWORK_PASSPHRASE,
   SERVICE_URL,
 } from '@/config/index';
-import { AccountService } from '@/services';
+import { useLoadingScreenContext } from '@/context/LoadingScreen';
+import { AccountService, JwtService, TransactionService } from '@/services';
 import type { ContractName } from '@/stores/MCStore';
 import useMCStore from '@/stores/MCStore';
-import type { Multisig } from '@/types/multisig';
-import { accountToScVal, decodeXdr, numberToU32ScVal, toBase64 } from '@/utils';
+import type { JwtToken } from '@/types/auth';
+import type { MultiCliqueAccount } from '@/types/multiCliqueAccount';
+import {
+  accountToScVal,
+  decodeXdr,
+  isValidXDR,
+  numberToU32ScVal,
+  toBase64,
+} from '@/utils';
 import { signBlob, signTransaction } from '@stellar/freighter-api';
 import * as SorobanClient from 'soroban-client';
-import { JwtService } from '../services/jwt';
 
 export enum TxnStatus {
   PENDING = 'pending',
@@ -20,22 +27,26 @@ export enum TxnStatus {
 
 const useMC = () => {
   const [
-    currentAccount,
+    currentWalletAccount,
     sorobanServer,
     updateIsTxnProcessing,
     handleErrors,
     handleTxnSuccessNotification,
     MCConfig,
     updateJwt,
+    jwt,
   ] = useMCStore((s) => [
-    s.currentAccount,
+    s.currentWalletAccount,
     s.sorobanServer,
     s.updateIsTxnProcessing,
     s.handleErrors,
     s.handleTxnSuccessNotification,
     s.MCConfig,
     s.updateJwt,
+    s.jwt,
   ]);
+
+  const loadingModal = useLoadingScreenContext();
 
   const handleTxnResponse = async (
     sendTxnResponse: SorobanClient.SorobanRpc.SendTransactionResponse,
@@ -65,7 +76,7 @@ const useMC = () => {
       if (txResponse.status === 'FAILED') {
         // eslint-disable-next-line
         console.log(txResponse);
-        updateIsTxnProcessing(false); // delay here and pass onto the next state controller
+        updateIsTxnProcessing(false);
         handleErrors(errorMsg);
       }
 
@@ -178,7 +189,7 @@ const useMC = () => {
       const signedTxn = await signTxn(
         preparedTxn,
         MCConfig.networkPassphrase,
-        currentAccount!.publicKey
+        currentWalletAccount!.publicKey
       );
       const txResponse = await sendTxn(signedTxn, MCConfig.networkPassphrase);
       return await handleTxnResponse(txResponse, successMsg, errorMsg, cb);
@@ -261,14 +272,13 @@ const useMC = () => {
         return null;
       }
       const signerResult = await signBlob(toBase64(challenge), {
-        accountToSign: currentAccount?.publicKey,
+        accountToSign: currentWalletAccount?.publicKey,
       });
 
       if (!signerResult) {
         handleErrors('Not able to validate ownership');
         return null;
       }
-      console.log('singer result', signerResult);
       return toBase64(signerResult);
     } catch (err) {
       handleErrors(err);
@@ -282,15 +292,22 @@ const useMC = () => {
       if (!sig) {
         return null;
       }
-      const token = await JwtService.createJWT(mcAccountAddress, {
-        signature: sig,
-      });
-      console.log('token', token);
-      const refreshedToken = await JwtService.refreshJWT(mcAccountAddress, {
-        access: token.access,
-        refresh: token.refresh,
-      });
-      console.log('refreshed', refreshedToken);
+      let refreshedToken: JwtToken;
+      if (jwt) {
+        refreshedToken = await JwtService.refreshJWT(mcAccountAddress, {
+          access: jwt.access,
+          refresh: jwt.refresh,
+        });
+      } else {
+        const token = await JwtService.createJWT(mcAccountAddress, {
+          signature: sig,
+        });
+        refreshedToken = await JwtService.refreshJWT(mcAccountAddress, {
+          access: token.access,
+          refresh: token.refresh,
+        });
+      }
+      console.log(refreshedToken);
       updateJwt(refreshedToken);
       return refreshedToken;
     } catch (err) {
@@ -300,7 +317,7 @@ const useMC = () => {
   };
 
   const makeCoreInstallationTxn = async () => {
-    if (!currentAccount) {
+    if (!currentWalletAccount) {
       return;
     }
     try {
@@ -312,7 +329,7 @@ const useMC = () => {
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
-            source_account_address: currentAccount.publicKey,
+            source_account_address: currentWalletAccount.publicKey,
           }),
         }
       );
@@ -325,7 +342,7 @@ const useMC = () => {
   };
 
   const makePolicyInstallationTxn = async () => {
-    if (!currentAccount) {
+    if (!currentWalletAccount) {
       return;
     }
     try {
@@ -337,7 +354,7 @@ const useMC = () => {
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
-            source_account_address: currentAccount.publicKey,
+            source_account_address: currentWalletAccount.publicKey,
             policy_preset: 'ELIO_DAO',
           }),
         }
@@ -351,7 +368,7 @@ const useMC = () => {
   };
 
   const installCoreContract = async (cb?: Function) => {
-    if (!currentAccount) {
+    if (!currentWalletAccount) {
       return;
     }
     try {
@@ -383,7 +400,6 @@ const useMC = () => {
       if (cb) {
         cb(coreContractAddress);
       }
-      console.log(coreContractAddress);
       return coreContractAddress;
     } catch (err) {
       handleErrors('Error in installing Multiclique core contract', err);
@@ -392,7 +408,7 @@ const useMC = () => {
   };
 
   const installPolicyContract = async (cb?: Function) => {
-    if (!currentAccount) {
+    if (!currentWalletAccount) {
       return;
     }
     try {
@@ -439,7 +455,7 @@ const useMC = () => {
     threshold: number,
     cb: Function
   ) => {
-    if (!currentAccount) {
+    if (!currentWalletAccount) {
       return;
     }
 
@@ -448,7 +464,7 @@ const useMC = () => {
     });
 
     const coreContract = new SorobanClient.Contract(coreAddress);
-    const txnBuilder = await getTxnBuilder(currentAccount?.publicKey);
+    const txnBuilder = await getTxnBuilder(currentWalletAccount?.publicKey);
     const txn = txnBuilder
       .addOperation(
         coreContract.call(
@@ -478,12 +494,12 @@ const useMC = () => {
     },
     cb?: Function
   ) => {
-    if (!currentAccount) {
+    if (!currentWalletAccount) {
       return;
     }
 
     const tx = await makeContractTxn(
-      currentAccount.publicKey,
+      currentWalletAccount.publicKey,
       policyAddress,
       'init',
       ...Object.values(contracts).map((v) => accountToScVal(v))
@@ -498,7 +514,10 @@ const useMC = () => {
     );
   };
 
-  const createMultisigDB = async (payload: Multisig, cb?: Function) => {
+  const createMultisigDB = async (
+    payload: MultiCliqueAccount,
+    cb?: Function
+  ) => {
     try {
       const response = await AccountService.createMultiCliqueAccount(payload);
       if (cb) cb(response);
@@ -509,17 +528,16 @@ const useMC = () => {
     }
   };
 
-  const attachPolicy = async (
+  const makeAttachPolicyTxn = async (
     coreContract: string,
     policyAddress: string,
-    contractAddresses: string[],
-    cb?: Function
+    contractAddresses: string[]
   ) => {
-    if (!currentAccount?.publicKey) {
+    if (!currentWalletAccount?.publicKey) {
       return;
     }
     const txn = await makeContractTxn(
-      currentAccount?.publicKey,
+      currentWalletAccount?.publicKey,
       coreContract,
       'attach_policy',
       accountToScVal(policyAddress),
@@ -527,24 +545,19 @@ const useMC = () => {
         contractAddresses.map((v) => accountToScVal(v))
       )
     );
-    await submitTxn(
-      txn,
-      'Attached Multiclique policy',
-      'Error in attaching Multiclique policy',
-      'multicliqueCore',
-      cb
-    );
+
+    return txn;
   };
 
   const makeAddSignerTxn = async (
     coreAddress: string,
     signerAddress: string
   ) => {
-    if (!currentAccount?.publicKey) {
+    if (!currentWalletAccount?.publicKey) {
       return;
     }
     const txn = await makeContractTxn(
-      currentAccount?.publicKey,
+      currentWalletAccount?.publicKey,
       coreAddress,
       'add_signer',
       accountToScVal(signerAddress)
@@ -556,16 +569,81 @@ const useMC = () => {
     coreAddress: string,
     signerAddress: string
   ) => {
-    if (!currentAccount?.publicKey) {
+    if (!currentWalletAccount?.publicKey) {
       return;
     }
     const txn = await makeContractTxn(
-      currentAccount?.publicKey,
+      currentWalletAccount?.publicKey,
       coreAddress,
       'remove_signer',
       accountToScVal(signerAddress)
     );
     return txn;
+  };
+
+  const makeChangeThresholdTxn = async (
+    coreAddress: string,
+    newThreshold: number
+  ) => {
+    if (!currentWalletAccount?.publicKey) {
+      return;
+    }
+    const txn = await makeContractTxn(
+      currentWalletAccount?.publicKey,
+      coreAddress,
+      'set_default_threshold',
+      numberToU32ScVal(newThreshold)
+    );
+    return txn;
+  };
+
+  const createMCTransactionDB = async (xdr: string, jwtToken: JwtToken) => {
+    if (!currentWalletAccount) {
+      return;
+    }
+
+    if (!isValidXDR(xdr.trim().toString(), MCConfig.networkPassphrase)) {
+      handleErrors('Invalid XDR');
+      return null;
+    }
+
+    try {
+      loadingModal.setAction({
+        type: 'SHOW_TRANSACTION_PROCESSING',
+      });
+
+      const mcTxnRes = await TransactionService.createMultiCliqueTransaction(
+        {
+          xdr: xdr.trim().toString(),
+        },
+        jwtToken
+      );
+      const signedHash = await signBlob(mcTxnRes.preimageHash, {
+        accountToSign: currentWalletAccount?.publicKey,
+      });
+
+      const updatedTxn = await TransactionService.patchMultiCliqueTransaction(
+        mcTxnRes.id.toString(),
+        {
+          approvals: [
+            {
+              signatory: {
+                name: currentWalletAccount.publicKey,
+                address: currentWalletAccount.publicKey,
+              },
+              signature: signedHash,
+            },
+          ],
+        },
+        jwtToken
+      );
+
+      console.log('updatedTxn', updatedTxn);
+      return updatedTxn;
+    } catch (err) {
+      handleErrors('Error in creating multiclique offchain transaction ', err);
+      return null;
+    }
   };
 
   return {
@@ -576,7 +654,7 @@ const useMC = () => {
     submitTxn,
     doChallenge,
     createMultisigDB,
-    attachPolicy,
+    makeAttachPolicyTxn,
     initMulticliquePolicy,
     installCoreContract,
     installPolicyContract,
@@ -587,6 +665,8 @@ const useMC = () => {
     prepareTxn,
     getTxnBuilder,
     getJwtToken,
+    makeChangeThresholdTxn,
+    createMCTransactionDB,
   };
 };
 

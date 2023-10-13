@@ -9,11 +9,14 @@ import {
 } from '@/components';
 import useCopyToClipboard from '@/hooks/useCopyToClipboard';
 import { useDebounce } from '@/hooks/useDebounce';
+import useMC from '@/hooks/useMC';
 import { usePromise } from '@/hooks/usePromise';
 import type { ListMultiCliqueTransactionsParams } from '@/services';
 import { TransactionService } from '@/services';
+import useMCStore from '@/stores/MCStore';
 import Copy from '@/svg/components/Copy';
 import Search from '@/svg/components/Search';
+import type { JwtToken } from '@/types/auth';
 import { MultiSigTransactionStatus } from '@/types/multisigTransaction';
 import { truncateMiddle } from '@/utils';
 import dayjs from 'dayjs';
@@ -24,12 +27,15 @@ interface ITransactionsProps {
 }
 
 const StatusStepMap: Record<MultiSigTransactionStatus, number> = {
-  [MultiSigTransactionStatus.Cancelled]: 0,
+  [MultiSigTransactionStatus.Rejected]: 0,
   [MultiSigTransactionStatus.Pending]: 1,
-  [MultiSigTransactionStatus.Executed]: 2,
+  [MultiSigTransactionStatus.Executable]: 2,
+  [MultiSigTransactionStatus.Executed]: 3,
 };
 
 const Transactions = ({ address }: ITransactionsProps) => {
+  const [jwt] = useMCStore((s) => [s.jwt]);
+  const { getJwtToken } = useMC();
   const [activeAccordion, setActiveAccordion] = useState<number | null>(null);
 
   const [searchTerm, setSearchTerm] = useState('');
@@ -42,28 +48,42 @@ const Transactions = ({ address }: ITransactionsProps) => {
   });
 
   const listTransactions = usePromise({
-    promiseFunction: async (params: ListMultiCliqueTransactionsParams) => {
+    promiseFunction: async (
+      params: ListMultiCliqueTransactionsParams,
+      jwtToken: JwtToken
+    ) => {
       const response = await TransactionService.listMultiCliqueTransactions(
-        params
+        params,
+        jwtToken
       );
       return response;
     },
   });
 
   useEffect(() => {
-    if (address) {
-      listTransactions.call({
-        offset: Math.max(pagination.offset - 1, 0),
-        limit: 5,
-        search: debouncedSearchTerm,
-        multicliqueAccountAddress: `${address}`,
-      });
+    // fixme - change when we have a new jwt feature
+    if (address && jwt) {
+      listTransactions.call(
+        {
+          offset: Math.max(pagination.offset - 1, 0),
+          limit: 5,
+          search: debouncedSearchTerm,
+          multicliqueAccountAddress: `${address}`,
+        },
+        jwt
+      );
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [address, debouncedSearchTerm, JSON.stringify(pagination)]);
+  }, [address, debouncedSearchTerm, JSON.stringify(pagination), jwt]);
 
   const handleSearch = (e: any) => {
     setSearchTerm(e.target.value);
+  };
+
+  const handleLoadTransactions = async () => {
+    if (address) {
+      await getJwtToken(address);
+    }
   };
 
   return (
@@ -80,6 +100,23 @@ const Transactions = ({ address }: ITransactionsProps) => {
         </div>
       </div>
       <div className='space-y-3'>
+        {!jwt && (
+          <EmptyPlaceholder
+            label={
+              <div className='flex w-full flex-col items-center justify-center space-y-2'>
+                <div>
+                  At the moment, we require users to authenticate to view
+                  transactions
+                </div>
+                <button
+                  className='btn btn-primary'
+                  onClick={handleLoadTransactions}>
+                  Load Transactions
+                </button>
+              </div>
+            }
+          />
+        )}
         {listTransactions.pending && <LoadingPlaceholder />}
         {!listTransactions.pending &&
           listTransactions.fulfilled &&
@@ -100,7 +137,7 @@ const Transactions = ({ address }: ITransactionsProps) => {
                   {dayjs(item.createdAt).format('MMMM D, YYYY - h:mm:ss A')}
                 </div>
                 <UserTally
-                  value={item.approvers?.length}
+                  value={item.approvals?.length}
                   over={item.signatories?.length}
                 />
                 <TransactionBadge status='Active' />
@@ -141,6 +178,7 @@ const Transactions = ({ address }: ITransactionsProps) => {
                   <div className='flex w-full gap-2'>
                     <button className='btn btn-outline flex-1'>Reject</button>
                     <button className='btn btn-primary flex-1'>Approve</button>
+                    {/* TODO add execute button */}
                   </div>
                 </div>
               </Accordion.Content>

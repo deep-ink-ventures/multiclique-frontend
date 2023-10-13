@@ -1,23 +1,25 @@
 import type { CamelCaseObject } from '@/utils/transformer';
-import type { Signatory } from './multisig';
+import type { Signatory } from './multiCliqueAccount';
 
 export enum MultiSigTransactionStatus {
   Pending = 'PENDING',
-  Cancelled = 'CANCELLED',
+  Rejected = 'REJECTED',
   Executed = 'EXECUTED',
+  Executable = 'EXECUTABLE',
 }
 
 export interface RawMultisigTransaction {
+  id: number;
   xdr: string;
   preimage_hash: string;
   call_func: string;
   call_args: Record<string, any>;
-  approvers: string[];
-  rejecters: string[];
+  approvals: { signature: string; signatory: Signatory }[];
+  rejections: { signature: string; signatory: Signatory }[];
   status: MultiSigTransactionStatus;
-  executed_at: Date;
-  created_at: Date;
-  updated_at: Date;
+  executed_at: string;
+  created_at: string;
+  updated_at: string;
   multiclique_address: string;
   default_threshold: number;
   signatories: Signatory[];

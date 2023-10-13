@@ -27,7 +27,7 @@ interface IMainProps {
 export const MainLayout = (props: IMainProps) => {
   const router = useRouter();
 
-  const [currentAccount] = useMCStore((s) => [s.currentAccount]);
+  const [currentWalletAccount] = useMCStore((s) => [s.currentWalletAccount]);
 
   const handleCreateNewAccount = () => {
     router.push('/account/create');
@@ -59,7 +59,7 @@ export const MainLayout = (props: IMainProps) => {
           </div>
 
           <div className='ml-auto flex space-x-4 py-2'>
-            {currentAccount?.isConnected && (
+            {currentWalletAccount?.isConnected && (
               <>
                 <div className='m-1'>
                   <button

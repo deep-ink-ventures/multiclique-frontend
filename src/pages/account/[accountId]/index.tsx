@@ -1,5 +1,6 @@
 import { Avatar, Sidebar } from '@/components';
 import ConnectWallet from '@/components/ConnectWallet';
+import Dashboard from '@/components/Dashboard';
 import WalletConnect from '@/components/WalletConnect';
 import useCopyToClipboard from '@/hooks/useCopyToClipboard';
 import { MainLayout } from '@/layouts';
@@ -43,11 +44,12 @@ const TABS: { icon: ReactNode; label: AccountTabs }[] = [
 const Account = () => {
   const router = useRouter();
   const { accountId } = router.query;
-  const [currentAccount, accountPage] = useMCStore((s) => [
-    s.currentAccount,
+  const [currentWalletAccount, accountPage, updateJwt] = useMCStore((s) => [
+    s.currentWalletAccount,
     s.pages.account,
+    s.updateJwt,
   ]);
-  const [currentTab, setCurrentTab] = useState<AccountTabs>('Dashboard');
+  const [currentTab, setCurrentTab] = useState<AccountTabs>('Transactions');
 
   const { textRef, copyToClipboard } = useCopyToClipboard<HTMLDivElement>();
 
@@ -65,9 +67,13 @@ const Account = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [accountPage.multisig.failed]);
 
+  useEffect(() => {
+    return () => updateJwt(null);
+  }, []);
+
   return (
     <MainLayout title='MultiClique' description=''>
-      {currentAccount?.publicKey ? (
+      {currentWalletAccount?.publicKey ? (
         <div className='flex w-full'>
           <div className='w-1/4 shrink-0'>
             <Sidebar>
@@ -76,9 +82,10 @@ const Account = () => {
                 {accountPage.multisig.data?.address && (
                   <>
                     <div className='mx-auto flex w-1/2'>
-                      <div
-                        className='inline-block grow truncate text-center'
-                        ref={textRef}>
+                      <span className='hidden' ref={textRef}>
+                        {accountPage.multisig.data?.address?.toString()}
+                      </span>
+                      <div className='inline-block grow truncate text-center'>
                         {truncateMiddle(
                           accountPage.multisig.data?.address?.toString(),
                           5,
@@ -104,7 +111,7 @@ const Account = () => {
                     </div>
                   </>
                 )}
-                {!currentAccount?.publicKey && (
+                {!currentWalletAccount?.publicKey && (
                   <WalletConnect text='Connect your wallet' />
                 )}
               </Sidebar.Content>
@@ -122,6 +129,7 @@ const Account = () => {
             </Sidebar>
           </div>
           <div className='grow space-y-4 p-6'>
+            {currentTab === 'Dashboard' && <Dashboard />}
             {currentTab === 'Transactions' && (
               <Transactions address={accountId?.toString()} />
             )}
