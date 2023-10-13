@@ -115,6 +115,9 @@ const Create = () => {
                     updateMultisigAccounts([multisig, ...multisigAccounts]);
                   }
                   updateIsTxProcessing(false);
+                  useLoadingScreen.setAction({
+                    type: 'CLOSE',
+                  });
                   router.push(`/`);
                 }
               );
