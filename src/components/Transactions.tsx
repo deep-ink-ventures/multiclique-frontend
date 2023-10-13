@@ -26,9 +26,10 @@ interface ITransactionsProps {
 }
 
 const StatusStepMap: Record<MultiSigTransactionStatus, number> = {
-  [MultiSigTransactionStatus.Cancelled]: 0,
+  [MultiSigTransactionStatus.Rejected]: 0,
   [MultiSigTransactionStatus.Pending]: 1,
-  [MultiSigTransactionStatus.Executed]: 2,
+  [MultiSigTransactionStatus.Executable]: 2,
+  [MultiSigTransactionStatus.Executed]: 3,
 };
 
 const Transactions = ({ address }: ITransactionsProps) => {
@@ -111,7 +112,7 @@ const Transactions = ({ address }: ITransactionsProps) => {
                   {dayjs(item.createdAt).format('MMMM D, YYYY - h:mm:ss A')}
                 </div>
                 <UserTally
-                  value={item.approvers?.length}
+                  value={item.approvals?.length}
                   over={item.signatories?.length}
                 />
                 <TransactionBadge status='Active' />
@@ -152,6 +153,7 @@ const Transactions = ({ address }: ITransactionsProps) => {
                   <div className='flex w-full gap-2'>
                     <button className='btn btn-outline flex-1'>Reject</button>
                     <button className='btn btn-primary flex-1'>Approve</button>
+                    {/* TODO add execute button */}
                   </div>
                 </div>
               </Accordion.Content>
