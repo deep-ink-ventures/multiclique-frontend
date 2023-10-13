@@ -39,7 +39,8 @@ const Settings = (props: { accountId: string }) => {
     s.handleErrors,
     s.addTxnNotification,
   ]);
-  const [activeAccordion, setActiveAccordion] = useState<PolicyFormAccordion | null>(null);
+  const [activeAccordion, setActiveAccordion] =
+    useState<PolicyFormAccordion | null>(null);
   // make this global?
   const [activeSettingsTab, setActiveSettingsTab] = useState(
     SettingsTabs.at(0)?.id
@@ -283,7 +284,11 @@ const Settings = (props: { accountId: string }) => {
             expanded={PolicyFormAccordion.ELIO === activeAccordion}>
             <Accordion.Header className='flex gap-2 text-sm'>
               <div className='grow font-semibold'>{'ELIO_DAO'}</div>
-              <TransactionBadge status='Active' />
+              <TransactionBadge
+                status={
+                  account.multisig.data?.policy.active ? 'ACTIVE' : 'INACTIVE'
+                }
+              />
             </Accordion.Header>
             <Accordion.Content className='flex'>
               <PolicyForm.ELIODAO formName='ELIO_DAO' />

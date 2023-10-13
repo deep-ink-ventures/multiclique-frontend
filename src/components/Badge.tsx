@@ -1,9 +1,11 @@
 export const statusColors = {
-  Active: 'bg-neutral text-base-100',
-  Pending: 'bg-warning text-warning-content',
-  Approved: 'bg-success text-neutral-content',
-  Cancelled: 'bg-error text-error-content',
+  PENDING: 'bg-warning text-warning-content',
+  EXECUTED: 'bg-success text-neutral-content',
+  EXECUTABLE: 'bg-warning text-warning-content',
+  REJECTED: 'bg-error text-error-content',
   undefined: 'bg-neutral text-base-100',
+  ACTIVE: 'bg-success text-neutral-content',
+  INACTIVE: 'bg-error text-error-content',
 };
 
 interface IBadge {

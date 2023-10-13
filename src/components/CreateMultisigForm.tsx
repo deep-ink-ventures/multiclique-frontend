@@ -167,7 +167,7 @@ const SigningThreshold = ({
       <p className='text-lg'>
         {`Out of `}
         <span className='text-xl text-warning-content'>
-          {maxSigners ?? maxThreshold}
+          {maxSigners ?? membersCount}
         </span>
         {` Signers Needed To Approve a Transaction`}
       </p>
