@@ -618,6 +618,11 @@ const useMC = () => {
         },
         jwtToken
       );
+
+      if (!mcTxnRes?.preimageHash) {
+        throw new Error('Error creating a Multiclique Transaction');
+      }
+
       const signedHash = await signBlob(mcTxnRes.preimageHash, {
         accountToSign: currentWalletAccount?.publicKey,
       });

@@ -1,5 +1,5 @@
 import type { CamelCaseObject } from '@/utils/transformer';
-import type { Signatory } from './multiCliqueAccount';
+import type { Signatory, Signature } from './multiCliqueAccount';
 
 export enum MultiSigTransactionStatus {
   Pending = 'PENDING',
@@ -14,8 +14,8 @@ export interface RawMultisigTransaction {
   preimage_hash: string;
   call_func: string;
   call_args: Record<string, any>;
-  approvals: { signature: string; signatory: Signatory }[];
-  rejections: { signature: string; signatory: Signatory }[];
+  approvals?: Signature[];
+  rejections?: Signature[];
   status: MultiSigTransactionStatus;
   executed_at: string;
   created_at: string;

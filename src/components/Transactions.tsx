@@ -146,7 +146,10 @@ const Transactions = ({ address }: ITransactionsProps) => {
                 <div className='w-2/3 px-2 pr-4'>
                   <div className='flex items-center gap-2'>
                     <div className='shrink-0 font-semibold'>Call hash:</div>
-                    <div ref={textRef}>
+                    <div className='hidden' ref={textRef}>
+                      {item.preimageHash}
+                    </div>
+                    <div>
                       {/* TODO: update hash */}
                       {truncateMiddle(item.preimageHash, 16, 3)}
                     </div>
