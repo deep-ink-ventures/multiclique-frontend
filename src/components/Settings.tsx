@@ -118,17 +118,20 @@ const Settings = (props: { accountId: string }) => {
       if (!txn) {
         return;
       }
+
       const jwt = await getJwtToken(props.accountId);
       if (!jwt) {
         return;
       }
-      await createMCTransactionDB(txn.toXDR(), jwt);
-      addTxnNotification({
-        title: 'Success',
-        message: 'Add a signer transaction has been submitted',
-        type: TxnResponse.Success,
-        timestamp: Date.now(),
-      });
+      const mcTxnRes = await createMCTransactionDB(txn.toXDR(), jwt);
+      if (mcTxnRes?.preimageHash) {
+        addTxnNotification({
+          title: 'Success',
+          message: 'Add a signer transaction has been submitted',
+          type: TxnResponse.Success,
+          timestamp: Date.now(),
+        });
+      }
     } catch (err) {
       handleErrors('Error in adding signer', err);
       useLoadingModal.setAction({
@@ -164,6 +167,10 @@ const Settings = (props: { accountId: string }) => {
       });
     } catch (err) {
       handleErrors('Error in removing signer', err);
+      useLoadingModal.setAction({
+        type: 'CLOSE',
+      });
+    } finally {
       useLoadingModal.setAction({
         type: 'CLOSE',
       });

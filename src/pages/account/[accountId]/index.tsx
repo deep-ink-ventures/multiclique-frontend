@@ -131,7 +131,7 @@ const Account = () => {
           <div className='grow space-y-4 p-6'>
             {currentTab === 'Dashboard' && <Dashboard />}
             {currentTab === 'Transactions' && (
-              <Transactions address={accountId?.toString()} />
+              <Transactions accountAddress={accountId?.toString()} />
             )}
             {currentTab === 'Settings' && (
               <Settings accountId={accountId as string} />

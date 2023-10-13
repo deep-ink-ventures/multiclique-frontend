@@ -23,7 +23,7 @@ import dayjs from 'dayjs';
 import { useEffect, useState } from 'react';
 
 interface ITransactionsProps {
-  address?: string;
+  accountAddress?: string;
 }
 
 const StatusStepMap: Record<MultiSigTransactionStatus, number> = {
@@ -33,7 +33,7 @@ const StatusStepMap: Record<MultiSigTransactionStatus, number> = {
   [MultiSigTransactionStatus.Executed]: 3,
 };
 
-const Transactions = ({ address }: ITransactionsProps) => {
+const Transactions = ({ accountAddress }: ITransactionsProps) => {
   const [jwt] = useMCStore((s) => [s.jwt]);
   const { getJwtToken } = useMC();
   const [activeAccordion, setActiveAccordion] = useState<number | null>(null);
@@ -62,27 +62,27 @@ const Transactions = ({ address }: ITransactionsProps) => {
 
   useEffect(() => {
     // fixme - change when we have a new jwt feature
-    if (address && jwt) {
+    if (accountAddress && jwt) {
       listTransactions.call(
         {
           offset: Math.max(pagination.offset - 1, 0),
           limit: 5,
           search: debouncedSearchTerm,
-          multicliqueAccountAddress: `${address}`,
+          multicliqueAccountAddress: `${accountAddress}`,
         },
         jwt
       );
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [address, debouncedSearchTerm, JSON.stringify(pagination), jwt]);
+  }, [accountAddress, debouncedSearchTerm, JSON.stringify(pagination), jwt]);
 
   const handleSearch = (e: any) => {
     setSearchTerm(e.target.value);
   };
 
   const handleLoadTransactions = async () => {
-    if (address) {
-      await getJwtToken(address);
+    if (accountAddress) {
+      await getJwtToken(accountAddress);
     }
   };
 

@@ -307,7 +307,6 @@ const useMC = () => {
           refresh: token.refresh,
         });
       }
-      console.log(refreshedToken);
       updateJwt(refreshedToken);
       return refreshedToken;
     } catch (err) {
@@ -602,7 +601,7 @@ const useMC = () => {
       return;
     }
 
-    if (!isValidXDR(xdr.trim().toString(), MCConfig.networkPassphrase)) {
+    if (!isValidXDR(xdr, MCConfig.networkPassphrase)) {
       handleErrors('Invalid XDR');
       return null;
     }
@@ -614,7 +613,7 @@ const useMC = () => {
 
       const mcTxnRes = await TransactionService.createMultiCliqueTransaction(
         {
-          xdr: xdr.trim().toString(),
+          xdr,
         },
         jwtToken
       );
@@ -638,11 +637,17 @@ const useMC = () => {
         jwtToken
       );
 
-      console.log('updatedTxn', updatedTxn);
       return updatedTxn;
     } catch (err) {
       handleErrors('Error in creating multiclique offchain transaction ', err);
+      loadingModal.setAction({
+        type: 'CLOSE',
+      });
       return null;
+    } finally {
+      loadingModal.setAction({
+        type: 'CLOSE',
+      });
     }
   };
 
