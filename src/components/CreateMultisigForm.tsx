@@ -109,8 +109,12 @@ const Signers = ({
 
 const SigningThreshold = ({
   minimumSigners = 1,
+  maxSigners,
+  title = 'Enter Signing Threshold',
 }: {
   minimumSigners?: number;
+  maxSigners?: number;
+  title?: string;
 }) => {
   const [isTxnProcessing] = useMCStore((s) => [s.isTxnProcessing]);
 
@@ -130,7 +134,7 @@ const SigningThreshold = ({
   return (
     <>
       <div>
-        <h4 className='text-center'>Enter Signing Threshold</h4>
+        <h4 className='text-center'>{title}</h4>
         <p className='px-20 text-center text-sm'>
           The signing threshold is a the minimum number of signatures needed to
           approve a multi-signature transaction. The minimum threshold is{' '}
@@ -147,7 +151,7 @@ const SigningThreshold = ({
             required: 'Required',
             min: { value: minimumSigners, message: 'Minimum is 1' },
             max: {
-              value: maxThreshold,
+              value: maxSigners ?? maxThreshold,
               message: 'Cannot exceed # of council members',
             },
           })}
@@ -162,7 +166,9 @@ const SigningThreshold = ({
       />
       <p className='text-lg'>
         {`Out of `}
-        <span className='text-xl text-warning-content'>{membersCount}</span>
+        <span className='text-xl text-warning-content'>
+          {maxSigners ?? maxThreshold}
+        </span>
         {` Signers Needed To Approve a Transaction`}
       </p>
     </>

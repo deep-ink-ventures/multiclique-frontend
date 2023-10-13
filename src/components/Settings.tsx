@@ -4,7 +4,6 @@ import { useLoadingScreenContext } from '@/context/LoadingScreen';
 import useMC from '@/hooks/useMC';
 import { usePromise } from '@/hooks/usePromise';
 import { AccountService } from '@/services';
-import { TransactionService } from '@/services/transaction';
 import useMCStore, { TxnResponse } from '@/stores/MCStore';
 import type { Signatory } from '@/types/multiCliqueAccount';
 import cn from 'classnames';
@@ -31,36 +30,84 @@ const SettingsTabs: Array<{ id: string; label: string }> = [
 ];
 
 const Settings = (props: { accountId: string }) => {
-  const [accountPage, handleErrors, addTxnNotification] = useMCStore((s) => [
+  const [account, handleErrors, addTxnNotification] = useMCStore((s) => [
     s.pages.account,
     s.handleErrors,
     s.addTxnNotification,
   ]);
   const [activeAccordion, setActiveAccordion] = useState<number | null>(null);
+  // make this global?
   const [activeSettingsTab, setActiveSettingsTab] = useState(
     SettingsTabs.at(0)?.id
   );
-  const { makeAddSignerTxn, makeRemoveSignerTxn, getJwtToken } = useMC();
+  const {
+    makeAddSignerTxn,
+    makeRemoveSignerTxn,
+    getJwtToken,
+    makeChangeThresholdTxn,
+    createMCTransactionDB,
+  } = useMC();
   const useLoadingModal = useLoadingScreenContext();
 
   // @ts-ignore
   const updateSigner = usePromise({
     promiseFunction: async (signer: Signatory, isRemoval?: boolean) => {
-      if (accountPage.multisig.data?.address != null) {
+      if (account.multisig.data?.address != null) {
         const response = await AccountService.createMultiCliqueAccount({
-          ...accountPage.multisig.data,
+          ...account.multisig.data,
           signatories: isRemoval
-            ? (accountPage.multisig.data.signatories ?? []).filter(
+            ? (account.multisig.data.signatories ?? []).filter(
                 (sig: Signatory) =>
                   sig.address.toLowerCase() === signer.address.toLowerCase()
               )
-            : [...(accountPage.multisig.data.signatories ?? []), signer],
+            : [...(account.multisig.data.signatories ?? []), signer],
         });
         return response;
       }
       return null;
     },
   });
+
+  const handleChangeThreshold = async (thresholdData: {
+    threshold: number;
+  }) => {
+    useLoadingModal.setAction({
+      type: 'SHOW_TRANSACTION_PROCESSING',
+    });
+    try {
+      const txn = await makeChangeThresholdTxn(
+        props.accountId,
+        Number(thresholdData.threshold)
+      );
+      if (!txn) {
+        handleErrors('Error in making change threshold transaction');
+        return;
+      }
+      const jwt = await getJwtToken(props.accountId);
+      if (!jwt) {
+        handleErrors('Error in authentication');
+        return;
+      }
+
+      await createMCTransactionDB(txn.toXDR(), jwt);
+
+      addTxnNotification({
+        title: 'Success',
+        message: 'Add a signer transaction has been submitted',
+        type: TxnResponse.Success,
+        timestamp: Date.now(),
+      });
+    } catch (err) {
+      handleErrors('Error in changing threshold', err);
+      useLoadingModal.setAction({
+        type: 'CLOSE',
+      });
+    } finally {
+      useLoadingModal.setAction({
+        type: 'CLOSE',
+      });
+    }
+  };
 
   const handleSubmitAddSigner = async (newSigner: Signatory) => {
     useLoadingModal.setAction({
@@ -75,21 +122,13 @@ const Settings = (props: { accountId: string }) => {
       if (!jwt) {
         return;
       }
-
-      const mcTxn = await TransactionService.createMultiCliqueTransaction(
-        {
-          xdr: txn?.toXDR(),
-          multicliqueAddress: props.accountId,
-        },
-        jwt
-      );
+      await createMCTransactionDB(txn.toXDR(), jwt);
       addTxnNotification({
         title: 'Success',
         message: 'Add a signer transaction has been submitted',
         type: TxnResponse.Success,
         timestamp: Date.now(),
       });
-      console.log('mcTxn', mcTxn);
     } catch (err) {
       handleErrors('Error in adding signer', err);
       useLoadingModal.setAction({
@@ -118,13 +157,7 @@ const Settings = (props: { accountId: string }) => {
       if (!jwt) {
         return;
       }
-      await TransactionService.createMultiCliqueTransaction(
-        {
-          xdr: txn?.toXDR(),
-          multicliqueAddress: props.accountId,
-        },
-        jwt
-      );
+      await createMCTransactionDB(txn.toXDR(), jwt);
 
       useLoadingModal.setAction({
         type: 'CLOSE',
@@ -208,8 +241,15 @@ const Settings = (props: { accountId: string }) => {
         className={cn('!mt-0 space-y-3 rounded-lg bg-base-200 p-4', {
           hidden: activeSettingsTab !== SettingsTabs.at(2)?.id,
         })}>
-        <CreateMultisigForm onSubmit={() => {}}>
-          <CreateMultisigForm.Threshold minimumSigners={2} />
+        <CreateMultisigForm
+          onSubmit={(data) => {
+            handleChangeThreshold(data?.threshold);
+          }}>
+          <CreateMultisigForm.Threshold
+            minimumSigners={1}
+            title={'Enter New Threshold'}
+            maxSigners={account.multisig.data?.signatories.length}
+          />
         </CreateMultisigForm>
       </div>
 

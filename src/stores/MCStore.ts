@@ -104,7 +104,7 @@ export interface MCActions {
   updateMultisigAccounts: (accounts: MultiCliqueAccount[]) => void;
   updateMultisigTransactions: (transactions: MultisigTransaction[]) => void;
   fetchConfig: () => void;
-  updateJwt: (jwt: JwtToken) => void;
+  updateJwt: (jwt: JwtToken | null) => void;
 }
 
 export interface MCStore extends MCState, MCActions {}
@@ -322,7 +322,7 @@ const useMCStore = create<MCStore>((set, get, store) => ({
       get().handleErrors('Error fetching config', err);
     }
   },
-  updateJwt: (jwt: JwtToken) => {
+  updateJwt: (jwt: JwtToken | null) => {
     set({ jwt });
   },
   pages: {

@@ -19,7 +19,6 @@ export interface ListMultiCliqueTransactionsParams {
 
 export interface CreateMultiCliqueTransactionRequestPayload {
   xdr: string;
-  multicliqueAddress: string;
 }
 
 export const createMultiCliqueTransaction = async (
@@ -48,8 +47,16 @@ export const listMultiCliqueTransactions = async (
   params: ListMultiCliqueTransactionsParams,
   jwt: JwtToken
 ): Promise<Paginated<MultisigTransaction[]>> => {
-  const queryString = convertToQueryString(params);
+  const queryString = convertToQueryString(keysToSnakeCase(params));
 
+  // temp fix to address extra "_" in api params
+  if (params?.multicliqueAccountAddress?.length) {
+    queryString.set(
+      'multiclique_account__address',
+      params.multicliqueAccountAddress
+    );
+    queryString.delete('multiclique_account_address');
+  }
   const response = await fetch(
     `${SERVICE_URL}/multiclique/transactions/?${queryString}`,
     {

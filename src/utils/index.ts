@@ -96,3 +96,18 @@ export const toBase64 = (str: string): string => {
 
 export const accountToScVal = (account: string) =>
   new SorobanClient.Address(account).toScVal();
+
+export const isValidXDR = (xdrString: string, networkParaphrase: string) => {
+  try {
+    SorobanClient.TransactionBuilder.fromXDR(xdrString, networkParaphrase);
+    return true;
+  } catch (error) {
+    return false;
+  }
+};
+
+export const isValidBase64String = (str: string) => {
+  const base64regex =
+    /^([0-9a-zA-Z+/]{4})*(([0-9a-zA-Z+/]{2}==)|([0-9a-zA-Z+/]{3}=))?$/;
+  return base64regex.test(str);
+};
