@@ -41,12 +41,14 @@ const ElioDAOPolicyForm = (props: {
   const {
     register,
     handleSubmit,
+    reset,
     formState: { errors },
   } = formMethods;
 
   const handleOnSubmit: SubmitHandler<PolicyFormValues> = (data) => {
     if (onSubmit) {
       onSubmit(data);
+      reset();
     }
   };
 

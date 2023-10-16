@@ -198,11 +198,11 @@ const Settings = (props: { accountId: string }) => {
             elioVotes: data.policyElioVotes,
             elioAssets: data.policyElioAssets,
           });
+          useLoadingModal.setAction({ type: 'CLOSE' });
         });
       }
     } catch (ex) {
       handleErrors('Error in adding ELIO policy', ex);
-    } finally {
       useLoadingModal.setAction({ type: 'CLOSE' });
     }
   };
