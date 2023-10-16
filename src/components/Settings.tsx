@@ -201,7 +201,11 @@ const Settings = (props: { accountId: string }) => {
       const txn = await makeAttachPolicyTxn(
         props.accountId,
         `${account.multisig?.data?.policy.address}`,
-        [data.policyElioCore, data.policyElioVotes, data.policyElioAssets]
+        [
+          data.policyElioCore,
+          data.policyElioVotes,
+          data.policyElioAssets,
+        ]?.filter((value) => value != null)
       );
       if (!txn) {
         useLoadingModal.setAction({ type: 'CLOSE' });

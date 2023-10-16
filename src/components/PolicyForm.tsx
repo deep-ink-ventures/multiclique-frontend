@@ -86,9 +86,7 @@ const ElioDAOPolicyForm = (props: {
               placeholder='Contract Address'
               className='input input-primary'
               disabled={disabled}
-              {...register(`${formName}ElioAssets`, {
-                required: 'Required',
-              })}
+              {...register(`${formName}ElioAssets`)}
             />
             <ErrorMessage
               errors={errors}
