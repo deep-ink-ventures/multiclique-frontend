@@ -17,6 +17,7 @@ import useMCStore from '@/stores/MCStore';
 import Copy from '@/svg/components/Copy';
 import Search from '@/svg/components/Search';
 import type { JwtToken } from '@/types/auth';
+import type { MultisigTransaction } from '@/types/multisigTransaction';
 import { MultiSigTransactionStatus } from '@/types/multisigTransaction';
 import { truncateMiddle } from '@/utils';
 import dayjs from 'dayjs';
@@ -33,11 +34,18 @@ const StatusStepMap: Record<MultiSigTransactionStatus, number> = {
   [MultiSigTransactionStatus.Executed]: 3,
 };
 
-const Transactions = ({ address }: ITransactionsProps) => {
-  const [jwt] = useMCStore((s) => [s.jwt]);
-  const { getJwtToken } = useMC();
-  const [activeAccordion, setActiveAccordion] = useState<number | null>(null);
+const StatusBadgeMap: Record<MultiSigTransactionStatus, string> = {
+  [MultiSigTransactionStatus.Executable]: 'Active',
+  [MultiSigTransactionStatus.Pending]: 'Pending',
+  [MultiSigTransactionStatus.Executed]: 'Approved',
+  [MultiSigTransactionStatus.Rejected]: 'Cancelled',
+};
 
+const Transactions = ({ address }: ITransactionsProps) => {
+  const [jwt, handleErrors] = useMCStore((s) => [s.jwt, s.handleErrors]);
+  const { approveTxnDB, getJwtToken, rejectTxnDB, executeMCTxn } = useMC();
+
+  const [activeAccordion, setActiveAccordion] = useState<number | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const debouncedSearchTerm = useDebounce(searchTerm, 1000);
   const { textRef, copyToClipboard } = useCopyToClipboard<HTMLDivElement>();
@@ -85,9 +93,131 @@ const Transactions = ({ address }: ITransactionsProps) => {
     }
   };
 
+  const handleApprove = async (txn: MultisigTransaction) => {
+    if (!jwt) {
+      return;
+    }
+
+    try {
+      await approveTxnDB(txn, jwt);
+      await new Promise((resolve) => {
+        setTimeout(resolve, 500);
+      });
+      if (address && jwt) {
+        listTransactions.call(
+          {
+            offset: Math.max(pagination.offset - 1, 0),
+            limit: 5,
+            search: debouncedSearchTerm,
+          },
+          jwt
+        );
+      }
+    } catch {
+      handleErrors('Error in approving transaction');
+    }
+  };
+
+  const handleReject = async (txn: MultisigTransaction) => {
+    if (!jwt) {
+      return;
+    }
+
+    try {
+      await rejectTxnDB(txn, jwt);
+      await new Promise((resolve) => {
+        setTimeout(resolve, 500);
+      });
+      if (address && jwt) {
+        listTransactions.call(
+          {
+            offset: Math.max(pagination.offset - 1, 0),
+            limit: 5,
+            search: debouncedSearchTerm,
+          },
+          jwt
+        );
+      }
+    } catch {
+      handleErrors('Error in approving transaction');
+    }
+  };
+
+  const handleExecute = async (txn: MultisigTransaction) => {
+    if (!jwt) {
+      return;
+    }
+
+    try {
+      await executeMCTxn(txn);
+      await new Promise((resolve) => {
+        setTimeout(resolve, 500);
+      });
+      if (address && jwt) {
+        listTransactions.call(
+          {
+            offset: Math.max(pagination.offset - 1, 0),
+            limit: 5,
+            search: debouncedSearchTerm,
+            ordering: 'updated_at',
+          },
+          jwt
+        );
+      }
+    } catch {
+      handleErrors('Error in approving transaction');
+    }
+  };
+
+  const displayButtons = (mcTxn: MultisigTransaction) => {
+    switch (mcTxn.status) {
+      case 'EXECUTABLE':
+        return (
+          <div>
+            <button
+              className='btn btn-outline flex-1'
+              onClick={() => {
+                handleExecute(mcTxn);
+              }}>
+              Execute
+            </button>
+          </div>
+        );
+
+      case 'PENDING':
+        return (
+          <div className='flex w-full gap-2'>
+            <button
+              className='btn btn-outline flex-1'
+              onClick={() => {
+                handleReject(mcTxn);
+              }}>
+              Reject
+            </button>
+            <button
+              className='btn btn-primary flex-1'
+              onClick={() => {
+                handleApprove(mcTxn);
+              }}>
+              Approve
+            </button>
+          </div>
+        );
+
+      case 'EXECUTED':
+        return null;
+
+      case 'REJECTED':
+        return null;
+
+      default:
+        return null;
+    }
+  };
+
   return (
     <>
-      <div className='flex items-center'>
+      <div className='mcTxns-center flex'>
         <div className='text-2xl font-semibold'>Transactions</div>
         <div className='relative ml-auto'>
           <Search className='absolute inset-y-0 left-2 my-auto h-4 w-4 fill-black' />
@@ -102,7 +232,7 @@ const Transactions = ({ address }: ITransactionsProps) => {
         {!jwt && (
           <EmptyPlaceholder
             label={
-              <div className='flex w-full flex-col items-center justify-center space-y-2'>
+              <div className='mcTxns-center flex w-full flex-col justify-center space-y-2'>
                 <div>
                   At the moment, we require users to authenticate to view
                   transactions
@@ -121,7 +251,7 @@ const Transactions = ({ address }: ITransactionsProps) => {
           listTransactions.fulfilled &&
           !listTransactions.value?.results?.length && <EmptyPlaceholder />}
         {!listTransactions.pending &&
-          listTransactions?.value?.results?.map((item, index) => {
+          listTransactions?.value?.results?.map((mcTxn, index) => {
             return (
               <Accordion.Container
                 key={index}
@@ -132,23 +262,28 @@ const Transactions = ({ address }: ITransactionsProps) => {
                 color='base'
                 expanded={index === activeAccordion}>
                 <Accordion.Header className='flex gap-2 text-sm'>
-                  <div className='grow font-semibold'>{item.callFunc}</div>
+                  <div className='grow font-semibold'>{mcTxn.callFunc}</div>
                   <div>
-                    {dayjs(item.createdAt).format('MMMM D, YYYY - h:mm:ss A')}
+                    {dayjs(mcTxn.createdAt).format('MMMM D, YYYY - h:mm:ss A')}
                   </div>
                   <UserTally
-                    value={item.approvals?.length}
-                    over={item.signatories?.length}
+                    value={mcTxn.approvals?.length}
+                    over={mcTxn.signatories?.length}
                   />
-                  <TransactionBadge status='Active' />
+                  <TransactionBadge
+                    status={StatusBadgeMap[mcTxn.status] as any}
+                  />
                 </Accordion.Header>
                 <Accordion.Content className='flex divide-x'>
                   <div className='w-2/3 px-2 pr-4'>
-                    <div className='flex items-center gap-2'>
+                    <div className='mcTxns-center flex gap-2'>
                       <div className='shrink-0 font-semibold'>Call hash:</div>
-                      <div ref={textRef}>
+                      <div className='hidden' ref={textRef}>
+                        {mcTxn.preimageHash}
+                      </div>
+                      <div>
                         {/* TODO: update hash */}
-                        {truncateMiddle(item.preimageHash, 16, 3)}
+                        {truncateMiddle(mcTxn.preimageHash, 16, 3)}
                       </div>
                       <span
                         onClick={copyToClipboard}
@@ -159,13 +294,13 @@ const Transactions = ({ address }: ITransactionsProps) => {
                   </div>
                   <div className='grow space-y-2 px-3'>
                     <Timeline>
-                      {['Created', 'Approved', 'Executed'].map(
+                      {['Pending', 'Executable', 'Executed'].map(
                         (step, stepIndex) => (
                           <Timeline.Item
                             key={`${stepIndex}-${step}`}
-                            {...(stepIndex <= StatusStepMap[item.status] && {
+                            {...(stepIndex <= StatusStepMap[mcTxn.status] && {
                               status:
-                                stepIndex === StatusStepMap[item.status]
+                                stepIndex === StatusStepMap[mcTxn.status]
                                   ? 'active'
                                   : 'completed',
                             })}>
@@ -175,13 +310,7 @@ const Transactions = ({ address }: ITransactionsProps) => {
                       )}
                     </Timeline>
                     <div>Can be executed once threshold is reached</div>
-                    <div className='flex w-full gap-2'>
-                      <button className='btn btn-outline flex-1'>Reject</button>
-                      <button className='btn btn-primary flex-1'>
-                        Approve
-                      </button>
-                      {/* TODO add execute button */}
-                    </div>
+                    {displayButtons(mcTxn)}
                   </div>
                 </Accordion.Content>
               </Accordion.Container>
@@ -204,5 +333,4 @@ const Transactions = ({ address }: ITransactionsProps) => {
     </>
   );
 };
-
 export default Transactions;

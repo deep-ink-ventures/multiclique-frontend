@@ -10,6 +10,10 @@ import cn from 'classnames';
 import { useState } from 'react';
 import PolicyForm from './PolicyForm';
 
+enum PolicyFormAccordion {
+  ELIO = 'ELIO',
+}
+
 const SettingsTabs: Array<{ id: string; label: string }> = [
   {
     id: 'addSigner',
@@ -35,7 +39,8 @@ const Settings = (props: { accountId: string }) => {
     s.handleErrors,
     s.addTxnNotification,
   ]);
-  const [activeAccordion, setActiveAccordion] = useState<number | null>(null);
+  const [activeAccordion, setActiveAccordion] =
+    useState<PolicyFormAccordion | null>(null);
   // make this global?
   const [activeSettingsTab, setActiveSettingsTab] = useState(
     SettingsTabs.at(0)?.id
@@ -89,19 +94,18 @@ const Settings = (props: { accountId: string }) => {
         return;
       }
 
-      await createMCTransactionDB(txn.toXDR(), jwt);
+      const response = await createMCTransactionDB(txn.toXDR(), jwt);
 
-      addTxnNotification({
-        title: 'Success',
-        message: 'Add a signer transaction has been submitted',
-        type: TxnResponse.Success,
-        timestamp: Date.now(),
-      });
+      if (response?.id != null) {
+        addTxnNotification({
+          title: 'Success',
+          message: 'Change threshold transaction has been submitted',
+          type: TxnResponse.Success,
+          timestamp: Date.now(),
+        });
+      }
     } catch (err) {
       handleErrors('Error in changing threshold', err);
-      useLoadingModal.setAction({
-        type: 'CLOSE',
-      });
     } finally {
       useLoadingModal.setAction({
         type: 'CLOSE',
@@ -122,18 +126,19 @@ const Settings = (props: { accountId: string }) => {
       if (!jwt) {
         return;
       }
-      await createMCTransactionDB(txn.toXDR(), jwt);
-      addTxnNotification({
-        title: 'Success',
-        message: 'Add a signer transaction has been submitted',
-        type: TxnResponse.Success,
-        timestamp: Date.now(),
-      });
+
+      const response = await createMCTransactionDB(txn.toXDR(), jwt);
+
+      if (response?.id != null) {
+        addTxnNotification({
+          title: 'Success',
+          message: 'Add a signer transaction has been submitted',
+          type: TxnResponse.Success,
+          timestamp: Date.now(),
+        });
+      }
     } catch (err) {
       handleErrors('Error in adding signer', err);
-      useLoadingModal.setAction({
-        type: 'CLOSE',
-      });
     } finally {
       useLoadingModal.setAction({
         type: 'CLOSE',
@@ -157,13 +162,20 @@ const Settings = (props: { accountId: string }) => {
       if (!jwt) {
         return;
       }
-      await createMCTransactionDB(txn.toXDR(), jwt);
 
-      useLoadingModal.setAction({
-        type: 'CLOSE',
-      });
+      const response = await createMCTransactionDB(txn.toXDR(), jwt);
+
+      if (response?.id != null) {
+        addTxnNotification({
+          title: 'Success',
+          message: 'Remove a signer transaction has been submitted',
+          type: TxnResponse.Success,
+          timestamp: Date.now(),
+        });
+      }
     } catch (err) {
       handleErrors('Error in removing signer', err);
+    } finally {
       useLoadingModal.setAction({
         type: 'CLOSE',
       });
@@ -243,7 +255,7 @@ const Settings = (props: { accountId: string }) => {
         })}>
         <CreateMultisigForm
           onSubmit={(data) => {
-            handleChangeThreshold(data?.threshold);
+            handleChangeThreshold(data);
           }}>
           <CreateMultisigForm.Threshold
             minimumSigners={1}
@@ -259,31 +271,29 @@ const Settings = (props: { accountId: string }) => {
         })}>
         <div className='w-full space-y-2'>
           <h4 className='text-center'>Attach Policy</h4>
-          {Array(1)
-            .fill(null)
-            .map((_item, index) => {
-              return (
-                <Accordion.Container
-                  key={index}
-                  id={index}
-                  onClick={() =>
-                    setActiveAccordion(activeAccordion === index ? null : index)
-                  }
-                  color='base'
-                  expanded={index === activeAccordion}>
-                  <Accordion.Header className='flex gap-2 text-sm'>
-                    <div className='grow font-semibold'>{'ELIO_DAO'}</div>
-                    <TransactionBadge status='Active' />
-                  </Accordion.Header>
-                  <Accordion.Content className='flex'>
-                    <PolicyForm
-                      formName={`ELIO_DAO`}
-                      accountId={props.accountId}
-                    />
-                  </Accordion.Content>
-                </Accordion.Container>
-              );
-            })}
+          <Accordion.Container
+            id={PolicyFormAccordion.ELIO}
+            onClick={() =>
+              setActiveAccordion(
+                activeAccordion === PolicyFormAccordion.ELIO
+                  ? null
+                  : PolicyFormAccordion.ELIO
+              )
+            }
+            color='base'
+            expanded={PolicyFormAccordion.ELIO === activeAccordion}>
+            <Accordion.Header className='flex gap-2 text-sm'>
+              <div className='grow font-semibold'>{'ELIO_DAO'}</div>
+              <TransactionBadge
+                status={
+                  account.multisig.data?.policy.active ? 'ACTIVE' : 'INACTIVE'
+                }
+              />
+            </Accordion.Header>
+            <Accordion.Content className='flex'>
+              <PolicyForm.ELIODAO formName='ELIO_DAO' />
+            </Accordion.Content>
+          </Accordion.Container>
         </div>
       </div>
     </>

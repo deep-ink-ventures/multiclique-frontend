@@ -97,6 +97,9 @@ export const toBase64 = (str: string): string => {
 export const accountToScVal = (account: string) =>
   new SorobanClient.Address(account).toScVal();
 
+export const toScValBytes = (value: string) =>
+  SorobanClient.xdr.ScVal.scvBytes(new SorobanClient.Address(value).toBuffer());
+
 export const isValidXDR = (xdrString: string, networkParaphrase: string) => {
   try {
     SorobanClient.TransactionBuilder.fromXDR(xdrString, networkParaphrase);

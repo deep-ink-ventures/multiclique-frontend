@@ -7,15 +7,17 @@ import {
 import { useLoadingScreenContext } from '@/context/LoadingScreen';
 import { AccountService, JwtService, TransactionService } from '@/services';
 import type { ContractName } from '@/stores/MCStore';
-import useMCStore from '@/stores/MCStore';
+import useMCStore, { TxnResponse } from '@/stores/MCStore';
 import type { JwtToken } from '@/types/auth';
 import type { MultiCliqueAccount } from '@/types/multiCliqueAccount';
+import type { MultisigTransaction } from '@/types/multisigTransaction';
 import {
   accountToScVal,
   decodeXdr,
   isValidXDR,
   numberToU32ScVal,
   toBase64,
+  toScValBytes,
 } from '@/utils';
 import { signBlob, signTransaction } from '@stellar/freighter-api';
 import * as SorobanClient from 'soroban-client';
@@ -35,6 +37,7 @@ const useMC = () => {
     MCConfig,
     updateJwt,
     jwt,
+    addTxnNotification,
   ] = useMCStore((s) => [
     s.currentWalletAccount,
     s.sorobanServer,
@@ -44,6 +47,7 @@ const useMC = () => {
     s.MCConfig,
     s.updateJwt,
     s.jwt,
+    s.addTxnNotification,
   ]);
 
   const loadingModal = useLoadingScreenContext();
@@ -106,9 +110,12 @@ const useMC = () => {
   };
 
   const prepareTxn = async (
-    unpreparedTxn: SorobanClient.Transaction<
-      SorobanClient.Memo<SorobanClient.MemoType>
-    >,
+    unpreparedTxn:
+      | SorobanClient.Transaction<
+          SorobanClient.Memo<SorobanClient.MemoType>,
+          SorobanClient.Operation[]
+        >
+      | SorobanClient.FeeBumpTransaction,
     networkPassphraseStr: string,
     contractName: ContractName | 'none'
   ) => {
@@ -162,9 +169,12 @@ const useMC = () => {
 
   /** Use this to submit a transaction */
   const submitTxn = async (
-    unpreparedTxn: SorobanClient.Transaction<
-      SorobanClient.Memo<SorobanClient.MemoType>
-    >,
+    unpreparedTxn:
+      | SorobanClient.Transaction<
+          SorobanClient.Memo<SorobanClient.MemoType>,
+          SorobanClient.Operation[]
+        >
+      | SorobanClient.FeeBumpTransaction,
     successMsg: string,
     errorMsg: string,
     contractName: ContractName | 'none', // add contract name for handle error code
@@ -314,6 +324,19 @@ const useMC = () => {
       handleErrors('Error in getting jwt token', err);
       return null;
     }
+  };
+
+  /**
+   *
+   * @param preimageHash
+   * @returns base 64 preimage hash
+   */
+  const signPreimageHash = async (preimageHash: string) => {
+    const signedHash = await signBlob(preimageHash, {
+      accountToSign: currentWalletAccount?.publicKey,
+    });
+
+    return toBase64(signedHash);
   };
 
   const makeCoreInstallationTxn = async () => {
@@ -560,7 +583,7 @@ const useMC = () => {
       currentWalletAccount?.publicKey,
       coreAddress,
       'add_signer',
-      accountToScVal(signerAddress)
+      toScValBytes(signerAddress)
     );
     return txn;
   };
@@ -576,7 +599,7 @@ const useMC = () => {
       currentWalletAccount?.publicKey,
       coreAddress,
       'remove_signer',
-      accountToScVal(signerAddress)
+      toScValBytes(signerAddress)
     );
     return txn;
   };
@@ -618,9 +641,12 @@ const useMC = () => {
         },
         jwtToken
       );
-      const signedHash = await signBlob(mcTxnRes.preimageHash, {
-        accountToSign: currentWalletAccount?.publicKey,
-      });
+
+      if (!mcTxnRes?.preimageHash) {
+        throw new Error('Error creating a Multiclique Transaction');
+      }
+
+      const newHash = await signPreimageHash(mcTxnRes.preimageHash);
 
       const updatedTxn = await TransactionService.patchMultiCliqueTransaction(
         mcTxnRes.id.toString(),
@@ -631,19 +657,108 @@ const useMC = () => {
                 name: currentWalletAccount.publicKey,
                 address: currentWalletAccount.publicKey,
               },
-              signature: toBase64(signedHash),
+              signature: newHash,
             },
           ],
         },
         jwtToken
       );
 
-      console.log('updatedTxn', updatedTxn);
       return updatedTxn;
     } catch (err) {
       handleErrors('Error in creating multiclique offchain transaction ', err);
       return null;
     }
+  };
+  // eslint-disable-next-line
+  const approveTxnDB = async (txn: MultisigTransaction, jwt: JwtToken) => {
+    if (!currentWalletAccount) {
+      return;
+    }
+
+    try {
+      const newHash = await signPreimageHash(txn.preimageHash);
+      const updatedTxn = await TransactionService.patchMultiCliqueTransaction(
+        txn.id.toString(),
+        {
+          approvals: [
+            {
+              signatory: {
+                name: currentWalletAccount.publicKey,
+                address: currentWalletAccount.publicKey,
+              },
+              signature: newHash,
+            },
+          ],
+        },
+        jwt
+      );
+
+      if (updatedTxn?.approvals?.length) {
+        addTxnNotification({
+          title: 'Multiclique transaction approved',
+          message: '',
+          timestamp: Date.now(),
+          type: TxnResponse.Success,
+        });
+      }
+      console.log('update txn after approve', updatedTxn);
+    } catch (err) {
+      handleErrors('Error in approving multiclique offchain transaction ', err);
+    }
+  };
+  // eslint-disable-next-line
+  const rejectTxnDB = async (txn: MultisigTransaction, jwt: JwtToken) => {
+    if (!currentWalletAccount) {
+      return;
+    }
+
+    try {
+      const newHash = await signPreimageHash(txn.preimageHash);
+      const updatedTxn = await TransactionService.patchMultiCliqueTransaction(
+        txn.id.toString(),
+        {
+          rejections: [
+            {
+              signatory: {
+                name: currentWalletAccount.publicKey,
+                address: currentWalletAccount.publicKey,
+              },
+              signature: newHash,
+            },
+          ],
+        },
+        jwt
+      );
+      if (updatedTxn?.rejections?.length) {
+        addTxnNotification({
+          title: 'Multiclique transaction approved',
+          message: '',
+          timestamp: Date.now(),
+          type: TxnResponse.Success,
+        });
+      }
+    } catch (err) {
+      handleErrors('Error in approving multiclique offchain transaction ', err);
+    }
+  };
+
+  const executeMCTxn = async (txn: MultisigTransaction) => {
+    console.log('txn to execute');
+    if (!currentWalletAccount) {
+      return;
+    }
+
+    const transaction = SorobanClient.TransactionBuilder.fromXDR(
+      txn.xdr,
+      MCConfig?.networkPassphrase
+    );
+    await submitTxn(
+      transaction,
+      'Multiclique transaction executed',
+      'Error in executing multiclique transaction',
+      'multicliqueCore'
+    );
   };
 
   return {
@@ -667,6 +782,9 @@ const useMC = () => {
     getJwtToken,
     makeChangeThresholdTxn,
     createMCTransactionDB,
+    approveTxnDB,
+    rejectTxnDB,
+    executeMCTxn,
   };
 };
 
