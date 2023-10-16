@@ -8,6 +8,7 @@ import useMCStore, { TxnResponse } from '@/stores/MCStore';
 import type { Signatory } from '@/types/multiCliqueAccount';
 import cn from 'classnames';
 import { useState } from 'react';
+import type { ExtendedElioPolicyFormValues } from './PolicyForm';
 import PolicyForm from './PolicyForm';
 
 enum PolicyFormAccordion {
@@ -34,11 +35,9 @@ const SettingsTabs: Array<{ id: string; label: string }> = [
 ];
 
 const Settings = (props: { accountId: string }) => {
-  const [account, handleErrors, addTxnNotification] = useMCStore((s) => [
-    s.pages.account,
-    s.handleErrors,
-    s.addTxnNotification,
-  ]);
+  const [account, handleErrors, addTxnNotification, elioConfig] = useMCStore(
+    (s) => [s.pages.account, s.handleErrors, s.addTxnNotification, s.elioConfig]
+  );
   const [activeAccordion, setActiveAccordion] =
     useState<PolicyFormAccordion | null>(null);
   // make this global?
@@ -51,6 +50,8 @@ const Settings = (props: { accountId: string }) => {
     getJwtToken,
     makeChangeThresholdTxn,
     createMCTransactionDB,
+    installPolicyContract,
+    initMulticliquePolicy,
   } = useMC();
   const useLoadingModal = useLoadingScreenContext();
 
@@ -182,6 +183,30 @@ const Settings = (props: { accountId: string }) => {
     }
   };
 
+  const handleInstallPolicy = async (
+    data: ExtendedElioPolicyFormValues<'policy'>
+  ) => {
+    useLoadingModal.setAction({
+      type: 'SHOW_TRANSACTION_PROCESSING',
+    });
+    try {
+      if (elioConfig) {
+        await installPolicyContract(async (policyAddress: string) => {
+          await initMulticliquePolicy(policyAddress, {
+            multiclique: props.accountId,
+            elioCore: data.policyElioCore,
+            elioVotes: data.policyElioVotes,
+            elioAssets: data.policyElioAssets,
+          });
+        });
+      }
+    } catch (ex) {
+      handleErrors('Error in adding ELIO policy', ex);
+    } finally {
+      useLoadingModal.setAction({ type: 'CLOSE' });
+    }
+  };
+
   return (
     <>
       <div className='flex items-center'>
@@ -291,7 +316,10 @@ const Settings = (props: { accountId: string }) => {
               />
             </Accordion.Header>
             <Accordion.Content className='flex'>
-              <PolicyForm.ELIODAO formName='ELIO_DAO' />
+              <PolicyForm.ELIODAO
+                formName='policy'
+                onSubmit={handleInstallPolicy}
+              />
             </Accordion.Content>
           </Accordion.Container>
         </div>
