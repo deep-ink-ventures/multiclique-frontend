@@ -1,6 +1,7 @@
 import { Avatar, Sidebar } from '@/components';
 import ConnectWallet from '@/components/ConnectWallet';
 import Dashboard from '@/components/Dashboard';
+import ImportTransactionModal from '@/components/ImportTransactionModal';
 import Settings from '@/components/Settings';
 import Transactions from '@/components/Transactions';
 import WalletConnect from '@/components/WalletConnect';
@@ -50,6 +51,7 @@ const Account = () => {
     s.updateJwt,
   ]);
   const [currentTab, setCurrentTab] = useState<AccountTabs>('Transactions');
+  const [isImportXdrVisible, setIsImportXdrVisible] = useState(false);
 
   const { textRef, copyToClipboard } = useCopyToClipboard<HTMLDivElement>();
 
@@ -137,6 +139,18 @@ const Account = () => {
               <Settings accountId={accountId as string} />
             )}
           </div>
+          <div className='fixed bottom-[2%] right-[2%]'>
+            <button
+              onClick={() => setIsImportXdrVisible(true)}
+              className='flex h-12 w-12 items-center justify-center rounded-full bg-primary p-4 text-2xl text-white transition ease-in-out hover:rotate-180'>
+              +
+            </button>
+          </div>
+          <ImportTransactionModal
+            isVisible={isImportXdrVisible}
+            accountId={accountId?.toString()}
+            onClose={() => setIsImportXdrVisible(false)}
+          />
         </div>
       ) : (
         <ConnectWallet />
