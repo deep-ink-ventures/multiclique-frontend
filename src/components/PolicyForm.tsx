@@ -33,7 +33,7 @@ type ElioPolicyFormValues = {
 const ElioDAOPolicyForm = (props: {
   disabled?: boolean;
   formName: string;
-  onSubmit?: (data: any) => void;
+  onSubmit?: (data: any) => Promise<boolean> | boolean;
 }) => {
   const { disabled, formName, onSubmit } = props;
 
@@ -45,10 +45,12 @@ const ElioDAOPolicyForm = (props: {
     formState: { errors },
   } = formMethods;
 
-  const handleOnSubmit: SubmitHandler<PolicyFormValues> = (data) => {
+  const handleOnSubmit: SubmitHandler<PolicyFormValues> = async (data) => {
     if (onSubmit) {
-      onSubmit(data);
-      reset();
+      const isSuccess = await onSubmit(data);
+      if (isSuccess === true) {
+        reset();
+      }
     }
   };
 

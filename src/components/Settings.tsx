@@ -189,6 +189,8 @@ const Settings = (props: { accountId: string }) => {
     useLoadingModal.setAction({
       type: 'SHOW_TRANSACTION_PROCESSING',
     });
+    let isSuccess = false;
+
     try {
       if (elioConfig) {
         await installPolicyContract(async (policyAddress: string) => {
@@ -199,12 +201,15 @@ const Settings = (props: { accountId: string }) => {
             elioAssets: data.policyElioAssets,
           });
           useLoadingModal.setAction({ type: 'CLOSE' });
+          isSuccess = true;
         });
       }
     } catch (ex) {
       handleErrors('Error in adding ELIO policy', ex);
+    } finally {
       useLoadingModal.setAction({ type: 'CLOSE' });
     }
+    return isSuccess;
   };
 
   return (
