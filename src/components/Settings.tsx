@@ -50,7 +50,6 @@ const Settings = (props: { accountId: string }) => {
     getJwtToken,
     makeChangeThresholdTxn,
     createMCTransactionDB,
-    installPolicyContract,
     makeAttachPolicyTxn,
   } = useMC();
   const useLoadingModal = useLoadingScreenContext();
@@ -188,7 +187,10 @@ const Settings = (props: { accountId: string }) => {
   ) => {
     let isSuccess = false;
 
-    if (!elioConfig?.coreContractAddress) {
+    if (
+      !elioConfig?.coreContractAddress ||
+      !account.multisig.data?.policy.address
+    ) {
       return isSuccess;
     }
 
@@ -196,39 +198,31 @@ const Settings = (props: { accountId: string }) => {
       type: 'SHOW_TRANSACTION_PROCESSING',
     });
     try {
-      await installPolicyContract(async (policyContractAddress: string) => {
-        const txn = await makeAttachPolicyTxn(
-          policyContractAddress,
-          // SET CORRECT VALUE
-          '',
-          [
-            props.accountId,
-            data.policyElioCore,
-            data.policyElioVotes,
-            data.policyElioAssets,
-          ]
-        );
-        if (!txn) {
-          useLoadingModal.setAction({ type: 'CLOSE' });
-          return isSuccess;
-        }
-        const jwt = await getJwtToken(props.accountId);
-        if (!jwt) {
-          useLoadingModal.setAction({ type: 'CLOSE' });
-          return isSuccess;
-        }
-        const response = await createMCTransactionDB(txn.toXDR(), jwt);
+      const txn = await makeAttachPolicyTxn(
+        props.accountId,
+        `${account.multisig?.data?.policy.address}`,
+        [data.policyElioCore, data.policyElioVotes, data.policyElioAssets]
+      );
+      if (!txn) {
+        useLoadingModal.setAction({ type: 'CLOSE' });
+        return isSuccess;
+      }
+      const jwt = await getJwtToken(props.accountId);
+      if (!jwt) {
+        useLoadingModal.setAction({ type: 'CLOSE' });
+        return isSuccess;
+      }
+      const response = await createMCTransactionDB(txn.toXDR(), jwt);
 
-        if (response?.id != null) {
-          addTxnNotification({
-            title: 'Success',
-            message: 'Attach a Policy transaction has been submitted',
-            type: TxnResponse.Success,
-            timestamp: Date.now(),
-          });
-          isSuccess = true;
-        }
-      });
+      if (response?.id != null) {
+        addTxnNotification({
+          title: 'Success',
+          message: 'Attach a Policy transaction has been submitted',
+          type: TxnResponse.Success,
+          timestamp: Date.now(),
+        });
+        isSuccess = true;
+      }
     } catch (err) {
       handleErrors('Error in attaching policy', err);
     } finally {
