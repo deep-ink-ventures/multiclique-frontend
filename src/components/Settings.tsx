@@ -51,7 +51,7 @@ const Settings = (props: { accountId: string }) => {
     makeChangeThresholdTxn,
     createMCTransactionDB,
     installPolicyContract,
-    initMulticliquePolicy,
+    makeAttachPolicyTxn,
   } = useMC();
   const useLoadingModal = useLoadingScreenContext();
 
@@ -183,31 +183,58 @@ const Settings = (props: { accountId: string }) => {
     }
   };
 
-  const handleInstallPolicy = async (
+  const handleAttachPolicy = async (
     data: ExtendedElioPolicyFormValues<'policy'>
   ) => {
+    let isSuccess = false;
+
+    if (!elioConfig?.coreContractAddress) {
+      return isSuccess;
+    }
+
     useLoadingModal.setAction({
       type: 'SHOW_TRANSACTION_PROCESSING',
     });
-    let isSuccess = false;
-
     try {
-      if (elioConfig) {
-        await installPolicyContract(async (policyAddress: string) => {
-          await initMulticliquePolicy(policyAddress, {
-            multiclique: props.accountId,
-            elioCore: data.policyElioCore,
-            elioVotes: data.policyElioVotes,
-            elioAssets: data.policyElioAssets,
-          });
+      await installPolicyContract(async (policyContractAddress: string) => {
+        const txn = await makeAttachPolicyTxn(
+          policyContractAddress,
+          // SET CORRECT VALUE
+          '',
+          [
+            props.accountId,
+            data.policyElioCore,
+            data.policyElioVotes,
+            data.policyElioAssets,
+          ]
+        );
+        if (!txn) {
           useLoadingModal.setAction({ type: 'CLOSE' });
+          return isSuccess;
+        }
+        const jwt = await getJwtToken(props.accountId);
+        if (!jwt) {
+          useLoadingModal.setAction({ type: 'CLOSE' });
+          return isSuccess;
+        }
+        const response = await createMCTransactionDB(txn.toXDR(), jwt);
+
+        if (response?.id != null) {
+          addTxnNotification({
+            title: 'Success',
+            message: 'Attach a Policy transaction has been submitted',
+            type: TxnResponse.Success,
+            timestamp: Date.now(),
+          });
           isSuccess = true;
-        });
-      }
-    } catch (ex) {
-      handleErrors('Error in adding ELIO policy', ex);
+        }
+      });
+    } catch (err) {
+      handleErrors('Error in attaching policy', err);
     } finally {
-      useLoadingModal.setAction({ type: 'CLOSE' });
+      useLoadingModal.setAction({
+        type: 'CLOSE',
+      });
     }
     return isSuccess;
   };
@@ -323,7 +350,7 @@ const Settings = (props: { accountId: string }) => {
             <Accordion.Content className='flex'>
               <PolicyForm.ELIODAO
                 formName='policy'
-                onSubmit={handleInstallPolicy}
+                onSubmit={handleAttachPolicy}
               />
             </Accordion.Content>
           </Accordion.Container>
