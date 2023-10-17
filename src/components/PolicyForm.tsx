@@ -6,7 +6,7 @@ import { FormProvider, useForm, type SubmitHandler } from 'react-hook-form';
 
 interface PolicyFormValues {
   [x: string]: {
-    address: string;
+    address: string | null;
   }[];
 }
 
@@ -18,83 +18,108 @@ interface PolicyFormProps {
   accountId: string;
 }
 
-const ElioDAOPolicyForm = (props: { disabled?: boolean; formName: string }) => {
-  const { disabled, formName } = props;
+export type ExtendedElioPolicyFormValues<Generic extends string> = {
+  [Key in keyof ElioPolicyFormValues as `${Generic}${Capitalize<
+    string & Key
+  >}`]: string;
+};
 
-  const formMethods = useForm<PolicyFormValues>({
-    defaultValues: {
-      [`${props.formName}`]: [
-        {
-          address: '',
-        },
-      ],
-    },
-  });
+type ElioPolicyFormValues = {
+  ElioCore: string;
+  ElioAssets: string;
+  ElioVotes: string;
+};
+
+const ElioDAOPolicyForm = (props: {
+  disabled?: boolean;
+  formName: string;
+  onSubmit?: (data: any) => Promise<boolean> | boolean;
+}) => {
+  const { disabled, formName, onSubmit } = props;
+
+  const formMethods = useForm<PolicyFormValues>();
   const {
     register,
+    handleSubmit,
+    reset,
     formState: { errors },
   } = formMethods;
+
+  const handleOnSubmit: SubmitHandler<PolicyFormValues> = async (data) => {
+    if (onSubmit) {
+      const isSuccess = await onSubmit(data);
+      if (isSuccess === true) {
+        reset();
+      }
+    }
+  };
+
   return (
     <FormProvider {...formMethods}>
-      <div className='w-full space-y-4 p-2'>
-        <div className=' w-full px-4'>
-          <p className='ml-1'>Core</p>
-          <input
-            type='text'
-            placeholder='Contract Address'
-            className='input input-primary'
-            disabled={disabled}
-            {...register(`${formName}ElioCore`, {
-              required: 'Required',
-            })}
-          />
-          <ErrorMessage
-            errors={errors}
-            name={`${formName}ElioCore`}
-            render={({ message }) => (
-              <p className='ml-2 mt-1 text-error-content'>{message}</p>
-            )}
-          />
+      <form
+        onSubmit={handleSubmit(handleOnSubmit)}
+        className='flex w-full flex-col items-center justify-center gap-2 p-4'>
+        <div className='w-full space-y-4 '>
+          <div className='w-full '>
+            <p className='ml-1'>Core</p>
+            <input
+              type='text'
+              placeholder='Contract Address'
+              className='input input-primary'
+              disabled={disabled}
+              {...register(`${formName}ElioCore`, {
+                required: 'Required',
+              })}
+            />
+            <ErrorMessage
+              errors={errors}
+              name={`${formName}ElioCore`}
+              render={({ message }) => (
+                <p className='ml-2 mt-1 text-error-content'>{message}</p>
+              )}
+            />
+          </div>
+          <div className='w-full'>
+            <p className='ml-1'>Assets</p>
+            <input
+              type='text'
+              placeholder='Contract Address'
+              className='input input-primary'
+              disabled={disabled}
+              {...register(`${formName}ElioAssets`)}
+            />
+            <ErrorMessage
+              errors={errors}
+              name={`${formName}ElioAssets`}
+              render={({ message }) => (
+                <p className='ml-2 mt-1 text-error-content'>{message}</p>
+              )}
+            />
+          </div>
+          <div className='w-full '>
+            <p className='ml-1'>Votes</p>
+            <input
+              type='text'
+              placeholder='Contract Address'
+              className='input input-primary'
+              disabled={disabled}
+              {...register(`${formName}ElioVotes`, {
+                required: 'Required',
+              })}
+            />
+            <ErrorMessage
+              errors={errors}
+              name={`${formName}ElioVotes`}
+              render={({ message }) => (
+                <p className='ml-2 mt-1 text-error-content'>{message}</p>
+              )}
+            />
+          </div>
         </div>
-        <div className=' w-full px-4'>
-          <p className='ml-1'>Assets</p>
-          <input
-            type='text'
-            placeholder='Contract Address'
-            className='input input-primary'
-            disabled={disabled}
-            {...register(`${formName}ElioAssets`, {
-              required: 'Required',
-            })}
-          />
-          <ErrorMessage
-            errors={errors}
-            name={`${formName}ElioAssets`}
-            render={({ message }) => (
-              <p className='ml-2 mt-1 text-error-content'>{message}</p>
-            )}
-          />
-        </div>
-        <div className=' w-full px-4'>
-          <p className='ml-1'>Votes</p>
-          <input
-            type='text'
-            placeholder='Contract Address'
-            className='input input-primary'
-            disabled={disabled}
-            {...register(`${formName}ElioVotes`, {
-              required: 'Required',
-            })}
-          />
-          <ErrorMessage
-            errors={errors}
-            name={`${formName}ElioVotes`}
-            render={({ message }) => (
-              <p className='ml-2 mt-1 text-error-content'>{message}</p>
-            )}
-          />
-        </div>
-      </div>
+        <button className='btn btn-primary ml-auto w-full max-w-[20%] flex-1 self-end truncate'>
+          Submit
+        </button>
+      </form>
     </FormProvider>
   );
 };

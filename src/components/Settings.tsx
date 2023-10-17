@@ -8,6 +8,7 @@ import useMCStore, { TxnResponse } from '@/stores/MCStore';
 import type { Signatory } from '@/types/multiCliqueAccount';
 import cn from 'classnames';
 import { useState } from 'react';
+import type { ExtendedElioPolicyFormValues } from './PolicyForm';
 import PolicyForm from './PolicyForm';
 
 enum PolicyFormAccordion {
@@ -34,11 +35,9 @@ const SettingsTabs: Array<{ id: string; label: string }> = [
 ];
 
 const Settings = (props: { accountId: string }) => {
-  const [account, handleErrors, addTxnNotification] = useMCStore((s) => [
-    s.pages.account,
-    s.handleErrors,
-    s.addTxnNotification,
-  ]);
+  const [account, handleErrors, addTxnNotification, elioConfig] = useMCStore(
+    (s) => [s.pages.account, s.handleErrors, s.addTxnNotification, s.elioConfig]
+  );
   const [activeAccordion, setActiveAccordion] =
     useState<PolicyFormAccordion | null>(null);
   // make this global?
@@ -51,6 +50,7 @@ const Settings = (props: { accountId: string }) => {
     getJwtToken,
     makeChangeThresholdTxn,
     createMCTransactionDB,
+    makeAttachPolicyTxn,
   } = useMC();
   const useLoadingModal = useLoadingScreenContext();
 
@@ -182,6 +182,61 @@ const Settings = (props: { accountId: string }) => {
     }
   };
 
+  const handleAttachPolicy = async (
+    data: ExtendedElioPolicyFormValues<'policy'>
+  ) => {
+    let isSuccess = false;
+
+    if (
+      !elioConfig?.coreContractAddress ||
+      !account.multisig.data?.policy.address
+    ) {
+      return isSuccess;
+    }
+
+    useLoadingModal.setAction({
+      type: 'SHOW_TRANSACTION_PROCESSING',
+    });
+    try {
+      const txn = await makeAttachPolicyTxn(
+        props.accountId,
+        `${account.multisig?.data?.policy.address}`,
+        [
+          data.policyElioCore,
+          data.policyElioVotes,
+          data.policyElioAssets,
+        ]?.filter((value) => value != null)
+      );
+      if (!txn) {
+        useLoadingModal.setAction({ type: 'CLOSE' });
+        return isSuccess;
+      }
+      const jwt = await getJwtToken(props.accountId);
+      if (!jwt) {
+        useLoadingModal.setAction({ type: 'CLOSE' });
+        return isSuccess;
+      }
+      const response = await createMCTransactionDB(txn.toXDR(), jwt);
+
+      if (response?.id != null) {
+        addTxnNotification({
+          title: 'Success',
+          message: 'Attach a Policy transaction has been submitted',
+          type: TxnResponse.Success,
+          timestamp: Date.now(),
+        });
+        isSuccess = true;
+      }
+    } catch (err) {
+      handleErrors('Error in attaching policy', err);
+    } finally {
+      useLoadingModal.setAction({
+        type: 'CLOSE',
+      });
+    }
+    return isSuccess;
+  };
+
   return (
     <>
       <div className='flex items-center'>
@@ -291,7 +346,10 @@ const Settings = (props: { accountId: string }) => {
               />
             </Accordion.Header>
             <Accordion.Content className='flex'>
-              <PolicyForm.ELIODAO formName='ELIO_DAO' />
+              <PolicyForm.ELIODAO
+                formName='policy'
+                onSubmit={handleAttachPolicy}
+              />
             </Accordion.Content>
           </Accordion.Container>
         </div>

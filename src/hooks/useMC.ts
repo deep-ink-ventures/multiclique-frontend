@@ -463,7 +463,7 @@ const useMC = () => {
       const policyContractAddress =
         SorobanClient.StrKey.encodeContract(policyId);
       if (cb) {
-        cb(policyContractAddress);
+        await cb(policyContractAddress);
       }
       return policyContractAddress;
     } catch (err) {
