@@ -217,7 +217,7 @@ const Transactions = ({ address }: ITransactionsProps) => {
 
   return (
     <>
-      <div className='mcTxns-center flex'>
+      <div className='flex text-center'>
         <div className='text-2xl font-semibold'>Transactions</div>
         <div className='relative ml-auto'>
           <Search className='absolute inset-y-0 left-2 my-auto h-4 w-4 fill-black' />
@@ -232,7 +232,7 @@ const Transactions = ({ address }: ITransactionsProps) => {
         {!jwt && (
           <EmptyPlaceholder
             label={
-              <div className='mcTxns-center flex w-full flex-col justify-center space-y-2'>
+              <div className='flex w-full flex-col justify-center space-y-2 text-center'>
                 <div>
                   At the moment, we require users to authenticate to view
                   transactions
@@ -246,76 +246,87 @@ const Transactions = ({ address }: ITransactionsProps) => {
             }
           />
         )}
-        {listTransactions.pending && <LoadingPlaceholder />}
-        {!listTransactions.pending &&
-          listTransactions.fulfilled &&
-          !listTransactions.value?.results?.length && <EmptyPlaceholder />}
-        {!listTransactions.pending &&
-          listTransactions?.value?.results?.map((mcTxn, index) => {
-            return (
-              <Accordion.Container
-                key={index}
-                id={index}
-                onClick={() =>
-                  setActiveAccordion(activeAccordion === index ? null : index)
-                }
-                color='base'
-                expanded={index === activeAccordion}>
-                <Accordion.Header className='flex gap-2 text-sm'>
-                  <div className='grow font-semibold'>{mcTxn.callFunc}</div>
-                  <div>
-                    {dayjs(mcTxn.createdAt).format('MMMM D, YYYY - h:mm:ss A')}
-                  </div>
-                  <UserTally
-                    value={mcTxn.approvals?.length}
-                    over={mcTxn.signatories?.length}
-                  />
-                  <TransactionBadge
-                    status={StatusBadgeMap[mcTxn.status] as any}
-                  />
-                </Accordion.Header>
-                <Accordion.Content className='flex divide-x'>
-                  <div className='w-2/3 px-2 pr-4'>
-                    <div className='mcTxns-center flex gap-2'>
-                      <div className='shrink-0 font-semibold'>Call hash:</div>
-                      <div className='hidden' ref={textRef}>
-                        {mcTxn.preimageHash}
-                      </div>
+        {jwt && (
+          <>
+            {listTransactions.pending && <LoadingPlaceholder />}
+            {!listTransactions.pending &&
+              listTransactions.fulfilled &&
+              !listTransactions.value?.results?.length && <EmptyPlaceholder />}
+            {!listTransactions.pending &&
+              listTransactions?.value?.results?.map((mcTxn, index) => {
+                return (
+                  <Accordion.Container
+                    key={index}
+                    id={index}
+                    onClick={() =>
+                      setActiveAccordion(
+                        activeAccordion === index ? null : index
+                      )
+                    }
+                    color='base'
+                    expanded={index === activeAccordion}>
+                    <Accordion.Header className='flex gap-2 text-sm'>
+                      <div className='grow font-semibold'>{mcTxn.callFunc}</div>
                       <div>
-                        {/* TODO: update hash */}
-                        {truncateMiddle(mcTxn.preimageHash, 16, 3)}
+                        {dayjs(mcTxn.createdAt).format(
+                          'MMMM D, YYYY - h:mm:ss A'
+                        )}
                       </div>
-                      <span
-                        onClick={copyToClipboard}
-                        className='rounded-full p-1 hover:bg-base-200'>
-                        <Copy className='h-4 w-4 cursor-pointer' />
-                      </span>
-                    </div>
-                  </div>
-                  <div className='grow space-y-2 px-3'>
-                    <Timeline>
-                      {['Pending', 'Executable', 'Executed'].map(
-                        (step, stepIndex) => (
-                          <Timeline.Item
-                            key={`${stepIndex}-${step}`}
-                            {...(stepIndex <= StatusStepMap[mcTxn.status] && {
-                              status:
-                                stepIndex === StatusStepMap[mcTxn.status]
-                                  ? 'active'
-                                  : 'completed',
-                            })}>
-                            {step}
-                          </Timeline.Item>
-                        )
-                      )}
-                    </Timeline>
-                    <div>Can be executed once threshold is reached</div>
-                    {displayButtons(mcTxn)}
-                  </div>
-                </Accordion.Content>
-              </Accordion.Container>
-            );
-          })}
+                      <UserTally
+                        value={mcTxn.approvals?.length}
+                        over={mcTxn.signatories?.length}
+                      />
+                      <TransactionBadge
+                        status={StatusBadgeMap[mcTxn.status] as any}
+                      />
+                    </Accordion.Header>
+                    <Accordion.Content className='flex divide-x'>
+                      <div className='w-2/3 px-2 pr-4'>
+                        <div className='flex gap-2 text-center'>
+                          <div className='shrink-0 font-semibold'>
+                            Call hash:
+                          </div>
+                          <div className='hidden' ref={textRef}>
+                            {mcTxn.preimageHash}
+                          </div>
+                          <div>
+                            {/* TODO: update hash */}
+                            {truncateMiddle(mcTxn.preimageHash, 16, 3)}
+                          </div>
+                          <span
+                            onClick={copyToClipboard}
+                            className='rounded-full p-1 hover:bg-base-200'>
+                            <Copy className='h-4 w-4 cursor-pointer' />
+                          </span>
+                        </div>
+                      </div>
+                      <div className='grow space-y-2 px-3'>
+                        <Timeline>
+                          {['Pending', 'Executable', 'Executed'].map(
+                            (step, stepIndex) => (
+                              <Timeline.Item
+                                key={`${stepIndex}-${step}`}
+                                {...(stepIndex <=
+                                  StatusStepMap[mcTxn.status] && {
+                                  status:
+                                    stepIndex === StatusStepMap[mcTxn.status]
+                                      ? 'active'
+                                      : 'completed',
+                                })}>
+                                {step}
+                              </Timeline.Item>
+                            )
+                          )}
+                        </Timeline>
+                        <div>Can be executed once threshold is reached</div>
+                        {displayButtons(mcTxn)}
+                      </div>
+                    </Accordion.Content>
+                  </Accordion.Container>
+                );
+              })}
+          </>
+        )}
       </div>
       {!listTransactions.pending &&
         Boolean(listTransactions.value?.results?.length) && (

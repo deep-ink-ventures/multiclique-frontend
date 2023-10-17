@@ -2,6 +2,7 @@ import { Avatar, Sidebar } from '@/components';
 import ConnectWallet from '@/components/ConnectWallet';
 import Dashboard from '@/components/Dashboard';
 import ImportTransactionModal from '@/components/ImportTransactionModal';
+import ManageElioPolicy from '@/components/ManageElioPolicy';
 import Settings from '@/components/Settings';
 import Transactions from '@/components/Transactions';
 import WalletConnect from '@/components/WalletConnect';
@@ -21,7 +22,12 @@ import { useRouter } from 'next/router';
 import type { ReactNode } from 'react';
 import { useEffect, useState } from 'react';
 
-type AccountTabs = 'Dashboard' | 'Assets' | 'Transactions' | 'Settings';
+type AccountTabs =
+  | 'Dashboard'
+  | 'Assets'
+  | 'Transactions'
+  | 'Settings'
+  | 'Manage ELIO DAO Policy';
 
 const TABS: { icon: ReactNode; label: AccountTabs }[] = [
   {
@@ -35,6 +41,10 @@ const TABS: { icon: ReactNode; label: AccountTabs }[] = [
   {
     icon: <SwitchIcon className='h-4 w-4 fill-black' />,
     label: 'Transactions',
+  },
+  {
+    icon: <SwitchIcon className='h-4 w-4 fill-black' />,
+    label: 'Manage ELIO DAO Policy',
   },
   {
     icon: <SettingsIcon className='h-4 w-4 fill-black' />,
@@ -138,6 +148,10 @@ const Account = () => {
             {currentTab === 'Settings' && (
               <Settings accountId={accountId as string} />
             )}
+            {accountPage.multisig.data?.policy.name === 'ELIO_DAO' &&
+              currentTab === 'Manage ELIO DAO Policy' && (
+                <ManageElioPolicy policy={accountPage.multisig.data.policy} />
+              )}
           </div>
           <div className='fixed bottom-[2%] right-[2%]'>
             <button
