@@ -13,6 +13,7 @@ import AvatarImage from '@/svg/avatar.svg';
 import Chevron from '@/svg/components/Chevron';
 import Coins from '@/svg/components/Coins';
 import DashboardIcon from '@/svg/components/Dashboard';
+import Proposal from '@/svg/components/Proposal';
 import SettingsIcon from '@/svg/components/Settings';
 import SwitchIcon from '@/svg/components/Switch';
 import CopyIcon from '@/svg/copy.svg';
@@ -43,7 +44,7 @@ const TABS: { icon: ReactNode; label: AccountTabs }[] = [
     label: 'Transactions',
   },
   {
-    icon: <SwitchIcon className='h-4 w-4 fill-black' />,
+    icon: <Proposal className='h-4 w-4 fill-black' />,
     label: 'Manage ELIO DAO Policy',
   },
   {

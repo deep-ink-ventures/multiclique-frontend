@@ -15,7 +15,7 @@ const ManageElioPolicy = ({ policy }: IManageElioPolicyProps) => {
       </div>
       <div className='space-y-3'>
         <>
-          <div className='overflow-hidden rounded-xl border border-neutral'>
+          <div className='divide-y overflow-hidden rounded-xl border border-neutral'>
             <div className='grid grid-cols-4 gap-0 divide-x divide-y'>
               <div className='p-2'>Asset</div>
               <div className='p-2'>Limit</div>
