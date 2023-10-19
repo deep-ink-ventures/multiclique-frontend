@@ -71,7 +71,7 @@ const Transactions = ({ address }: ITransactionsProps) => {
       listTransactions.call(
         {
           offset: Math.max(pagination.offset - 1, 0),
-          limit: 5,
+          limit: 10,
           search: debouncedSearchTerm,
           ordering: 'updated_at',
         },
@@ -105,7 +105,7 @@ const Transactions = ({ address }: ITransactionsProps) => {
         listTransactions.call(
           {
             offset: Math.max(pagination.offset - 1, 0),
-            limit: 5,
+            limit: 10,
             search: debouncedSearchTerm,
             ordering: 'updated_at',
           },
@@ -131,7 +131,7 @@ const Transactions = ({ address }: ITransactionsProps) => {
         listTransactions.call(
           {
             offset: Math.max(pagination.offset - 1, 0),
-            limit: 5,
+            limit: 10,
             search: debouncedSearchTerm,
             ordering: 'updated_at',
           },
@@ -157,7 +157,7 @@ const Transactions = ({ address }: ITransactionsProps) => {
         listTransactions.call(
           {
             offset: Math.max(pagination.offset - 1, 0),
-            limit: 5,
+            limit: 10,
             search: debouncedSearchTerm,
             ordering: 'updated_at',
           },
@@ -354,7 +354,7 @@ const Transactions = ({ address }: ITransactionsProps) => {
           <div>
             <Pagination
               currentPage={pagination.currentPage}
-              pageSize={5}
+              pageSize={10}
               totalCount={listTransactions.value?.count}
               onPageChange={(newPage, newOffset) =>
                 setPagination({ currentPage: newPage, offset: newOffset })
