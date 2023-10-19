@@ -35,10 +35,10 @@ const StatusStepMap: Record<MultiSigTransactionStatus, number> = {
 };
 
 const StatusBadgeMap: Record<MultiSigTransactionStatus, string> = {
-  [MultiSigTransactionStatus.Executable]: 'Active',
-  [MultiSigTransactionStatus.Pending]: 'Pending',
-  [MultiSigTransactionStatus.Executed]: 'Approved',
-  [MultiSigTransactionStatus.Rejected]: 'Cancelled',
+  [MultiSigTransactionStatus.Executable]: 'EXECUTABLE',
+  [MultiSigTransactionStatus.Pending]: 'PENDING',
+  [MultiSigTransactionStatus.Executed]: 'EXECUTED',
+  [MultiSigTransactionStatus.Rejected]: 'REJECTED',
 };
 
 const Transactions = ({ address }: ITransactionsProps) => {
@@ -71,7 +71,6 @@ const Transactions = ({ address }: ITransactionsProps) => {
   useEffect(() => {
     // fixme - change when we have a new jwt feature
     if (address && jwt) {
-      console.log('get txns');
       listTransactions.call(
         {
           offset: Math.max(pagination.offset - 1, 0),
