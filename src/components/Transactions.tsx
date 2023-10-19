@@ -216,40 +216,6 @@ const Transactions = ({ address }: ITransactionsProps) => {
     }
   };
 
-  // const displayArgs = (mcTxn: MultisigTransaction) => {
-  //   if(!mcTxn.callArgs) {
-  //     return null
-  //   }
-  //   switch (mcTxn.callFunc) {
-  //     case 'add_signer':
-  //       return (
-  //         <div className='flex'>
-  //           <div>
-  //             Signer:
-  //           </div>
-  //           <div>
-  //             {mcTxn.callArgs[0] as unknown as string}
-  //           </div>
-  //         </div>
-  //       )
-  //     case 'remove_signer':
-  //       return (
-  //         <div className='flex'>
-  //           <div className='font-semibold'>
-  //             Signer:
-  //           </div>
-  //           <div>
-  //             {mcTxn.callArgs[0] as unknown as string}
-  //           </div>
-  //         </div>
-  //       )
-  //     case 'set_default_threshold':
-  //       return (
-
-  //       )
-  //   }
-  // }
-
   return (
     <>
       <div className='flex text-center'>
