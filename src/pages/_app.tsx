@@ -10,7 +10,7 @@ import { LoadingScreenController } from '@/context/LoadingScreen';
 import useNetworkStatus from '@/hooks/useNetworkStatus';
 import useMCStore from '@/stores/MCStore';
 import '@/styles/global.css';
-import { useCallback, useEffect } from 'react';
+import { useCallback,useEffect,useMemo } from 'react';
 
 declare global {
   interface Window {
@@ -36,12 +36,23 @@ const MyApp = ({ Component, pageProps }: AppProps) => {
 
   useNetworkStatus();
 
-  return (
-    <div className='relative overflow-x-hidden'>
-      <TransactionNotification />
+  const MemoizedTransactionNotification = useMemo(
+    () => <TransactionNotification />,
+    []
+  );
+  const MemoizedComponent = useMemo(
+    () => (
       <LoadingScreenController>
         <Component {...pageProps} />
       </LoadingScreenController>
+    ),
+    []
+  );
+
+  return (
+    <div className='relative overflow-x-hidden'>
+      {MemoizedTransactionNotification}
+      {MemoizedComponent}
     </div>
   );
 };
