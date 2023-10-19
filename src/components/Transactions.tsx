@@ -7,20 +7,17 @@ import {
   TransactionBadge,
   UserTally,
 } from '@/components';
-import useCopyToClipboard from '@/hooks/useCopyToClipboard';
 import { useDebounce } from '@/hooks/useDebounce';
 import useMC from '@/hooks/useMC';
 import { usePromise } from '@/hooks/usePromise';
 import type { ListMultiCliqueTransactionsParams } from '@/services';
 import { TransactionService } from '@/services';
 import useMCStore from '@/stores/MCStore';
-import Copy from '@/svg/components/Copy';
 import Search from '@/svg/components/Search';
 import type { JwtToken } from '@/types/auth';
 import type { MultisigTransaction } from '@/types/multisigTransaction';
 import { MultiSigTransactionStatus } from '@/types/multisigTransaction';
-import { truncateMiddle } from '@/utils';
-import dayjs from 'dayjs';
+import { formatDateTime, truncateMiddle } from '@/utils';
 import { useEffect, useState } from 'react';
 
 interface ITransactionsProps {
@@ -35,10 +32,10 @@ const StatusStepMap: Record<MultiSigTransactionStatus, number> = {
 };
 
 const StatusBadgeMap: Record<MultiSigTransactionStatus, string> = {
-  [MultiSigTransactionStatus.Executable]: 'Active',
-  [MultiSigTransactionStatus.Pending]: 'Pending',
-  [MultiSigTransactionStatus.Executed]: 'Approved',
-  [MultiSigTransactionStatus.Rejected]: 'Cancelled',
+  [MultiSigTransactionStatus.Executable]: 'EXECUTABLE',
+  [MultiSigTransactionStatus.Pending]: 'PENDING',
+  [MultiSigTransactionStatus.Executed]: 'EXECUTED',
+  [MultiSigTransactionStatus.Rejected]: 'REJECTED',
 };
 
 const Transactions = ({ address }: ITransactionsProps) => {
@@ -48,7 +45,7 @@ const Transactions = ({ address }: ITransactionsProps) => {
   const [activeAccordion, setActiveAccordion] = useState<number | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const debouncedSearchTerm = useDebounce(searchTerm, 1000);
-  const { textRef, copyToClipboard } = useCopyToClipboard<HTMLDivElement>();
+  // const { textRef, copyToClipboard } = useCopyToClipboard<HTMLDivElement>();
 
   const [pagination, setPagination] = useState({
     currentPage: 1,
@@ -74,8 +71,9 @@ const Transactions = ({ address }: ITransactionsProps) => {
       listTransactions.call(
         {
           offset: Math.max(pagination.offset - 1, 0),
-          limit: 5,
+          limit: 10,
           search: debouncedSearchTerm,
+          ordering: 'updated_at',
         },
         jwt
       );
@@ -101,14 +99,15 @@ const Transactions = ({ address }: ITransactionsProps) => {
     try {
       await approveTxnDB(txn, jwt);
       await new Promise((resolve) => {
-        setTimeout(resolve, 500);
+        setTimeout(resolve, 2000);
       });
       if (address && jwt) {
         listTransactions.call(
           {
             offset: Math.max(pagination.offset - 1, 0),
-            limit: 5,
+            limit: 10,
             search: debouncedSearchTerm,
+            ordering: 'updated_at',
           },
           jwt
         );
@@ -126,14 +125,15 @@ const Transactions = ({ address }: ITransactionsProps) => {
     try {
       await rejectTxnDB(txn, jwt);
       await new Promise((resolve) => {
-        setTimeout(resolve, 500);
+        setTimeout(resolve, 2000);
       });
       if (address && jwt) {
         listTransactions.call(
           {
             offset: Math.max(pagination.offset - 1, 0),
-            limit: 5,
+            limit: 10,
             search: debouncedSearchTerm,
+            ordering: 'updated_at',
           },
           jwt
         );
@@ -151,13 +151,13 @@ const Transactions = ({ address }: ITransactionsProps) => {
     try {
       await executeMCTxn(txn);
       await new Promise((resolve) => {
-        setTimeout(resolve, 500);
+        setTimeout(resolve, 2000);
       });
       if (address && jwt) {
         listTransactions.call(
           {
             offset: Math.max(pagination.offset - 1, 0),
-            limit: 5,
+            limit: 10,
             search: debouncedSearchTerm,
             ordering: 'updated_at',
           },
@@ -173,9 +173,9 @@ const Transactions = ({ address }: ITransactionsProps) => {
     switch (mcTxn.status) {
       case 'EXECUTABLE':
         return (
-          <div>
+          <div className='flex w-full justify-center'>
             <button
-              className='btn btn-outline flex-1'
+              className='btn btn-primary min-w-[60%]'
               onClick={() => {
                 handleExecute(mcTxn);
               }}>
@@ -186,7 +186,7 @@ const Transactions = ({ address }: ITransactionsProps) => {
 
       case 'PENDING':
         return (
-          <div className='flex w-full gap-2'>
+          <div className='flex w-full justify-center gap-2'>
             <button
               className='btn btn-outline flex-1'
               onClick={() => {
@@ -267,11 +267,7 @@ const Transactions = ({ address }: ITransactionsProps) => {
                     expanded={index === activeAccordion}>
                     <Accordion.Header className='flex gap-2 text-sm'>
                       <div className='grow font-semibold'>{mcTxn.callFunc}</div>
-                      <div>
-                        {dayjs(mcTxn.createdAt).format(
-                          'MMMM D, YYYY - h:mm:ss A'
-                        )}
-                      </div>
+                      <div>{formatDateTime(mcTxn.createdAt)}</div>
                       <UserTally
                         value={mcTxn.approvals?.length}
                         over={mcTxn.signatories?.length}
@@ -281,16 +277,15 @@ const Transactions = ({ address }: ITransactionsProps) => {
                       />
                     </Accordion.Header>
                     <Accordion.Content className='flex divide-x'>
-                      <div className='w-2/3 px-2 pr-4'>
-                        <div className='flex gap-2 text-center'>
-                          <div className='shrink-0 font-semibold'>
+                      <div className='flex w-2/3 flex-col space-y-3 px-2 pr-4'>
+                        {/* <div className='flex gap-2 text-center'>
+                          <p className='shrink-0 font-semibold'>
                             Call hash:
-                          </div>
+                          </p>
                           <div className='hidden' ref={textRef}>
                             {mcTxn.preimageHash}
                           </div>
                           <div>
-                            {/* TODO: update hash */}
                             {truncateMiddle(mcTxn.preimageHash, 16, 3)}
                           </div>
                           <span
@@ -298,6 +293,28 @@ const Transactions = ({ address }: ITransactionsProps) => {
                             className='rounded-full p-1 hover:bg-base-200'>
                             <Copy className='h-4 w-4 cursor-pointer' />
                           </span>
+                        </div> */}
+                        <div>
+                          <div>
+                            <p className='font-semibold'>{mcTxn.callFunc}: </p>
+                            {mcTxn.callArgs
+                              ?.map((item: any) => {
+                                return truncateMiddle(item.toString());
+                              })
+                              .join(', ')}
+                          </div>
+                        </div>
+                        <div>
+                          <p className='font-semibold'>Created at: </p>
+                          {formatDateTime(mcTxn.createdAt)}
+                        </div>
+                        <div>
+                          <p className='font-semibold'>Updated at: </p>
+                          {formatDateTime(mcTxn.updatedAt)}
+                        </div>
+                        <div>
+                          <p className='font-semibold'>Executed at: </p>
+                          {formatDateTime(mcTxn.executedAt)}
                         </div>
                       </div>
                       <div className='grow space-y-2 px-3'>
@@ -318,8 +335,12 @@ const Transactions = ({ address }: ITransactionsProps) => {
                             )
                           )}
                         </Timeline>
-                        <div>Can be executed once threshold is reached</div>
-                        {displayButtons(mcTxn)}
+                        {mcTxn.status !== 'EXECUTED' && (
+                          <div>Can be executed once threshold is reached</div>
+                        )}
+                        <div className='flex justify-center'>
+                          {displayButtons(mcTxn)}
+                        </div>
                       </div>
                     </Accordion.Content>
                   </Accordion.Container>
@@ -333,7 +354,7 @@ const Transactions = ({ address }: ITransactionsProps) => {
           <div>
             <Pagination
               currentPage={pagination.currentPage}
-              pageSize={5}
+              pageSize={10}
               totalCount={listTransactions.value?.count}
               onPageChange={(newPage, newOffset) =>
                 setPagination({ currentPage: newPage, offset: newOffset })

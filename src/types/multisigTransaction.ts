@@ -13,7 +13,7 @@ export interface RawMultisigTransaction {
   xdr: string;
   preimage_hash: string;
   call_func: string;
-  call_args: Record<string, any>;
+  call_args: Record<string, any> | string[];
   approvals?: Signature[];
   rejections?: Signature[];
   status: MultiSigTransactionStatus;

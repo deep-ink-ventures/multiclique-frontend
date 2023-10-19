@@ -198,14 +198,13 @@ const Settings = (props: { accountId: string }) => {
       type: 'SHOW_TRANSACTION_PROCESSING',
     });
     try {
+      const addresses = Object.values(data).filter((item) => {
+        return !!item;
+      });
       const txn = await makeAttachPolicyTxn(
         props.accountId,
         `${account.multisig?.data?.policy.address}`,
-        [
-          data.policyElioCore,
-          data.policyElioVotes,
-          data.policyElioAssets,
-        ]?.filter((value) => value != null)
+        [...addresses]
       );
       if (!txn) {
         useLoadingModal.setAction({ type: 'CLOSE' });

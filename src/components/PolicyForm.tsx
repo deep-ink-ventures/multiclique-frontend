@@ -26,8 +26,8 @@ export type ExtendedElioPolicyFormValues<Generic extends string> = {
 
 type ElioPolicyFormValues = {
   ElioCore: string;
-  ElioAssets: string;
   ElioVotes: string;
+  ElioAssets?: string;
 };
 
 const ElioDAOPolicyForm = (props: {
@@ -79,23 +79,6 @@ const ElioDAOPolicyForm = (props: {
               )}
             />
           </div>
-          <div className='w-full'>
-            <p className='ml-1'>Assets</p>
-            <input
-              type='text'
-              placeholder='Contract Address'
-              className='input input-primary'
-              disabled={disabled}
-              {...register(`${formName}ElioAssets`)}
-            />
-            <ErrorMessage
-              errors={errors}
-              name={`${formName}ElioAssets`}
-              render={({ message }) => (
-                <p className='ml-2 mt-1 text-error-content'>{message}</p>
-              )}
-            />
-          </div>
           <div className='w-full '>
             <p className='ml-1'>Votes</p>
             <input
@@ -110,6 +93,23 @@ const ElioDAOPolicyForm = (props: {
             <ErrorMessage
               errors={errors}
               name={`${formName}ElioVotes`}
+              render={({ message }) => (
+                <p className='ml-2 mt-1 text-error-content'>{message}</p>
+              )}
+            />
+          </div>
+          <div className='w-full'>
+            <p className='ml-1'>Assets</p>
+            <input
+              type='text'
+              placeholder='Contract Address'
+              className='input input-primary'
+              disabled={disabled}
+              {...register(`${formName}ElioAssets`)}
+            />
+            <ErrorMessage
+              errors={errors}
+              name={`${formName}ElioAssets`}
               render={({ message }) => (
                 <p className='ml-2 mt-1 text-error-content'>{message}</p>
               )}

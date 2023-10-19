@@ -317,7 +317,6 @@ const useMC = () => {
           refresh: token.refresh,
         });
       }
-      console.log(refreshedToken);
       updateJwt(refreshedToken);
       return refreshedToken;
     } catch (err) {
@@ -421,6 +420,7 @@ const useMC = () => {
       }
       const coreContractAddress = SorobanClient.StrKey.encodeContract(coreId);
       if (cb) {
+        console.log('first cb');
         cb(coreContractAddress);
       }
       return coreContractAddress;
