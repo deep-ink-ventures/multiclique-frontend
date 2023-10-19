@@ -33,9 +33,9 @@ export const MainLayout = (props: IMainProps) => {
     router.push('/account/create');
   };
 
-  const handleCreateTransaction = () => {
-    router.push('/account/create-transaction');
-  };
+  // const handleCreateTransaction = () => {
+  //   router.push('/account/create-transaction');
+  // };
 
   return (
     <>
@@ -61,7 +61,7 @@ export const MainLayout = (props: IMainProps) => {
           <div className='ml-auto flex space-x-4 py-2'>
             {currentWalletAccount?.isConnected && (
               <>
-                <div className='m-1'>
+                {/* <div className='m-1'>
                   <button
                     className='btn btn-primary'
                     onClick={handleCreateTransaction}>
@@ -75,7 +75,7 @@ export const MainLayout = (props: IMainProps) => {
                     />
                     Create Transaction
                   </button>
-                </div>
+                </div> */}
                 <div className='m-1'>
                   <button
                     className='btn btn-primary'

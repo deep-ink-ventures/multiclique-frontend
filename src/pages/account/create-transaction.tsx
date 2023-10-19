@@ -4,6 +4,8 @@ import { MainLayout } from '@/layouts';
 import useMCStore from '@/stores/MCStore';
 import { ErrorMessage } from '@hookform/error-message';
 import cn from 'classnames';
+import { useRouter } from 'next/router';
+import { useEffect } from 'react';
 import { FormProvider, useForm, type SubmitHandler } from 'react-hook-form';
 import StellarSdk from 'stellar-sdk';
 
@@ -18,6 +20,8 @@ const CreateTransaction = () => {
     (s) => [s.currentWalletAccount, s.handleErrors, s.isTxnProcessing]
   );
 
+  const router = useRouter();
+
   const formMethods = useForm<CreateTransactionFormValues>({
     defaultValues: {
       xdr: null,
@@ -31,6 +35,11 @@ const CreateTransaction = () => {
     setError,
     formState: { errors },
   } = formMethods;
+
+  useEffect(() => {
+    router.push('/');
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const onSubmit: SubmitHandler<CreateTransactionFormValues> = async (data) => {
     if (!currentWalletAccount) return;
