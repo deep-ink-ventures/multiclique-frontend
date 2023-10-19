@@ -1,5 +1,6 @@
 import { DAO_UNITS, XLM_UNITS } from '@/config';
 import BigNumber from 'bignumber.js';
+import dayjs from 'dayjs';
 import * as SorobanClient from 'soroban-client';
 // @ts-ignore
 export const truncateMiddle = (str: string, start = 4, end = 4) => {
@@ -113,4 +114,14 @@ export const isValidBase64String = (str: string) => {
   const base64regex =
     /^([0-9a-zA-Z+/]{4})*(([0-9a-zA-Z+/]{2}==)|([0-9a-zA-Z+/]{3}=))?$/;
   return base64regex.test(str);
+};
+
+export const formatDateTime = (date: string, includeTime = true) => {
+  if (!date || date.length === 0) {
+    return 'N/A';
+  }
+  if (!includeTime) {
+    return dayjs(date).format('MMM-DD-YYYY');
+  }
+  return dayjs(date).format('MMM-DD-YYYY HH:mm:ss');
 };
