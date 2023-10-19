@@ -254,7 +254,6 @@ const Transactions = ({ address }: ITransactionsProps) => {
               !listTransactions.value?.results?.length && <EmptyPlaceholder />}
             {!listTransactions.pending &&
               listTransactions?.value?.results?.map((mcTxn, index) => {
-                console.log('mcTxn', mcTxn);
                 return (
                   <Accordion.Container
                     key={index}
