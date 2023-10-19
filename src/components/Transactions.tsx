@@ -65,9 +65,8 @@ const Transactions = ({ address }: ITransactionsProps) => {
     },
   });
 
-  useEffect(() => {
-    // fixme - change when we have a new jwt feature
-    if (address && jwt) {
+  const fetchTransactions = (jwtToken?: JwtToken | null) => {
+    if (jwtToken) {
       listTransactions.call(
         {
           offset: Math.max(pagination.offset - 1, 0),
@@ -75,11 +74,18 @@ const Transactions = ({ address }: ITransactionsProps) => {
           search: debouncedSearchTerm,
           ordering: 'updated_at',
         },
-        jwt
+        jwtToken
       );
     }
+  };
+
+  useEffect(() => {
+    // fixme - change when we have a new jwt feature
+    if (address && jwt) {
+      fetchTransactions(jwt);
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [address, debouncedSearchTerm, JSON.stringify(pagination), jwt]);
+  }, [address, debouncedSearchTerm, JSON.stringify(pagination)]);
 
   const handleSearch = (e: any) => {
     setSearchTerm(e.target.value);
@@ -87,7 +93,8 @@ const Transactions = ({ address }: ITransactionsProps) => {
 
   const handleLoadTransactions = async () => {
     if (address) {
-      await getJwtToken(address);
+      const newJwt = await getJwtToken(address);
+      fetchTransactions(newJwt);
     }
   };
 
@@ -101,17 +108,7 @@ const Transactions = ({ address }: ITransactionsProps) => {
       await new Promise((resolve) => {
         setTimeout(resolve, 2000);
       });
-      if (address && jwt) {
-        listTransactions.call(
-          {
-            offset: Math.max(pagination.offset - 1, 0),
-            limit: 10,
-            search: debouncedSearchTerm,
-            ordering: 'updated_at',
-          },
-          jwt
-        );
-      }
+      fetchTransactions(jwt);
     } catch {
       handleErrors('Error in approving transaction');
     }
@@ -127,17 +124,7 @@ const Transactions = ({ address }: ITransactionsProps) => {
       await new Promise((resolve) => {
         setTimeout(resolve, 2000);
       });
-      if (address && jwt) {
-        listTransactions.call(
-          {
-            offset: Math.max(pagination.offset - 1, 0),
-            limit: 10,
-            search: debouncedSearchTerm,
-            ordering: 'updated_at',
-          },
-          jwt
-        );
-      }
+      fetchTransactions(jwt);
     } catch {
       handleErrors('Error in approving transaction');
     }
@@ -153,17 +140,7 @@ const Transactions = ({ address }: ITransactionsProps) => {
       await new Promise((resolve) => {
         setTimeout(resolve, 2000);
       });
-      if (address && jwt) {
-        listTransactions.call(
-          {
-            offset: Math.max(pagination.offset - 1, 0),
-            limit: 10,
-            search: debouncedSearchTerm,
-            ordering: 'updated_at',
-          },
-          jwt
-        );
-      }
+      fetchTransactions(jwt);
     } catch {
       handleErrors('Error in approving transaction');
     }
