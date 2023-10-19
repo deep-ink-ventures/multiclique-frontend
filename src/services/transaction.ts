@@ -48,7 +48,7 @@ export const listMultiCliqueTransactions = async (
   jwt: JwtToken
 ): Promise<Paginated<MultisigTransaction[]>> => {
   const queryString = convertToQueryString(keysToSnakeCase(params));
-
+  console.log('list txns');
   // temp fix to address extra "_" in api params
   if (params?.multicliqueAccountAddress?.length) {
     queryString.set(

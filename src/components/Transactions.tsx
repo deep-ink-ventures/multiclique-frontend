@@ -71,6 +71,7 @@ const Transactions = ({ address }: ITransactionsProps) => {
   useEffect(() => {
     // fixme - change when we have a new jwt feature
     if (address && jwt) {
+      console.log('get txns');
       listTransactions.call(
         {
           offset: Math.max(pagination.offset - 1, 0),
@@ -101,7 +102,7 @@ const Transactions = ({ address }: ITransactionsProps) => {
     try {
       await approveTxnDB(txn, jwt);
       await new Promise((resolve) => {
-        setTimeout(resolve, 500);
+        setTimeout(resolve, 2000);
       });
       if (address && jwt) {
         listTransactions.call(
@@ -126,7 +127,7 @@ const Transactions = ({ address }: ITransactionsProps) => {
     try {
       await rejectTxnDB(txn, jwt);
       await new Promise((resolve) => {
-        setTimeout(resolve, 500);
+        setTimeout(resolve, 2000);
       });
       if (address && jwt) {
         listTransactions.call(
@@ -151,7 +152,7 @@ const Transactions = ({ address }: ITransactionsProps) => {
     try {
       await executeMCTxn(txn);
       await new Promise((resolve) => {
-        setTimeout(resolve, 500);
+        setTimeout(resolve, 2000);
       });
       if (address && jwt) {
         listTransactions.call(
@@ -215,6 +216,40 @@ const Transactions = ({ address }: ITransactionsProps) => {
     }
   };
 
+  // const displayArgs = (mcTxn: MultisigTransaction) => {
+  //   if(!mcTxn.callArgs) {
+  //     return null
+  //   }
+  //   switch (mcTxn.callFunc) {
+  //     case 'add_signer':
+  //       return (
+  //         <div className='flex'>
+  //           <div>
+  //             Signer:
+  //           </div>
+  //           <div>
+  //             {mcTxn.callArgs[0] as unknown as string}
+  //           </div>
+  //         </div>
+  //       )
+  //     case 'remove_signer':
+  //       return (
+  //         <div className='flex'>
+  //           <div className='font-semibold'>
+  //             Signer:
+  //           </div>
+  //           <div>
+  //             {mcTxn.callArgs[0] as unknown as string}
+  //           </div>
+  //         </div>
+  //       )
+  //     case 'set_default_threshold':
+  //       return (
+
+  //       )
+  //   }
+  // }
+
   return (
     <>
       <div className='flex text-center'>
@@ -254,6 +289,7 @@ const Transactions = ({ address }: ITransactionsProps) => {
               !listTransactions.value?.results?.length && <EmptyPlaceholder />}
             {!listTransactions.pending &&
               listTransactions?.value?.results?.map((mcTxn, index) => {
+                console.log('mcTxn', mcTxn);
                 return (
                   <Accordion.Container
                     key={index}
@@ -281,7 +317,7 @@ const Transactions = ({ address }: ITransactionsProps) => {
                       />
                     </Accordion.Header>
                     <Accordion.Content className='flex divide-x'>
-                      <div className='w-2/3 px-2 pr-4'>
+                      <div className='flex w-2/3 flex-col space-y-3 px-2 pr-4'>
                         <div className='flex gap-2 text-center'>
                           <div className='shrink-0 font-semibold'>
                             Call hash:
@@ -298,6 +334,12 @@ const Transactions = ({ address }: ITransactionsProps) => {
                             className='rounded-full p-1 hover:bg-base-200'>
                             <Copy className='h-4 w-4 cursor-pointer' />
                           </span>
+                        </div>
+                        <div>
+                          <div>
+                            <p className='font-semibold'>{mcTxn.callFunc}: </p>
+                            {truncateMiddle(mcTxn.callArgs?.join(', '))}
+                          </div>
                         </div>
                       </div>
                       <div className='grow space-y-2 px-3'>

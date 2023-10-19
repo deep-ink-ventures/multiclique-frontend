@@ -85,8 +85,14 @@ const Create = () => {
                 currentSignCount: 3,
               },
             });
-
             await installPolicyContract((policyAddress: string) => {
+              useLoadingScreen.setAction({
+                type: 'SHOW_SIGNATURE',
+                payload: {
+                  totalSignCount: 4,
+                  currentSignCount: 4,
+                },
+              });
               initMulticliquePolicy(
                 policyAddress,
                 {
@@ -96,9 +102,6 @@ const Create = () => {
                   elioAssets: elioConfig?.votesContractAddress,
                 },
                 async () => {
-                  useLoadingScreen.setAction({
-                    type: 'CLOSE',
-                  });
                   const multisigPayload: MultiCliqueAccount = {
                     name: data.accountName,
                     address: coreAddress,
