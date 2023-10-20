@@ -1,3 +1,4 @@
+import useMCStore from '@/stores/MCStore';
 import Pencil from '@/svg/components/Pencil';
 import Switch from '@/svg/components/Switch';
 import type { MultiCliquePolicy } from '@/types/multiCliqueAccount';
@@ -8,6 +9,24 @@ interface IManageElioPolicyProps {
 }
 
 const ManageElioPolicy = ({ policy }: IManageElioPolicyProps) => {
+  const [account, currentWalletAccount] = useMCStore((s) => [
+    s.pages.account,
+    s.currentWalletAccount,
+  ]);
+
+  if (
+    !account.multisig.data?.signatories.some(
+      (signer) =>
+        signer.address.toLowerCase() ===
+        currentWalletAccount?.publicKey?.toLowerCase()
+    )
+  ) {
+    return (
+      <div className='flex justify-center'>
+        You are not a signatory of this account
+      </div>
+    );
+  }
   return (
     <>
       <div className='flex text-center'>

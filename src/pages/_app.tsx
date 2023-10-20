@@ -10,7 +10,7 @@ import { LoadingScreenController } from '@/context/LoadingScreen';
 import useNetworkStatus from '@/hooks/useNetworkStatus';
 import useMCStore from '@/stores/MCStore';
 import '@/styles/global.css';
-import { useCallback,useEffect,useMemo } from 'react';
+import { useCallback, useEffect, useMemo } from 'react';
 
 declare global {
   interface Window {

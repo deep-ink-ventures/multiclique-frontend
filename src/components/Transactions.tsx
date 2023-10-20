@@ -39,7 +39,12 @@ const StatusBadgeMap: Record<MultiSigTransactionStatus, string> = {
 };
 
 const Transactions = ({ address }: ITransactionsProps) => {
-  const [jwt, handleErrors] = useMCStore((s) => [s.jwt, s.handleErrors]);
+  const [jwt, handleErrors, account, currentWalletAccount] = useMCStore((s) => [
+    s.jwt,
+    s.handleErrors,
+    s.pages.account,
+    s.currentWalletAccount,
+  ]);
   const { approveTxnDB, getJwtToken, rejectTxnDB, executeMCTxn } = useMC();
 
   const [activeAccordion, setActiveAccordion] = useState<number | null>(null);
@@ -191,6 +196,20 @@ const Transactions = ({ address }: ITransactionsProps) => {
         return null;
     }
   };
+
+  if (
+    !account.multisig.data?.signatories.some(
+      (signer) =>
+        signer.address.toLowerCase() ===
+        currentWalletAccount?.publicKey?.toLowerCase()
+    )
+  ) {
+    return (
+      <div className='flex justify-center'>
+        You are not a signatory of this account
+      </div>
+    );
+  }
 
   return (
     <>
