@@ -18,17 +18,14 @@ jobs:
         with:
           node-version: 16.x
 
+      - name: Install bun CLI globally
+        run: npm install -g bun
+
       - name: Run install
-        uses: Borales/actions-yarn@v4.2.0
-        with:
-          cmd: install 
-          
+        run: bun install
+
       - name: Check types
-        uses: Borales/actions-yarn@v4.2.0
-        with:
-          cmd: check-types
-        
+        run: bun check-types
+
       - name: Build production bundle
-        uses: Borales/actions-yarn@v4.2.0
-        with:
-          cmd: build 
+        run: bun build
