@@ -1,4 +1,4 @@
-import { Avatar,Sidebar } from '@/components';
+import { Avatar, Sidebar } from '@/components';
 import ConnectWallet from '@/components/ConnectWallet';
 import Dashboard from '@/components/Dashboard';
 import ImportTransactionModal from '@/components/ImportTransactionModal';
@@ -147,9 +147,9 @@ const Account = () => {
                     {tab.icon}
                     {tab.label}
                     {tab.badgeCount && (
-                      <div className='ml-auto flex h-5 w-5 items-center justify-center rounded-full bg-error-content p-1 text-sm text-white'>
+                      <span className='ml-auto flex h-5 min-w-[1.25rem] items-center justify-center rounded-full bg-error-content p-2 text-sm text-white'>
                         {tab.badgeCount}
-                      </div>
+                      </span>
                     )}
                   </Sidebar.MenuItem>
                 ))}
