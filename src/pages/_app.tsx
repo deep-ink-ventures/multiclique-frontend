@@ -7,10 +7,10 @@ import StellarSdk from 'stellar-sdk';
 import TransactionNotification from '@/components/Notification';
 import { LoadingScreenController } from '@/context/LoadingScreen';
 
-import useNetworkStatus from '@/hooks/useNetworkStatus';
 import useMCStore from '@/stores/MCStore';
 import '@/styles/global.css';
 import { useCallback,useEffect,useMemo } from 'react';
+import NetworkPolling from '@/components/NetworkPoll';
 
 declare global {
   interface Window {
@@ -34,25 +34,14 @@ const MyApp = ({ Component, pageProps }: AppProps) => {
     fetchConfigCb();
   }, [fetchConfigCb]);
 
-  useNetworkStatus();
-
-  const MemoizedTransactionNotification = useMemo(
-    () => <TransactionNotification />,
-    []
-  );
-  const MemoizedComponent = useMemo(
-    () => (
-      <LoadingScreenController>
-        <Component {...pageProps} />
-      </LoadingScreenController>
-    ),
-    []
-  );
 
   return (
     <div className='relative overflow-x-hidden'>
-      {MemoizedTransactionNotification}
-      {MemoizedComponent}
+      <TransactionNotification />
+      <NetworkPolling />
+      <LoadingScreenController>
+        <Component {...pageProps} />
+      </LoadingScreenController>
     </div>
   );
 };
