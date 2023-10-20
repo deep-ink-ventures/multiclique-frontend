@@ -27,11 +27,13 @@ export type AccountSlice = {
   transactions: {
     loading: boolean;
     failed: boolean;
+    fulfilled?: boolean;
     data: Paginated<MultisigTransaction[]> | null;
     getMultisigTransaction: (
       params: ListMultiCliqueTransactionsParams,
       jwt: JwtToken
     ) => void;
+    clear: () => void;
   };
 };
 
@@ -44,6 +46,7 @@ export const createAccountSlice: StateCreator<
   account: {
     multisig: {
       loading: false,
+      fulfilled: false,
       data: null,
       failed: false,
       getMultisigAccount: (address) => {
@@ -114,10 +117,13 @@ export const createAccountSlice: StateCreator<
       loading: false,
       data: null,
       failed: false,
+      fulfilled: false,
       getMultisigTransaction: (params, jwt) => {
         set(
           produce((state: MCState) => {
-            state.pages.account.multisig.loading = true;
+            state.pages.account.transactions.loading = true;
+            state.pages.account.transactions.fulfilled = false;
+            state.pages.account.transactions.failed = false;
           })
         );
         TransactionService.listMultiCliqueTransactions(params, jwt)
@@ -125,6 +131,7 @@ export const createAccountSlice: StateCreator<
             set(
               produce((state: MCState) => {
                 state.pages.account.transactions.data = response;
+                state.pages.account.transactions.fulfilled = true;
               })
             );
           })
@@ -142,6 +149,16 @@ export const createAccountSlice: StateCreator<
               })
             );
           });
+      },
+      clear: () => {
+        set(
+          produce((state: MCState) => {
+            state.pages.account.transactions.loading = false;
+            state.pages.account.transactions.data = null;
+            state.pages.account.transactions.fulfilled = false;
+            state.pages.account.transactions.failed = false;
+          })
+        );
       },
     },
   },
