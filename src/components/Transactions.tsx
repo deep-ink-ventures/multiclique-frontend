@@ -9,9 +9,6 @@ import {
 } from '@/components';
 import { useDebounce } from '@/hooks/useDebounce';
 import useMC from '@/hooks/useMC';
-import { usePromise } from '@/hooks/usePromise';
-import type { ListMultiCliqueTransactionsParams } from '@/services';
-import { TransactionService } from '@/services';
 import useMCStore from '@/stores/MCStore';
 import Search from '@/svg/components/Search';
 import type { JwtToken } from '@/types/auth';
@@ -39,7 +36,11 @@ const StatusBadgeMap: Record<MultiSigTransactionStatus, string> = {
 };
 
 const Transactions = ({ address }: ITransactionsProps) => {
-  const [jwt, handleErrors] = useMCStore((s) => [s.jwt, s.handleErrors]);
+  const [jwt, handleErrors, multicliqueAccount] = useMCStore((s) => [
+    s.jwt,
+    s.handleErrors,
+    s.pages.account,
+  ]);
   const { approveTxnDB, getJwtToken, rejectTxnDB, executeMCTxn } = useMC();
 
   const [activeAccordion, setActiveAccordion] = useState<number | null>(null);
@@ -52,22 +53,9 @@ const Transactions = ({ address }: ITransactionsProps) => {
     offset: 0,
   });
 
-  const listTransactions = usePromise({
-    promiseFunction: async (
-      params: ListMultiCliqueTransactionsParams,
-      jwtToken: JwtToken
-    ) => {
-      const response = await TransactionService.listMultiCliqueTransactions(
-        params,
-        jwtToken
-      );
-      return response;
-    },
-  });
-
   const fetchTransactions = (jwtToken?: JwtToken | null) => {
     if (jwtToken) {
-      listTransactions.call(
+      multicliqueAccount.transactions.getMultisigTransaction(
         {
           offset: Math.max(pagination.offset - 1, 0),
           limit: 10,
@@ -225,37 +213,42 @@ const Transactions = ({ address }: ITransactionsProps) => {
         )}
         {jwt && (
           <>
-            {listTransactions.pending && <LoadingPlaceholder />}
-            {!listTransactions.pending &&
-              listTransactions.fulfilled &&
-              !listTransactions.value?.results?.length && <EmptyPlaceholder />}
-            {!listTransactions.pending &&
-              listTransactions?.value?.results?.map((mcTxn, index) => {
-                return (
-                  <Accordion.Container
-                    key={index}
-                    id={index}
-                    onClick={() =>
-                      setActiveAccordion(
-                        activeAccordion === index ? null : index
-                      )
-                    }
-                    color='base'
-                    expanded={index === activeAccordion}>
-                    <Accordion.Header className='flex gap-2 text-sm'>
-                      <div className='grow font-semibold'>{mcTxn.callFunc}</div>
-                      <div>{formatDateTime(mcTxn.createdAt)}</div>
-                      <UserTally
-                        value={mcTxn.approvals?.length}
-                        over={mcTxn.signatories?.length}
-                      />
-                      <TransactionBadge
-                        status={StatusBadgeMap[mcTxn.status] as any}
-                      />
-                    </Accordion.Header>
-                    <Accordion.Content className='flex divide-x'>
-                      <div className='flex w-2/3 flex-col space-y-3 px-2 pr-4'>
-                        {/* <div className='flex gap-2 text-center'>
+            {multicliqueAccount.transactions.loading && <LoadingPlaceholder />}
+            {!multicliqueAccount.transactions.loading &&
+              multicliqueAccount.transactions.fulfilled &&
+              !multicliqueAccount.transactions.data?.results?.length && (
+                <EmptyPlaceholder />
+              )}
+            {!multicliqueAccount.transactions.loading &&
+              multicliqueAccount.transactions.data?.results?.map(
+                (mcTxn, index) => {
+                  return (
+                    <Accordion.Container
+                      key={index}
+                      id={index}
+                      onClick={() =>
+                        setActiveAccordion(
+                          activeAccordion === index ? null : index
+                        )
+                      }
+                      color='base'
+                      expanded={index === activeAccordion}>
+                      <Accordion.Header className='flex gap-2 text-sm'>
+                        <div className='grow font-semibold'>
+                          {mcTxn.callFunc}
+                        </div>
+                        <div>{formatDateTime(mcTxn.createdAt)}</div>
+                        <UserTally
+                          value={mcTxn.approvals?.length}
+                          over={mcTxn.signatories?.length}
+                        />
+                        <TransactionBadge
+                          status={StatusBadgeMap[mcTxn.status] as any}
+                        />
+                      </Accordion.Header>
+                      <Accordion.Content className='flex divide-x'>
+                        <div className='flex w-2/3 flex-col space-y-3 px-2 pr-4'>
+                          {/* <div className='flex gap-2 text-center'>
                           <p className='shrink-0 font-semibold'>
                             Call hash:
                           </p>
@@ -271,68 +264,71 @@ const Transactions = ({ address }: ITransactionsProps) => {
                             <Copy className='h-4 w-4 cursor-pointer' />
                           </span>
                         </div> */}
-                        <div>
                           <div>
-                            <p className='font-semibold'>{mcTxn.callFunc}: </p>
-                            {mcTxn.callArgs
-                              ?.map((item: any) => {
-                                return truncateMiddle(item.toString());
-                              })
-                              .join(', ')}
+                            <div>
+                              <p className='font-semibold'>
+                                {mcTxn.callFunc}:{' '}
+                              </p>
+                              {mcTxn.callArgs
+                                ?.map((item: any) => {
+                                  return truncateMiddle(item.toString());
+                                })
+                                .join(', ')}
+                            </div>
+                          </div>
+                          <div>
+                            <p className='font-semibold'>Created at: </p>
+                            {formatDateTime(mcTxn.createdAt)}
+                          </div>
+                          <div>
+                            <p className='font-semibold'>Updated at: </p>
+                            {formatDateTime(mcTxn.updatedAt)}
+                          </div>
+                          <div>
+                            <p className='font-semibold'>Executed at: </p>
+                            {formatDateTime(mcTxn.executedAt)}
                           </div>
                         </div>
-                        <div>
-                          <p className='font-semibold'>Created at: </p>
-                          {formatDateTime(mcTxn.createdAt)}
-                        </div>
-                        <div>
-                          <p className='font-semibold'>Updated at: </p>
-                          {formatDateTime(mcTxn.updatedAt)}
-                        </div>
-                        <div>
-                          <p className='font-semibold'>Executed at: </p>
-                          {formatDateTime(mcTxn.executedAt)}
-                        </div>
-                      </div>
-                      <div className='grow space-y-2 px-3'>
-                        <Timeline>
-                          {['Pending', 'Executable', 'Executed'].map(
-                            (step, stepIndex) => (
-                              <Timeline.Item
-                                key={`${stepIndex}-${step}`}
-                                {...(stepIndex <=
-                                  StatusStepMap[mcTxn.status] && {
-                                  status:
-                                    stepIndex === StatusStepMap[mcTxn.status]
-                                      ? 'active'
-                                      : 'completed',
-                                })}>
-                                {step}
-                              </Timeline.Item>
-                            )
+                        <div className='grow space-y-2 px-3'>
+                          <Timeline>
+                            {['Pending', 'Executable', 'Executed'].map(
+                              (step, stepIndex) => (
+                                <Timeline.Item
+                                  key={`${stepIndex}-${step}`}
+                                  {...(stepIndex <=
+                                    StatusStepMap[mcTxn.status] && {
+                                    status:
+                                      stepIndex === StatusStepMap[mcTxn.status]
+                                        ? 'active'
+                                        : 'completed',
+                                  })}>
+                                  {step}
+                                </Timeline.Item>
+                              )
+                            )}
+                          </Timeline>
+                          {mcTxn.status !== 'EXECUTED' && (
+                            <div>Can be executed once threshold is reached</div>
                           )}
-                        </Timeline>
-                        {mcTxn.status !== 'EXECUTED' && (
-                          <div>Can be executed once threshold is reached</div>
-                        )}
-                        <div className='flex justify-center'>
-                          {displayButtons(mcTxn)}
+                          <div className='flex justify-center'>
+                            {displayButtons(mcTxn)}
+                          </div>
                         </div>
-                      </div>
-                    </Accordion.Content>
-                  </Accordion.Container>
-                );
-              })}
+                      </Accordion.Content>
+                    </Accordion.Container>
+                  );
+                }
+              )}
           </>
         )}
       </div>
-      {!listTransactions.pending &&
-        Boolean(listTransactions.value?.results?.length) && (
+      {!multicliqueAccount.transactions.loading &&
+        Boolean(multicliqueAccount.transactions.data?.results?.length) && (
           <div>
             <Pagination
               currentPage={pagination.currentPage}
               pageSize={10}
-              totalCount={listTransactions.value?.count}
+              totalCount={multicliqueAccount.transactions.data?.count}
               onPageChange={(newPage, newOffset) =>
                 setPagination({ currentPage: newPage, offset: newOffset })
               }
