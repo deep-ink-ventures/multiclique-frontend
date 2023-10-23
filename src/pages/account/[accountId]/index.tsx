@@ -67,7 +67,7 @@ const Account = () => {
   const { textRef, copyToClipboard } = useCopyToClipboard<HTMLDivElement>();
 
   useEffect(() => {
-    console.log('check infinite loop')
+    console.log('check infinite loop');
     if (accountId) {
       accountPage.multisig.getMultisigAccount(accountId.toString());
     }

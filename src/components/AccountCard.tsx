@@ -3,14 +3,13 @@ import MemberSign from '@/svg/components/MemberSign';
 import type { MultiCliqueAccount } from '@/types/multiCliqueAccount';
 import { truncateMiddle } from '@/utils';
 import Link from 'next/link';
-import { Avatar } from '.';
 import { useEffect } from 'react';
+import { Avatar } from '.';
 
 const AccountCard = ({ account }: { account: MultiCliqueAccount }) => {
   useEffect(() => {
-    console.log('check infinite loop')
-
-  })
+    console.log('check infinite loop');
+  });
   return (
     <Link
       href={`/account/${account.address}`}
