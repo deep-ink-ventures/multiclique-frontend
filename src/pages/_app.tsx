@@ -7,10 +7,10 @@ import StellarSdk from 'stellar-sdk';
 import TransactionNotification from '@/components/Notification';
 import { LoadingScreenController } from '@/context/LoadingScreen';
 
+import NetworkPolling from '@/components/NetworkPoll';
 import useMCStore from '@/stores/MCStore';
 import '@/styles/global.css';
-import { useCallback,useEffect,useMemo } from 'react';
-import NetworkPolling from '@/components/NetworkPoll';
+import { useCallback, useEffect } from 'react';
 
 declare global {
   interface Window {
@@ -33,7 +33,6 @@ const MyApp = ({ Component, pageProps }: AppProps) => {
   useEffect(() => {
     fetchConfigCb();
   }, [fetchConfigCb]);
-
 
   return (
     <div className='relative overflow-x-hidden'>
