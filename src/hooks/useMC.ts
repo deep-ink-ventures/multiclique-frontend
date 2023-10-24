@@ -749,7 +749,6 @@ const useMC = () => {
           type: TxnResponse.Success,
         });
       }
-      console.log('update txn after approve', updatedTxn);
     } catch (err) {
       handleErrors('Error in approving multiclique offchain transaction ', err);
     }
@@ -791,7 +790,6 @@ const useMC = () => {
   };
 
   const executeMCTxn = async (txn: MultisigTransaction) => {
-    console.log('txn to execute');
     if (!currentWalletAccount) {
       return;
     }

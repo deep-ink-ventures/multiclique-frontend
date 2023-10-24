@@ -36,10 +36,11 @@ const StatusBadgeMap: Record<MultiSigTransactionStatus, string> = {
 };
 
 const Transactions = ({ address }: ITransactionsProps) => {
-  const [jwt, handleErrors, multicliqueAccount] = useMCStore((s) => [
+  const [jwt, handleErrors, account, currentWalletAccount] = useMCStore((s) => [
     s.jwt,
     s.handleErrors,
     s.pages.account,
+    s.currentWalletAccount,
   ]);
   const { approveTxnDB, getJwtToken, rejectTxnDB, executeMCTxn } = useMC();
 
@@ -55,7 +56,7 @@ const Transactions = ({ address }: ITransactionsProps) => {
 
   const fetchTransactions = (jwtToken?: JwtToken | null) => {
     if (jwtToken) {
-      multicliqueAccount.transactions.getMultisigTransaction(
+      account.transactions.getMultisigTransaction(
         {
           offset: Math.max(pagination.offset - 1, 0),
           limit: 10,
@@ -180,6 +181,20 @@ const Transactions = ({ address }: ITransactionsProps) => {
     }
   };
 
+  if (
+    !account.multisig.data?.signatories.some(
+      (signer) =>
+        signer.address.toLowerCase() ===
+        currentWalletAccount?.publicKey?.toLowerCase()
+    )
+  ) {
+    return (
+      <div className='flex justify-center'>
+        You are not a signatory of this account
+      </div>
+    );
+  }
+
   return (
     <>
       <div className='flex text-center'>
@@ -213,42 +228,39 @@ const Transactions = ({ address }: ITransactionsProps) => {
         )}
         {jwt && (
           <>
-            {multicliqueAccount.transactions.loading && <LoadingPlaceholder />}
-            {!multicliqueAccount.transactions.loading &&
-              multicliqueAccount.transactions.fulfilled &&
-              !multicliqueAccount.transactions.data?.results?.length && (
+            {account.transactions.loading && <LoadingPlaceholder />}
+            {!account.transactions.loading &&
+              account.transactions.fulfilled &&
+              !account.transactions.data?.results?.length && (
                 <EmptyPlaceholder />
               )}
-            {!multicliqueAccount.transactions.loading &&
-              multicliqueAccount.transactions.data?.results?.map(
-                (mcTxn, index) => {
-                  return (
-                    <Accordion.Container
-                      key={index}
-                      id={index}
-                      onClick={() =>
-                        setActiveAccordion(
-                          activeAccordion === index ? null : index
-                        )
-                      }
-                      color='base'
-                      expanded={index === activeAccordion}>
-                      <Accordion.Header className='flex gap-2 text-sm'>
-                        <div className='grow font-semibold'>
-                          {mcTxn.callFunc}
-                        </div>
-                        <div>{formatDateTime(mcTxn.createdAt)}</div>
-                        <UserTally
-                          value={mcTxn.approvals?.length}
-                          over={mcTxn.signatories?.length}
-                        />
-                        <TransactionBadge
-                          status={StatusBadgeMap[mcTxn.status] as any}
-                        />
-                      </Accordion.Header>
-                      <Accordion.Content className='flex divide-x'>
-                        <div className='flex w-2/3 flex-col space-y-3 px-2 pr-4'>
-                          {/* <div className='flex gap-2 text-center'>
+            {!account.transactions.loading &&
+              account.transactions.data?.results?.map((mcTxn, index) => {
+                return (
+                  <Accordion.Container
+                    key={index}
+                    id={index}
+                    onClick={() =>
+                      setActiveAccordion(
+                        activeAccordion === index ? null : index
+                      )
+                    }
+                    color='base'
+                    expanded={index === activeAccordion}>
+                    <Accordion.Header className='flex gap-2 text-sm'>
+                      <div className='grow font-semibold'>{mcTxn.callFunc}</div>
+                      <div>{formatDateTime(mcTxn.createdAt)}</div>
+                      <UserTally
+                        value={mcTxn.approvals?.length}
+                        over={mcTxn.signatories?.length}
+                      />
+                      <TransactionBadge
+                        status={StatusBadgeMap[mcTxn.status] as any}
+                      />
+                    </Accordion.Header>
+                    <Accordion.Content className='flex divide-x'>
+                      <div className='flex w-2/3 flex-col space-y-3 px-2 pr-4'>
+                        {/* <div className='flex gap-2 text-center'>
                           <p className='shrink-0 font-semibold'>
                             Call hash:
                           </p>
@@ -264,71 +276,68 @@ const Transactions = ({ address }: ITransactionsProps) => {
                             <Copy className='h-4 w-4 cursor-pointer' />
                           </span>
                         </div> */}
+                        <div>
                           <div>
-                            <div>
-                              <p className='font-semibold'>
-                                {mcTxn.callFunc}:{' '}
-                              </p>
-                              {mcTxn.callArgs
-                                ?.map((item: any) => {
-                                  return truncateMiddle(item.toString());
-                                })
-                                .join(', ')}
-                            </div>
-                          </div>
-                          <div>
-                            <p className='font-semibold'>Created at: </p>
-                            {formatDateTime(mcTxn.createdAt)}
-                          </div>
-                          <div>
-                            <p className='font-semibold'>Updated at: </p>
-                            {formatDateTime(mcTxn.updatedAt)}
-                          </div>
-                          <div>
-                            <p className='font-semibold'>Executed at: </p>
-                            {formatDateTime(mcTxn.executedAt)}
+                            <p className='font-semibold'>{mcTxn.callFunc}: </p>
+                            {mcTxn.callArgs
+                              ?.map((item: any) => {
+                                return truncateMiddle(item.toString());
+                              })
+                              .join(', ')}
                           </div>
                         </div>
-                        <div className='grow space-y-2 px-3'>
-                          <Timeline>
-                            {['Pending', 'Executable', 'Executed'].map(
-                              (step, stepIndex) => (
-                                <Timeline.Item
-                                  key={`${stepIndex}-${step}`}
-                                  {...(stepIndex <=
-                                    StatusStepMap[mcTxn.status] && {
-                                    status:
-                                      stepIndex === StatusStepMap[mcTxn.status]
-                                        ? 'active'
-                                        : 'completed',
-                                  })}>
-                                  {step}
-                                </Timeline.Item>
-                              )
-                            )}
-                          </Timeline>
-                          {mcTxn.status !== 'EXECUTED' && (
-                            <div>Can be executed once threshold is reached</div>
+                        <div>
+                          <p className='font-semibold'>Created at: </p>
+                          {formatDateTime(mcTxn.createdAt)}
+                        </div>
+                        <div>
+                          <p className='font-semibold'>Updated at: </p>
+                          {formatDateTime(mcTxn.updatedAt)}
+                        </div>
+                        <div>
+                          <p className='font-semibold'>Executed at: </p>
+                          {formatDateTime(mcTxn.executedAt)}
+                        </div>
+                      </div>
+                      <div className='grow space-y-2 px-3'>
+                        <Timeline>
+                          {['Pending', 'Executable', 'Executed'].map(
+                            (step, stepIndex) => (
+                              <Timeline.Item
+                                key={`${stepIndex}-${step}`}
+                                {...(stepIndex <=
+                                  StatusStepMap[mcTxn.status] && {
+                                  status:
+                                    stepIndex === StatusStepMap[mcTxn.status]
+                                      ? 'active'
+                                      : 'completed',
+                                })}>
+                                {step}
+                              </Timeline.Item>
+                            )
                           )}
-                          <div className='flex justify-center'>
-                            {displayButtons(mcTxn)}
-                          </div>
+                        </Timeline>
+                        {mcTxn.status !== 'EXECUTED' && (
+                          <div>Can be executed once threshold is reached</div>
+                        )}
+                        <div className='flex justify-center'>
+                          {displayButtons(mcTxn)}
                         </div>
-                      </Accordion.Content>
-                    </Accordion.Container>
-                  );
-                }
-              )}
+                      </div>
+                    </Accordion.Content>
+                  </Accordion.Container>
+                );
+              })}
           </>
         )}
       </div>
-      {!multicliqueAccount.transactions.loading &&
-        Boolean(multicliqueAccount.transactions.data?.results?.length) && (
+      {!account.transactions.loading &&
+        Boolean(account.transactions.data?.results?.length) && (
           <div>
             <Pagination
               currentPage={pagination.currentPage}
               pageSize={10}
-              totalCount={multicliqueAccount.transactions.data?.count}
+              totalCount={account.transactions.data?.count}
               onPageChange={(newPage, newOffset) =>
                 setPagination({ currentPage: newPage, offset: newOffset })
               }

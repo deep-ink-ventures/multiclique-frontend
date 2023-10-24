@@ -35,9 +35,19 @@ const SettingsTabs: Array<{ id: string; label: string }> = [
 ];
 
 const Settings = (props: { accountId: string }) => {
-  const [account, handleErrors, addTxnNotification, elioConfig] = useMCStore(
-    (s) => [s.pages.account, s.handleErrors, s.addTxnNotification, s.elioConfig]
-  );
+  const [
+    account,
+    handleErrors,
+    addTxnNotification,
+    elioConfig,
+    currentWalletAccount,
+  ] = useMCStore((s) => [
+    s.pages.account,
+    s.handleErrors,
+    s.addTxnNotification,
+    s.elioConfig,
+    s.currentWalletAccount,
+  ]);
   const [activeAccordion, setActiveAccordion] =
     useState<PolicyFormAccordion | null>(null);
   // make this global?
@@ -235,6 +245,20 @@ const Settings = (props: { accountId: string }) => {
     }
     return isSuccess;
   };
+
+  if (
+    !account.multisig.data?.signatories.some(
+      (signer) =>
+        signer.address.toLowerCase() ===
+        currentWalletAccount?.publicKey?.toLowerCase()
+    )
+  ) {
+    return (
+      <div className='flex justify-center'>
+        You are not a signatory of this account
+      </div>
+    );
+  }
 
   return (
     <>
