@@ -64,6 +64,9 @@ const Transactions = ({ address }: ITransactionsProps) => {
         },
         jwtToken
       );
+      if (address) {
+        multicliqueAccount.statistics.transactions.fetch(jwtToken);
+      }
     }
   };
 
