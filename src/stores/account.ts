@@ -35,6 +35,13 @@ export type AccountSlice = {
     ) => void;
     clear: () => void;
   };
+  statistics: {
+    transactions: {
+      fetch: (jwt: JwtToken) => void;
+      data?: number | null;
+    };
+    clear: () => void;
+  };
 };
 
 export const createAccountSlice: StateCreator<
@@ -157,6 +164,42 @@ export const createAccountSlice: StateCreator<
             state.pages.account.transactions.data = null;
             state.pages.account.transactions.fulfilled = false;
             state.pages.account.transactions.failed = false;
+          })
+        );
+      },
+    },
+    statistics: {
+      transactions: {
+        fetch: (jwt: JwtToken) => {
+          TransactionService.listMultiCliqueTransactions(
+            {
+              limit: 1,
+              offset: 0,
+              // ADD EXECUTABLE FILTER
+            },
+            jwt
+          )
+            .then(async (response) => {
+              set(
+                produce((state: MCState) => {
+                  state.pages.account.statistics.transactions.data =
+                    response.count;
+                })
+              );
+            })
+            .catch(() => {
+              set(
+                produce((state: MCState) => {
+                  state.pages.account.statistics.transactions.data = null;
+                })
+              );
+            });
+        },
+      },
+      clear: () => {
+        set(
+          produce((state: MCState) => {
+            state.pages.account.statistics.transactions.data = null;
           })
         );
       },
