@@ -178,7 +178,8 @@ const useMC = () => {
     successMsg: string,
     errorMsg: string,
     contractName: ContractName | 'none', // add contract name for handle error code
-    cb?: Function
+    onComplete?: Function,
+    onError?: Function
   ) => {
     if (!MCConfig) {
       handleErrors('Cannot fetch contract addresses');
@@ -202,8 +203,16 @@ const useMC = () => {
         currentWalletAccount!.publicKey
       );
       const txResponse = await sendTxn(signedTxn, MCConfig.networkPassphrase);
-      return await handleTxnResponse(txResponse, successMsg, errorMsg, cb);
+      return await handleTxnResponse(
+        txResponse,
+        successMsg,
+        errorMsg,
+        onComplete
+      );
     } catch (err) {
+      if (onError) {
+        onError();
+      }
       handleErrors('Send Transaction failed', err);
       return null;
     }
@@ -389,11 +398,21 @@ const useMC = () => {
     }
   };
 
-  const installCoreContract = async (cb?: Function) => {
+  const installCoreContract = async (cb?: {
+    onStart?: Function;
+    onCoreInstallationComplete?: Function;
+    onComplete?: Function;
+    onError?: Function;
+  }) => {
+    const { onStart, onCoreInstallationComplete, onComplete, onError } =
+      cb || {};
     if (!currentWalletAccount) {
       return;
     }
     try {
+      if (onStart) {
+        onStart();
+      }
       const coreXdr = await makeCoreInstallationTxn();
 
       const txn = new SorobanClient.Transaction(
@@ -407,7 +426,13 @@ const useMC = () => {
         'multicliqueCore'
       );
       if (!coreResult || coreResult.status === 'FAILED') {
+        if (onError) {
+          onError();
+        }
         throw new Error('Cannot get multiclique core address');
+      }
+      if (onCoreInstallationComplete) {
+        onCoreInstallationComplete();
       }
       const coreId = coreResult.resultMetaXdr
         .v3()
@@ -416,21 +441,30 @@ const useMC = () => {
         .address()
         .contractId();
       if (!coreId) {
+        if (onError) {
+          onError();
+        }
         throw new Error('Cannot decode policyId');
       }
       const coreContractAddress = SorobanClient.StrKey.encodeContract(coreId);
-      if (cb) {
-        console.log('first cb');
-        cb(coreContractAddress);
+      if (onComplete) {
+        onComplete(coreContractAddress);
       }
       return coreContractAddress;
     } catch (err) {
+      if (onError) {
+        onError();
+      }
       handleErrors('Error in installing Multiclique core contract', err);
       return null;
     }
   };
 
-  const installPolicyContract = async (cb?: Function) => {
+  const installPolicyContract = async (cb?: {
+    onComplete?: Function;
+    onError?: Function;
+  }) => {
+    const { onComplete, onError } = cb || {};
     if (!currentWalletAccount) {
       return;
     }
@@ -462,11 +496,14 @@ const useMC = () => {
       }
       const policyContractAddress =
         SorobanClient.StrKey.encodeContract(policyId);
-      if (cb) {
-        await cb(policyContractAddress);
+      if (onComplete) {
+        await onComplete(policyContractAddress);
       }
       return policyContractAddress;
     } catch (err) {
+      if (onError) {
+        onError();
+      }
       handleErrors('Error in installing Multiclique core contract', err);
       return null;
     }
@@ -476,8 +513,12 @@ const useMC = () => {
     coreAddress: string,
     signerAddresses: string[],
     threshold: number,
-    cb: Function
+    cb?: {
+      onComplete?: Function;
+      onError?: Function;
+    }
   ) => {
+    const { onComplete, onError } = cb || {};
     if (!currentWalletAccount) {
       return;
     }
@@ -503,7 +544,8 @@ const useMC = () => {
       'Initialized Multiclique ',
       'Error in initializing Multiclique',
       'multicliqueCore',
-      cb
+      onComplete,
+      onError
     );
   };
 
@@ -515,8 +557,12 @@ const useMC = () => {
       elioVotes: string;
       elioAssets: string;
     },
-    cb?: Function
+    cb?: {
+      onComplete?: Function;
+      onError?: Function;
+    }
   ) => {
+    const { onComplete, onError } = cb || {};
     if (!currentWalletAccount) {
       return;
     }
@@ -533,7 +579,8 @@ const useMC = () => {
       'Initialized Multiclique policy',
       'Error in initializing Multiclique policy',
       'multicliquePolicy',
-      cb
+      onComplete,
+      onError
     );
   };
 
