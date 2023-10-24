@@ -1,6 +1,8 @@
 import Pencil from '@/svg/components/Pencil';
 import Switch from '@/svg/components/Switch';
 import type { MultiCliquePolicy } from '@/types/multiCliqueAccount';
+import { useState } from 'react';
+import SpendLimitFormModal from './SpendLimitFormModal';
 
 interface IManageElioPolicyProps {
   address?: string;
@@ -8,6 +10,8 @@ interface IManageElioPolicyProps {
 }
 
 const ManageElioPolicy = ({ policy }: IManageElioPolicyProps) => {
+  const [isSpendLimitModalVisible, setIsSpendLimitModalVisible] =
+    useState(false);
   return (
     <>
       <div className='flex text-center'>
@@ -36,7 +40,9 @@ const ManageElioPolicy = ({ policy }: IManageElioPolicyProps) => {
                       <Switch className='h-full fill-white group-hover:fill-base-content' />{' '}
                       Reset
                     </button>
-                    <button className='btn btn-outline flex !h-8 !min-h-[0px] gap-1 !rounded-lg bg-white !p-2 !px-3'>
+                    <button
+                      className='btn btn-outline flex !h-8 !min-h-[0px] gap-1 !rounded-lg bg-white !p-2 !px-3'
+                      onClick={() => setIsSpendLimitModalVisible(true)}>
                       <Pencil className='h-full fill-base-content' /> Update
                     </button>
                   </div>
@@ -45,6 +51,11 @@ const ManageElioPolicy = ({ policy }: IManageElioPolicyProps) => {
           </div>
         </>
       </div>
+      <SpendLimitFormModal
+        title='Update Spend Limit'
+        visible={isSpendLimitModalVisible}
+        onClose={() => setIsSpendLimitModalVisible(false)}
+      />
     </>
   );
 };
