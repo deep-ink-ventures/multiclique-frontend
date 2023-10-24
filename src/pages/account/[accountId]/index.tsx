@@ -1,4 +1,4 @@
-import { Avatar, Sidebar } from '@/components';
+import { Avatar,Sidebar } from '@/components';
 import ConnectWallet from '@/components/ConnectWallet';
 import Dashboard from '@/components/Dashboard';
 import ImportTransactionModal from '@/components/ImportTransactionModal';
@@ -21,7 +21,7 @@ import { truncateMiddle } from '@/utils';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
 import type { ReactNode } from 'react';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect,useMemo,useState } from 'react';
 
 type AccountTabs =
   | 'Dashboard'
@@ -156,7 +156,7 @@ const Account = () => {
               </Sidebar.Menu>
             </Sidebar>
           </div>
-          <div className='grow space-y-4 p-6'>
+          <div className='flex grow flex-col gap-4 p-6'>
             {currentTab === 'Dashboard' && <Dashboard />}
             {currentTab === 'Transactions' && (
               <Transactions address={accountId?.toString()} />
