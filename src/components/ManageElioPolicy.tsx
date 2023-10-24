@@ -1,6 +1,8 @@
 import Pencil from '@/svg/components/Pencil';
 import Switch from '@/svg/components/Switch';
 import type { MultiCliquePolicy } from '@/types/multiCliqueAccount';
+import { useState } from 'react';
+import ConfirmationModal from './ConfirmationModal';
 
 interface IManageElioPolicyProps {
   address?: string;
@@ -8,6 +10,7 @@ interface IManageElioPolicyProps {
 }
 
 const ManageElioPolicy = ({ policy }: IManageElioPolicyProps) => {
+  const [isConfirmResetVisible, setIsConfirmResetVisible] = useState(false);
   return (
     <>
       <div className='flex text-center'>
@@ -32,7 +35,9 @@ const ManageElioPolicy = ({ policy }: IManageElioPolicyProps) => {
                   <div className='truncate p-2'>Limit {index}</div>
                   <div className='truncate p-2'>Spending {index}</div>
                   <div className='flex gap-2 truncate p-2'>
-                    <button className='group btn btn-outline flex !h-8 !min-h-[0px] gap-1 !rounded-lg bg-error-content !p-2 !px-3 text-white'>
+                    <button
+                      className='group btn btn-outline flex !h-8 !min-h-[0px] gap-1 !rounded-lg bg-error-content !p-2 !px-3 text-white'
+                      onClick={() => setIsConfirmResetVisible(true)}>
                       <Switch className='h-full fill-white group-hover:fill-base-content' />{' '}
                       Reset
                     </button>
@@ -45,6 +50,13 @@ const ManageElioPolicy = ({ policy }: IManageElioPolicyProps) => {
           </div>
         </>
       </div>
+      <ConfirmationModal
+        title={<div className='text-error-content'>Reset Spend Limit</div>}
+        visible={isConfirmResetVisible}
+        onClose={() => setIsConfirmResetVisible(false)}
+        onConfirm={() => setIsConfirmResetVisible(false)}>
+        Are you sure you want to reset the spend limit?
+      </ConfirmationModal>
     </>
   );
 };
