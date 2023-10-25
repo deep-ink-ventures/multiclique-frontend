@@ -45,6 +45,12 @@ const Account = () => {
 
   const { textRef, copyToClipboard } = useCopyToClipboard<HTMLDivElement>();
 
+  const badgeCount = useMemo(() => {
+    return multicliqueAccount?.transactions?.data?.results.filter((txn) => {
+      return txn.status === 'PENDING' || txn.status === 'EXECUTABLE';
+    }).length;
+  }, [multicliqueAccount.transactions.data]);
+
   useEffect(() => {
     if (accountId) {
       accountPage.multisig.getMultisigAccount(accountId.toString());
@@ -83,7 +89,7 @@ const Account = () => {
       {
         icon: <SwitchIcon className='h-4 w-4 fill-black' />,
         label: 'Transactions',
-        badgeCount: multicliqueAccount?.transactions?.data?.count ?? null,
+        badgeCount: badgeCount || null,
       },
       {
         icon: <Proposal className='h-4 w-4 fill-black' />,
@@ -95,6 +101,13 @@ const Account = () => {
       },
     ],
     [multicliqueAccount.transactions.data]
+  );
+
+  console.log(
+    'badge count',
+    multicliqueAccount?.transactions?.data?.results.filter((txn) => {
+      return txn.status === 'PENDING' || txn.status === 'EXECUTABLE';
+    }).length
   );
 
   return (
