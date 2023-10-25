@@ -364,7 +364,7 @@ const Settings = (props: { accountId: string }) => {
               <div className='grow font-semibold'>{'ELIO_DAO'}</div>
               <TransactionBadge
                 status={
-                  account.multisig.data?.policy.active ? 'ACTIVE' : 'INACTIVE'
+                  account.multisig.data?.policy.name ? 'ACTIVE' : 'INACTIVE'
                 }
               />
             </Accordion.Header>

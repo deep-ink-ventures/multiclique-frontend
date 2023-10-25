@@ -22,7 +22,6 @@ export interface MultiCliqueAccount {
 export type MultiCliquePolicy = {
   address: string;
   name: string;
-  active: boolean;
 };
 
 export interface Signature {

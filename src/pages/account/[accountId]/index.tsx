@@ -66,33 +66,36 @@ const Account = () => {
     };
   }, []);
 
-  const TABS: { icon: ReactNode; label: AccountTabs; badgeCount?: number }[] =
-    useMemo(
-      () => [
-        {
-          icon: <DashboardIcon className='h-4 w-4 fill-black' />,
-          label: 'Dashboard',
-        },
-        {
-          icon: <Coins className='h-4 w-4 stroke-black' />,
-          label: 'Assets',
-        },
-        {
-          icon: <SwitchIcon className='h-4 w-4 fill-black' />,
-          label: 'Transactions',
-          badgeCount: multicliqueAccount?.transactions?.data?.count,
-        },
-        {
-          icon: <Proposal className='h-4 w-4 fill-black' />,
-          label: 'Manage ELIO DAO Policy',
-        },
-        {
-          icon: <SettingsIcon className='h-4 w-4 fill-black' />,
-          label: 'Settings',
-        },
-      ],
-      [multicliqueAccount.transactions.data]
-    );
+  const TABS: {
+    icon: ReactNode;
+    label: AccountTabs;
+    badgeCount?: number | null;
+  }[] = useMemo(
+    () => [
+      {
+        icon: <DashboardIcon className='h-4 w-4 fill-black' />,
+        label: 'Dashboard',
+      },
+      {
+        icon: <Coins className='h-4 w-4 stroke-black' />,
+        label: 'Assets',
+      },
+      {
+        icon: <SwitchIcon className='h-4 w-4 fill-black' />,
+        label: 'Transactions',
+        badgeCount: multicliqueAccount?.transactions?.data?.count ?? null,
+      },
+      {
+        icon: <Proposal className='h-4 w-4 fill-black' />,
+        label: 'Manage ELIO DAO Policy',
+      },
+      {
+        icon: <SettingsIcon className='h-4 w-4 fill-black' />,
+        label: 'Settings',
+      },
+    ],
+    [multicliqueAccount.transactions.data]
+  );
 
   return (
     <MainLayout title='MultiClique' description=''>
