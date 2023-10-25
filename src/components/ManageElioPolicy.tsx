@@ -1,8 +1,10 @@
+import useMCStore from '@/stores/MCStore';
 import Pencil from '@/svg/components/Pencil';
 import Switch from '@/svg/components/Switch';
 import type { MultiCliquePolicy } from '@/types/multiCliqueAccount';
 import { useState } from 'react';
 import ConfirmationModal from './ConfirmationModal';
+import SpendLimitFormModal from './SpendLimitFormModal';
 
 interface IManageElioPolicyProps {
   address?: string;
@@ -11,6 +13,27 @@ interface IManageElioPolicyProps {
 
 const ManageElioPolicy = ({ policy }: IManageElioPolicyProps) => {
   const [isConfirmResetVisible, setIsConfirmResetVisible] = useState(false);
+  const [isSpendLimitModalVisible, setIsSpendLimitModalVisible] =
+    useState(false);
+
+  const [account, currentWalletAccount] = useMCStore((s) => [
+    s.pages.account,
+    s.currentWalletAccount,
+  ]);
+
+  if (
+    !account.multisig.data?.signatories.some(
+      (signer) =>
+        signer.address.toLowerCase() ===
+        currentWalletAccount?.publicKey?.toLowerCase()
+    )
+  ) {
+    return (
+      <div className='flex justify-center'>
+        You are not a signatory of this account
+      </div>
+    );
+  }
   return (
     <>
       <div className='flex text-center'>
@@ -41,7 +64,9 @@ const ManageElioPolicy = ({ policy }: IManageElioPolicyProps) => {
                       <Switch className='h-full fill-white group-hover:fill-base-content' />{' '}
                       Reset
                     </button>
-                    <button className='btn btn-outline flex !h-8 !min-h-[0px] gap-1 !rounded-lg bg-white !p-2 !px-3'>
+                    <button
+                      className='btn btn-outline flex !h-8 !min-h-[0px] gap-1 !rounded-lg bg-white !p-2 !px-3'
+                      onClick={() => setIsSpendLimitModalVisible(true)}>
                       <Pencil className='h-full fill-base-content' /> Update
                     </button>
                   </div>
@@ -57,6 +82,11 @@ const ManageElioPolicy = ({ policy }: IManageElioPolicyProps) => {
         onConfirm={() => setIsConfirmResetVisible(false)}>
         Are you sure you want to reset the spend limit?
       </ConfirmationModal>
+      <SpendLimitFormModal
+        title='Update Spend Limit'
+        visible={isSpendLimitModalVisible}
+        onClose={() => setIsSpendLimitModalVisible(false)}
+      />
     </>
   );
 };

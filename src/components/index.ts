@@ -8,5 +8,6 @@ export * from './Meta';
 export * from './Pagination';
 export * from './PolicyAddressesForm';
 export * from './Sidebar';
+export * from './SpendLimitForm';
 export * from './Timeline';
 export * from './UserTally';
