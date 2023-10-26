@@ -13,6 +13,7 @@ import type { MultiCliqueAccount } from '@/types/multiCliqueAccount';
 import type { MultisigTransaction } from '@/types/multisigTransaction';
 import {
   accountToScVal,
+  bigNumberToI128ScVal,
   decodeXdr,
   isValidXDR,
   numberToU32ScVal,
@@ -20,6 +21,7 @@ import {
   toScValBytes,
 } from '@/utils';
 import { signBlob, signTransaction } from '@stellar/freighter-api';
+import type BigNumber from 'bignumber.js';
 import * as SorobanClient from 'soroban-client';
 
 export enum TxnStatus {
@@ -806,6 +808,56 @@ const useMC = () => {
     );
   };
 
+  const setSpendLimit = async (
+    policyAddress: string,
+    assetAddress: string,
+    limit: BigNumber,
+    cb?: Function
+  ) => {
+    if (!currentWalletAccount) {
+      return;
+    }
+    const tx = await makeContractTxn(
+      currentWalletAccount.publicKey,
+      policyAddress,
+      'set_spend_limit',
+      accountToScVal(assetAddress),
+      bigNumberToI128ScVal(limit)
+    );
+
+    await submitTxn(
+      tx,
+      'Spend limit set',
+      'Error in setting spend limit',
+      'multicliquePolicy',
+      cb
+    );
+  };
+
+  const resetSpendLimit = async (
+    policyAddress: string,
+    assetAddress: string,
+    cb?: Function
+  ) => {
+    if (!currentWalletAccount) {
+      return;
+    }
+    const tx = await makeContractTxn(
+      currentWalletAccount.publicKey,
+      policyAddress,
+      'reset_spend_limit',
+      accountToScVal(assetAddress)
+    );
+
+    await submitTxn(
+      tx,
+      'Spend limit reset',
+      'Error in resetting spend limit',
+      'multicliquePolicy',
+      cb
+    );
+  };
+
   return {
     handleTxnResponse,
     initMulticliqueCore,
@@ -830,6 +882,8 @@ const useMC = () => {
     approveTxnDB,
     rejectTxnDB,
     executeMCTxn,
+    setSpendLimit,
+    resetSpendLimit,
   };
 };
 
