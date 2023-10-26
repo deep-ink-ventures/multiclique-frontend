@@ -31,4 +31,9 @@ export interface RawMultiCliqueAccount {
   policy: RawMultiCliquePolicy;
 }
 
+export interface Signature {
+  signature: string;
+  signatory: Signatory;
+}
+
 export type MultiCliqueAccount = CamelCaseObject<RawMultiCliqueAccount>;
