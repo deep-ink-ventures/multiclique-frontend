@@ -21,7 +21,9 @@ const Dashboard = () => {
         <div className='text-lg font-semibold'>Policy:</div>
         <div>
           {account.multisig.data?.policy.name} is{' '}
-          {account.multisig.data?.policy.active ? 'Active' : 'Inactive'}
+          {account.multisig.data?.policy.contracts?.length
+            ? 'Active'
+            : 'Inactive'}
         </div>
       </div>
     </div>
