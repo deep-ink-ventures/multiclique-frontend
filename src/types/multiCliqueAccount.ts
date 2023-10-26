@@ -5,6 +5,11 @@ export type Signatory = {
   address: string;
 };
 
+export interface Signature {
+  signature: string;
+  signatory: Signatory;
+}
+
 export type MultiCliqueContract = {
   address: string;
   limit: BigNumber;
