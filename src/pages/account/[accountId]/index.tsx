@@ -103,13 +103,6 @@ const Account = () => {
     [multicliqueAccount.transactions.data]
   );
 
-  console.log(
-    'badge count',
-    multicliqueAccount?.transactions?.data?.results.filter((txn) => {
-      return txn.status === 'PENDING' || txn.status === 'EXECUTABLE';
-    }).length
-  );
-
   return (
     <MainLayout title='MultiClique' description=''>
       {currentWalletAccount?.publicKey ? (

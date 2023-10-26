@@ -74,6 +74,7 @@ const Create = () => {
         policy: {
           address: policyAddress,
           name: 'ELIO_DAO',
+          contracts: null,
         },
       };
       const multisig = await createMultisigDB(multisigPayload);
