@@ -1,4 +1,4 @@
-import { Avatar, Sidebar } from '@/components';
+import { Avatar,Sidebar } from '@/components';
 import ConnectWallet from '@/components/ConnectWallet';
 import Dashboard from '@/components/Dashboard';
 import ImportTransactionModal from '@/components/ImportTransactionModal';
@@ -21,7 +21,7 @@ import { truncateMiddle } from '@/utils';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
 import type { ReactNode } from 'react';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect,useMemo,useState } from 'react';
 
 type AccountTabs =
   | 'Dashboard'
