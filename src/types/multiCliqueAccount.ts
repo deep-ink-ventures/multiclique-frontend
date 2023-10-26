@@ -24,16 +24,16 @@ export type RawMultiCliqueContract = {
   type: string;
 };
 
-export type MultiCliquePolicy = {
-  address: string;
-  name: string;
-  contracts: MultiCliqueContract[] | null;
-};
-
 export type RawMultiCliquePolicy = {
   address: string;
   name: string;
   contracts: RawMultiCliqueContract[] | null;
+};
+
+export type MultiCliquePolicy = {
+  address: string;
+  name: string;
+  contracts: MultiCliqueContract[] | null;
 };
 
 export interface RawMultiCliqueAccount {
