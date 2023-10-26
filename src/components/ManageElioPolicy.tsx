@@ -1,7 +1,11 @@
+import useCopyToClipboard from '@/hooks/useCopyToClipboard';
 import useMCStore from '@/stores/MCStore';
 import Pencil from '@/svg/components/Pencil';
 import Switch from '@/svg/components/Switch';
+import CopyIcon from '@/svg/copy.svg';
 import type { MultiCliquePolicy } from '@/types/multiCliqueAccount';
+import { truncateMiddle } from '@/utils';
+import Image from 'next/image';
 import { useState } from 'react';
 import ConfirmationModal from './ConfirmationModal';
 import SpendLimitFormModal from './SpendLimitFormModal';
@@ -34,6 +38,26 @@ const ManageElioPolicy = ({ policy }: IManageElioPolicyProps) => {
       </div>
     );
   }
+
+  const ClipboardControl = ({ text }) => {
+    const { textRef, copyToClipboard } = useCopyToClipboard<HTMLDivElement>();
+    return (
+      <>
+        <span className='hidden' ref={textRef}>
+          {text}
+        </span>
+        <Image
+          src={CopyIcon}
+          height={15}
+          width={15}
+          alt='copy'
+          className='cursor-pointer'
+          onClick={copyToClipboard}
+        />
+      </>
+    );
+  };
+
   return (
     <>
       <div className='flex text-center'>
@@ -42,8 +66,9 @@ const ManageElioPolicy = ({ policy }: IManageElioPolicyProps) => {
       <div className='space-y-3'>
         <>
           <div className='divide-y overflow-hidden rounded-xl border border-neutral'>
-            <div className='grid grid-cols-4 gap-0 divide-x divide-y'>
+            <div className='grid grid-cols-5 gap-0 divide-x divide-y'>
               <div className='p-2'>Asset</div>
+              <div className='p-2'>Type</div>
               <div className='p-2'>Limit</div>
               <div className='p-2'>Spending</div>
               <div className='p-2'>Action</div>
@@ -53,17 +78,15 @@ const ManageElioPolicy = ({ policy }: IManageElioPolicyProps) => {
               ?.map((arg, index) => (
                 <div
                   key={`${index}}`}
-                  className='grid grid-cols-4 gap-0 divide-x divide-y'>
-                  <div className='truncate p-2'>Asset {index}</div>
+                  className='grid grid-cols-5 gap-0 divide-x divide-y'>
+                  <div className='flex items-center justify-between truncate p-2'>
+                    Asset {truncateMiddle('abc')}
+                    <ClipboardControl text={index} />
+                  </div>
+                  <div className='truncate p-2'>Type {index}</div>
                   <div className='truncate p-2'>Limit {index}</div>
                   <div className='truncate p-2'>Spending {index}</div>
                   <div className='flex gap-2 truncate p-2'>
-                    <button
-                      className='group btn btn-outline flex !h-8 !min-h-[0px] gap-1 !rounded-lg bg-error-content !p-2 !px-3 text-white'
-                      onClick={() => setIsConfirmResetVisible(true)}>
-                      <Switch className='h-full fill-white group-hover:fill-base-content' />{' '}
-                      Reset
-                    </button>
                     <button
                       className='btn btn-outline flex !h-8 !min-h-[0px] gap-1 !rounded-lg bg-white !p-2 !px-3'
                       onClick={() => setIsSpendLimitModalVisible(true)}>
