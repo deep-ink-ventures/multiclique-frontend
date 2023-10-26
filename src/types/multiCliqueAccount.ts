@@ -1,15 +1,9 @@
+import type { CamelCaseObject } from '@/utils/transformer';
 import type BigNumber from 'bignumber.js';
 
 export type Signatory = {
   name: string;
   address: string;
-};
-
-export type MultiCliqueContract = {
-  address: string;
-  limit: BigNumber;
-  alreadySpent: BigNumber;
-  type: string;
 };
 
 export type RawMultiCliqueContract = {
@@ -19,17 +13,15 @@ export type RawMultiCliqueContract = {
   type: string;
 };
 
-export type MultiCliquePolicy = {
-  address: string;
-  name: string;
-  contracts: MultiCliqueContract[] | null;
-};
+export type MultiCliqueContract = CamelCaseObject<RawMultiCliqueContract>;
 
 export type RawMultiCliquePolicy = {
   address: string;
   name: string;
   contracts: RawMultiCliqueContract[] | null;
 };
+
+export type MultiCliquePolicy = CamelCaseObject<RawMultiCliquePolicy>;
 
 export interface RawMultiCliqueAccount {
   name: string;
@@ -39,10 +31,4 @@ export interface RawMultiCliqueAccount {
   policy: RawMultiCliquePolicy;
 }
 
-export interface MultiCliqueAccount {
-  name: string;
-  address: string;
-  signatories: Signatory[];
-  defaultThreshold: number;
-  policy: MultiCliquePolicy;
-}
+export type MultiCliqueAccount = CamelCaseObject<RawMultiCliqueAccount>;
