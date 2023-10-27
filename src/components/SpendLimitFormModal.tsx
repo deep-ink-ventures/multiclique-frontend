@@ -35,18 +35,16 @@ const SpendLimitFormModal = ({
           }}
         />
         <div className='z-[1050] flex flex-col items-center justify-center gap-5 rounded-lg bg-white p-8 opacity-100'>
-          <div className='w-full min-w-[400px]'>
-            <h1 className='mb-6 text-center text-2xl'>{title}</h1>
-            <SpendLimitForm
-              actionButton={
-                <button
-                  className='btn btn-secondary ml-auto flex w-full gap-2 truncate text-white'
-                  onClick={() => setIsConfirmResetVisible(true)}>
-                  <Switch className='h-full fill-white group-hover:fill-base-content' />{' '}
-                  Reset
-                </button>
-              }
-            />
+          <div className='w-full min-w-[500px]'>
+            <h1 className='relative mb-6 text-center text-2xl'>
+              {title}
+              <button
+                className='btn btn-outline absolute right-0 !h-10 !min-h-[0px] truncate !py-1'
+                onClick={() => setIsConfirmResetVisible(true)}>
+                <Switch className='mr-1 h-4 fill-base-content' /> Reset
+              </button>
+            </h1>
+            <SpendLimitForm />
           </div>
         </div>
       </div>
