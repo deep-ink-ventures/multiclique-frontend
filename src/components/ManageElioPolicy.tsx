@@ -2,7 +2,6 @@ import useCopyToClipboard from '@/hooks/useCopyToClipboard';
 import useMC from '@/hooks/useMC';
 import useMCStore from '@/stores/MCStore';
 import Pencil from '@/svg/components/Pencil';
-import Switch from '@/svg/components/Switch';
 import CopyIcon from '@/svg/copy.svg';
 import type { JwtToken } from '@/types/auth';
 import type { MultiCliquePolicy } from '@/types/multiCliqueAccount';
