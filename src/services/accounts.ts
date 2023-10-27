@@ -5,7 +5,7 @@ import type {
 } from '@/types/multiCliqueAccount';
 import type { Paginated } from '@/types/response';
 import { convertToQueryString } from '@/utils/api';
-import { keysToCamelCase, keysToSnakeCase } from '@/utils/transformer';
+import { keysToSnakeCase } from '@/utils/transformer';
 
 export interface ListMultiCliqueAccountsParams {
   search?: string;
@@ -13,6 +13,29 @@ export interface ListMultiCliqueAccountsParams {
   limit: number;
   offset: number;
   signatories?: string;
+}
+
+function convertRawMultiCliqueAccount(
+  raw: RawMultiCliqueAccount
+): MultiCliqueAccount {
+  return {
+    name: raw.name,
+    address: raw.address,
+    signatories: raw.signatories,
+    defaultThreshold: raw.default_threshold,
+    policy: {
+      address: raw.policy.address,
+      name: raw.policy.name,
+      contracts: raw.policy.contracts
+        ? raw.policy.contracts.map((contract) => ({
+            address: contract.address,
+            limit: contract.limit,
+            alreadySpent: contract.already_spent,
+            type: contract.type,
+          }))
+        : null,
+    },
+  };
 }
 
 export const createMultiCliqueAccount = async (
@@ -30,7 +53,7 @@ export const createMultiCliqueAccount = async (
 
   const objResponse: RawMultiCliqueAccount = await response.json();
 
-  const formattedMultiCliqueAccount = keysToCamelCase(objResponse);
+  const formattedMultiCliqueAccount = convertRawMultiCliqueAccount(objResponse);
 
   return formattedMultiCliqueAccount;
 };
@@ -48,7 +71,9 @@ export const listMultiCliqueAccounts = async (
 
   const formattedResponse = {
     ...objResponse,
-    results: objResponse.results.map((data) => keysToCamelCase(data)),
+    results: objResponse.results.map((data) =>
+      convertRawMultiCliqueAccount(data)
+    ),
   };
 
   return formattedResponse;
@@ -61,7 +86,7 @@ export const getMultiCliqueAccount = async (address: string) => {
 
   const objResponse: RawMultiCliqueAccount = await response.json();
 
-  const formattedResponse = keysToCamelCase(objResponse);
+  const formattedResponse = convertRawMultiCliqueAccount(objResponse);
 
   return formattedResponse;
 };

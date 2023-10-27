@@ -13,6 +13,7 @@ import type { MultiCliqueAccount } from '@/types/multiCliqueAccount';
 import type { MultisigTransaction } from '@/types/multisigTransaction';
 import {
   accountToScVal,
+  bigNumberToI128ScVal,
   decodeXdr,
   isValidXDR,
   numberToU32ScVal,
@@ -20,6 +21,7 @@ import {
   toScValBytes,
 } from '@/utils';
 import { signBlob, signTransaction } from '@stellar/freighter-api';
+import type BigNumber from 'bignumber.js';
 import * as SorobanClient from 'soroban-client';
 
 export enum TxnStatus {
@@ -178,7 +180,8 @@ const useMC = () => {
     successMsg: string,
     errorMsg: string,
     contractName: ContractName | 'none', // add contract name for handle error code
-    cb?: Function
+    onComplete?: Function,
+    onError?: Function
   ) => {
     if (!MCConfig) {
       handleErrors('Cannot fetch contract addresses');
@@ -202,8 +205,16 @@ const useMC = () => {
         currentWalletAccount!.publicKey
       );
       const txResponse = await sendTxn(signedTxn, MCConfig.networkPassphrase);
-      return await handleTxnResponse(txResponse, successMsg, errorMsg, cb);
+      return await handleTxnResponse(
+        txResponse,
+        successMsg,
+        errorMsg,
+        onComplete
+      );
     } catch (err) {
+      if (onError) {
+        onError();
+      }
       handleErrors('Send Transaction failed', err);
       return null;
     }
@@ -389,11 +400,21 @@ const useMC = () => {
     }
   };
 
-  const installCoreContract = async (cb?: Function) => {
+  const installCoreContract = async (cb?: {
+    onStart?: Function;
+    onCoreInstallationComplete?: Function;
+    onComplete?: Function;
+    onError?: Function;
+  }) => {
+    const { onStart, onCoreInstallationComplete, onComplete, onError } =
+      cb || {};
     if (!currentWalletAccount) {
       return;
     }
     try {
+      if (onStart) {
+        onStart();
+      }
       const coreXdr = await makeCoreInstallationTxn();
 
       const txn = new SorobanClient.Transaction(
@@ -407,7 +428,13 @@ const useMC = () => {
         'multicliqueCore'
       );
       if (!coreResult || coreResult.status === 'FAILED') {
+        if (onError) {
+          onError();
+        }
         throw new Error('Cannot get multiclique core address');
+      }
+      if (onCoreInstallationComplete) {
+        onCoreInstallationComplete();
       }
       const coreId = coreResult.resultMetaXdr
         .v3()
@@ -416,21 +443,30 @@ const useMC = () => {
         .address()
         .contractId();
       if (!coreId) {
+        if (onError) {
+          onError();
+        }
         throw new Error('Cannot decode policyId');
       }
       const coreContractAddress = SorobanClient.StrKey.encodeContract(coreId);
-      if (cb) {
-        console.log('first cb');
-        cb(coreContractAddress);
+      if (onComplete) {
+        onComplete(coreContractAddress);
       }
       return coreContractAddress;
     } catch (err) {
+      if (onError) {
+        onError();
+      }
       handleErrors('Error in installing Multiclique core contract', err);
       return null;
     }
   };
 
-  const installPolicyContract = async (cb?: Function) => {
+  const installPolicyContract = async (cb?: {
+    onComplete?: Function;
+    onError?: Function;
+  }) => {
+    const { onComplete, onError } = cb || {};
     if (!currentWalletAccount) {
       return;
     }
@@ -462,11 +498,14 @@ const useMC = () => {
       }
       const policyContractAddress =
         SorobanClient.StrKey.encodeContract(policyId);
-      if (cb) {
-        await cb(policyContractAddress);
+      if (onComplete) {
+        await onComplete(policyContractAddress);
       }
       return policyContractAddress;
     } catch (err) {
+      if (onError) {
+        onError();
+      }
       handleErrors('Error in installing Multiclique core contract', err);
       return null;
     }
@@ -476,8 +515,12 @@ const useMC = () => {
     coreAddress: string,
     signerAddresses: string[],
     threshold: number,
-    cb: Function
+    cb?: {
+      onComplete?: Function;
+      onError?: Function;
+    }
   ) => {
+    const { onComplete, onError } = cb || {};
     if (!currentWalletAccount) {
       return;
     }
@@ -503,7 +546,8 @@ const useMC = () => {
       'Initialized Multiclique ',
       'Error in initializing Multiclique',
       'multicliqueCore',
-      cb
+      onComplete,
+      onError
     );
   };
 
@@ -515,8 +559,12 @@ const useMC = () => {
       elioVotes: string;
       elioAssets: string;
     },
-    cb?: Function
+    cb?: {
+      onComplete?: Function;
+      onError?: Function;
+    }
   ) => {
+    const { onComplete, onError } = cb || {};
     if (!currentWalletAccount) {
       return;
     }
@@ -533,7 +581,8 @@ const useMC = () => {
       'Initialized Multiclique policy',
       'Error in initializing Multiclique policy',
       'multicliquePolicy',
-      cb
+      onComplete,
+      onError
     );
   };
 
@@ -702,7 +751,6 @@ const useMC = () => {
           type: TxnResponse.Success,
         });
       }
-      console.log('update txn after approve', updatedTxn);
     } catch (err) {
       handleErrors('Error in approving multiclique offchain transaction ', err);
     }
@@ -744,7 +792,6 @@ const useMC = () => {
   };
 
   const executeMCTxn = async (txn: MultisigTransaction) => {
-    console.log('txn to execute');
     if (!currentWalletAccount) {
       return;
     }
@@ -758,6 +805,56 @@ const useMC = () => {
       'Multiclique transaction executed',
       'Error in executing multiclique transaction',
       'multicliqueCore'
+    );
+  };
+
+  const setSpendLimit = async (
+    policyAddress: string,
+    assetAddress: string,
+    limit: BigNumber,
+    cb?: Function
+  ) => {
+    if (!currentWalletAccount) {
+      return;
+    }
+    const tx = await makeContractTxn(
+      currentWalletAccount.publicKey,
+      policyAddress,
+      'set_spend_limit',
+      accountToScVal(assetAddress),
+      bigNumberToI128ScVal(limit)
+    );
+
+    await submitTxn(
+      tx,
+      'Spend limit set',
+      'Error in setting spend limit',
+      'multicliquePolicy',
+      cb
+    );
+  };
+
+  const resetSpendLimit = async (
+    policyAddress: string,
+    assetAddress: string,
+    cb?: Function
+  ) => {
+    if (!currentWalletAccount) {
+      return;
+    }
+    const tx = await makeContractTxn(
+      currentWalletAccount.publicKey,
+      policyAddress,
+      'reset_spend_limit',
+      accountToScVal(assetAddress)
+    );
+
+    await submitTxn(
+      tx,
+      'Spend limit reset',
+      'Error in resetting spend limit',
+      'multicliquePolicy',
+      cb
     );
   };
 
@@ -785,6 +882,8 @@ const useMC = () => {
     approveTxnDB,
     rejectTxnDB,
     executeMCTxn,
+    setSpendLimit,
+    resetSpendLimit,
   };
 };
 

@@ -159,7 +159,7 @@ const Account = () => {
               </Sidebar.Menu>
             </Sidebar>
           </div>
-          <div className='grow space-y-4 p-6'>
+          <div className='flex grow flex-col gap-4 p-6'>
             {currentTab === 'Dashboard' && <Dashboard />}
             {currentTab === 'Transactions' && (
               <Transactions address={accountId?.toString()} />

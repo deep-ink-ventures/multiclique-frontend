@@ -133,7 +133,7 @@ const ImportTransactionModal = (props: IImportTransactionProps) => {
           {currentWalletAccount?.isConnected ? (
             <>
               <div className='my-3 w-full text-center'>
-                <h1 className='text-xl'>Create transaction</h1>
+                <h1 className='text-2xl'>Create transaction</h1>
               </div>
               <FormProvider {...formMethods}>
                 <form onSubmit={handleSubmit(onSubmit)} className='w-full'>

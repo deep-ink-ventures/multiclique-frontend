@@ -55,6 +55,90 @@ const Create = () => {
         .map((signer) => signer.address) ?? []),
     ];
 
+    const onError = () => {
+      updateIsTxProcessing(false);
+      useLoadingScreen.setAction({
+        type: 'CLOSE',
+      });
+    };
+
+    const handleUpdateDatabase = async (
+      policyAddress: string,
+      coreAddress: string
+    ) => {
+      const multisigPayload: MultiCliqueAccount = {
+        name: data.accountName,
+        address: coreAddress,
+        signatories: [creatorSignatory, ...signatories],
+        defaultThreshold: threshold,
+        policy: {
+          address: policyAddress,
+          name: 'ELIO_DAO',
+          contracts: null,
+        },
+      };
+      const multisig = await createMultisigDB(multisigPayload);
+      if (multisig) {
+        updateMultisigAccounts([multisig, ...multisigAccounts]);
+      }
+      updateIsTxProcessing(false);
+      useLoadingScreen.setAction({
+        type: 'CLOSE',
+      });
+      router.push(`/`);
+    };
+
+    const handleInstallMulticliquePolicy = async (
+      policyAddress: string,
+      coreAddress: string
+    ) => {
+      await initMulticliquePolicy(
+        policyAddress,
+        {
+          multiclique: coreAddress,
+          elioCore: elioConfig?.coreContractAddress,
+          elioVotes: elioConfig?.votesContractAddress,
+          elioAssets: elioConfig?.votesContractAddress,
+        },
+        {
+          onComplete: () => handleUpdateDatabase(policyAddress, coreAddress),
+          onError,
+        }
+      );
+    };
+
+    const handleInstallPolicyContract = async (coreAddress: string) => {
+      await installPolicyContract({
+        onComplete: (policyAddress: string) => {
+          useLoadingScreen.setAction({
+            type: 'SHOW_SIGNATURE',
+            payload: {
+              totalSignCount: 4,
+              currentSignCount: 4,
+            },
+          });
+          handleInstallMulticliquePolicy(policyAddress, coreAddress);
+        },
+        onError,
+      });
+    };
+
+    const handleInstallMulticliqueCore = async (coreAddress: string) => {
+      await initMulticliqueCore(coreAddress, signerAddresses, threshold, {
+        onComplete: () => {
+          useLoadingScreen.setAction({
+            type: 'SHOW_SIGNATURE',
+            payload: {
+              totalSignCount: 4,
+              currentSignCount: 3,
+            },
+          });
+          handleInstallPolicyContract(coreAddress);
+        },
+        onError,
+      });
+    };
+
     try {
       useLoadingScreen.setAction({
         type: 'SHOW_SIGNATURE',
@@ -64,77 +148,22 @@ const Create = () => {
         },
       });
 
-      await installCoreContract(async (coreAddress: string) => {
-        useLoadingScreen.setAction({
-          type: 'SHOW_SIGNATURE',
-          payload: {
-            totalSignCount: 4,
-            currentSignCount: 2,
-          },
-        });
-
-        await initMulticliqueCore(
-          coreAddress,
-          signerAddresses,
-          threshold,
-          async () => {
-            useLoadingScreen.setAction({
-              type: 'SHOW_SIGNATURE',
-              payload: {
-                totalSignCount: 4,
-                currentSignCount: 3,
-              },
-            });
-            await installPolicyContract((policyAddress: string) => {
-              useLoadingScreen.setAction({
-                type: 'SHOW_SIGNATURE',
-                payload: {
-                  totalSignCount: 4,
-                  currentSignCount: 4,
-                },
-              });
-              initMulticliquePolicy(
-                policyAddress,
-                {
-                  multiclique: coreAddress,
-                  elioCore: elioConfig?.coreContractAddress,
-                  elioVotes: elioConfig?.votesContractAddress,
-                  elioAssets: elioConfig?.votesContractAddress,
-                },
-                async () => {
-                  const multisigPayload: MultiCliqueAccount = {
-                    name: data.accountName,
-                    address: coreAddress,
-                    signatories: [creatorSignatory, ...signatories],
-                    defaultThreshold: threshold,
-                    policy: {
-                      address: policyAddress,
-                      name: 'ELIO_DAO',
-                      active: false,
-                    },
-                  };
-                  const multisig = await createMultisigDB(multisigPayload);
-                  if (multisig) {
-                    updateMultisigAccounts([multisig, ...multisigAccounts]);
-                  }
-                  updateIsTxProcessing(false);
-                  useLoadingScreen.setAction({
-                    type: 'CLOSE',
-                  });
-                  router.push(`/`);
-                }
-              );
-            });
-          }
-        );
+      await installCoreContract({
+        onCoreInstallationComplete: () => {
+          useLoadingScreen.setAction({
+            type: 'SHOW_SIGNATURE',
+            payload: {
+              totalSignCount: 4,
+              currentSignCount: 2,
+            },
+          });
+        },
+        onComplete: handleInstallMulticliqueCore,
+        onError,
       });
     } catch (error) {
+      onError();
       handleErrors('Error in creating MultiClique Account', error);
-    } finally {
-      updateIsTxProcessing(false);
-      useLoadingScreen.setAction({
-        type: 'CLOSE',
-      });
     }
   };
 

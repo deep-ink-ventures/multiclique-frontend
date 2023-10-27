@@ -125,3 +125,13 @@ export const formatDateTime = (date: string, includeTime = true) => {
   }
   return dayjs(date).format('MMM-DD-YYYY HH:mm:ss');
 };
+
+export const bigNumberToI128ScVal = (number: BigNumber) => {
+  const integer = number.integerValue().toFixed(0).toString();
+
+  const integerBigInt = BigInt(integer);
+
+  const scInt = new SorobanClient.ScInt(integerBigInt);
+
+  return scInt.toI128();
+};
