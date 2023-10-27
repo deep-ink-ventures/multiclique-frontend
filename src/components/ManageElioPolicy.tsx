@@ -1,9 +1,12 @@
+import useCopyToClipboard from '@/hooks/useCopyToClipboard';
 import useMC from '@/hooks/useMC';
 import useMCStore from '@/stores/MCStore';
 import Pencil from '@/svg/components/Pencil';
 import Switch from '@/svg/components/Switch';
+import CopyIcon from '@/svg/copy.svg';
 import type { JwtToken } from '@/types/auth';
 import type { MultiCliquePolicy } from '@/types/multiCliqueAccount';
+import Image from 'next/image';
 import { useEffect, useState } from 'react';
 import { EmptyPlaceholder, LoadingPlaceholder, Pagination } from '.';
 import SpendLimitFormModal from './SpendLimitFormModal';
@@ -68,6 +71,25 @@ const ManageElioPolicy = ({ address }: IManageElioPolicyProps) => {
       const newJwt = await getJwtToken(address);
       fetchPolicyAssets(newJwt);
     }
+  };
+
+  const ClipboardControl = ({ text }: any) => {
+    const { textRef, copyToClipboard } = useCopyToClipboard<HTMLDivElement>();
+    return (
+      <>
+        <span className='hidden' ref={textRef}>
+          {text}
+        </span>
+        <Image
+          src={CopyIcon}
+          height={15}
+          width={15}
+          alt='copy'
+          className='cursor-pointer'
+          onClick={copyToClipboard}
+        />
+      </>
+    );
   };
 
   return (
