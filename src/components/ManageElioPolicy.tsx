@@ -1,56 +1,27 @@
 import useCopyToClipboard from '@/hooks/useCopyToClipboard';
-import useMC from '@/hooks/useMC';
 import useMCStore from '@/stores/MCStore';
 import Pencil from '@/svg/components/Pencil';
 import CopyIcon from '@/svg/copy.svg';
-import type { JwtToken } from '@/types/auth';
 import type { MultiCliquePolicy } from '@/types/multiCliqueAccount';
 import { truncateMiddle } from '@/utils';
 import Image from 'next/image';
-import { useEffect, useState } from 'react';
-import { EmptyPlaceholder, LoadingPlaceholder, Pagination } from '.';
+import { useState } from 'react';
+import { EmptyPlaceholder } from '.';
 import SpendLimitFormModal from './SpendLimitFormModal';
 
 interface IManageElioPolicyProps {
-  address?: string;
   policy: MultiCliquePolicy;
 }
 
-const ManageElioPolicy = ({ address }: IManageElioPolicyProps) => {
+const ManageElioPolicy = ({ policy }: IManageElioPolicyProps) => {
   const [isSpendLimitModalVisible, setIsSpendLimitModalVisible] =
     useState(false);
 
-  const [account, currentWalletAccount, jwt] = useMCStore((s) => [
+  const [account, currentWalletAccount] = useMCStore((s) => [
     s.pages.account,
     s.currentWalletAccount,
     s.jwt,
   ]);
-
-  const { getJwtToken } = useMC();
-
-  const [pagination, setPagination] = useState({
-    currentPage: 1,
-    offset: 0,
-  });
-
-  const fetchPolicyAssets = (jwtToken?: JwtToken | null) => {
-    if (jwtToken) {
-      account.assets.getPolicyAssets(
-        {
-          offset: Math.max(pagination.offset - 1, 0),
-          limit: 10,
-        },
-        jwtToken
-      );
-    }
-  };
-
-  useEffect(() => {
-    if (address && jwt) {
-      fetchPolicyAssets(jwt);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [address, JSON.stringify(pagination)]);
 
   if (
     !account.multisig.data?.signatories.some(
@@ -65,13 +36,6 @@ const ManageElioPolicy = ({ address }: IManageElioPolicyProps) => {
       </div>
     );
   }
-
-  const handleLoadTransactions = async () => {
-    if (address) {
-      const newJwt = await getJwtToken(address);
-      fetchPolicyAssets(newJwt);
-    }
-  };
 
   const ClipboardControl = ({ text }: any) => {
     const { textRef, copyToClipboard } = useCopyToClipboard<HTMLDivElement>();
@@ -98,75 +62,39 @@ const ManageElioPolicy = ({ address }: IManageElioPolicyProps) => {
         <div className='text-2xl font-semibold'>Manage ELIO DAO Policy</div>
       </div>
       <div className='space-y-3'>
-        {!jwt && (
-          <EmptyPlaceholder
-            label={
-              <div className='flex w-full flex-col justify-center space-y-2 text-center'>
-                <div>
-                  At the moment, we require users to authenticate to view assets
-                </div>
-                <button
-                  className='btn btn-primary'
-                  onClick={handleLoadTransactions}>
-                  Load Assets
-                </button>
-              </div>
-            }
-          />
-        )}
-        {jwt && (
-          <>
-            {account.assets.loading && <LoadingPlaceholder />}
-            {!account.assets.loading && (
-              <>
-                <div className='divide-y overflow-hidden rounded-xl border border-neutral'>
-                  <div className='grid grid-cols-4 gap-0 divide-x divide-y'>
-                    <div className='p-2'>Asset</div>
-                    <div className='p-2'>Limit</div>
-                    <div className='p-2'>Spending</div>
-                    <div className='p-2'>Action</div>
-                  </div>
-                  {account.assets.data?.results?.map((asset, index) => {
-                    return (
-                      <div
-                        key={`${index}}`}
-                        className='grid grid-cols-4 gap-0 divide-x divide-y'>
-                        <div className='flex items-center justify-between truncate p-2'>
-                          {truncateMiddle(asset.address)}
-                          <ClipboardControl text={index} />
-                        </div>
-                        <div className='truncate p-2'>{asset.limit}</div>
-                        <div className='truncate p-2'>{asset.spending}</div>
-                        <div className='flex gap-2 truncate p-2'>
-                          <button
-                            className='btn btn-outline flex !h-8 !min-h-[0px] gap-1 !rounded-lg bg-white !p-2 !px-3'
-                            onClick={() => setIsSpendLimitModalVisible(true)}>
-                            <Pencil className='h-full fill-base-content' />{' '}
-                            Update
-                          </button>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              </>
-            )}
-          </>
-        )}
-      </div>
-      {!account.assets.loading &&
-        Boolean(account.assets.data?.results?.length) && (
-          <div>
-            <Pagination
-              currentPage={pagination.currentPage}
-              pageSize={10}
-              totalCount={account.assets.data?.count}
-              onPageChange={(newPage, newOffset) =>
-                setPagination({ currentPage: newPage, offset: newOffset })
-              }
-            />
+        <div className='divide-y overflow-hidden rounded-xl border border-neutral'>
+          <div className='grid grid-cols-4 gap-0 divide-x divide-y'>
+            <div className='p-2'>Asset</div>
+            <div className='p-2'>Limit</div>
+            <div className='p-2'>Spending</div>
+            <div className='p-2'>Action</div>
           </div>
-        )}
+          {!policy.contracts?.length && <EmptyPlaceholder />}
+          {policy.contracts?.map((contract, index) => {
+            return (
+              <div
+                key={`${index}}`}
+                className='grid grid-cols-4 gap-0 divide-x divide-y'>
+                <div className='flex items-center justify-between truncate p-2'>
+                  {truncateMiddle(contract.address)}
+                  <ClipboardControl text={contract.address} />
+                </div>
+                <div className='truncate p-2'>{contract.limit.toString()}</div>
+                <div className='truncate p-2'>
+                  {contract.alreadySpent.toString()}
+                </div>
+                <div className='flex gap-2 truncate p-2'>
+                  <button
+                    className='btn btn-outline flex !h-8 !min-h-[0px] gap-1 !rounded-lg bg-white !p-2 !px-3'
+                    onClick={() => setIsSpendLimitModalVisible(true)}>
+                    <Pencil className='h-full fill-base-content' /> Update
+                  </button>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
       <SpendLimitFormModal
         title='Update Spend Limit'
         visible={isSpendLimitModalVisible}

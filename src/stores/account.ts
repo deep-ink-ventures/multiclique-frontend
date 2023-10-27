@@ -5,11 +5,7 @@ import type { StateCreator } from 'zustand';
 
 import type { ListMultiCliqueTransactionsParams } from '@/services';
 import { AccountService, TransactionService } from '@/services';
-import type {
-  ListPolicyAssetsParams,
-  MockPolicyAssets,
-} from '@/services/assets';
-import { AssetsService } from '@/services/assets';
+
 import type { JwtToken } from '@/types/auth';
 import type { MultiCliqueAccount } from '@/types/multiCliqueAccount';
 import type { MultisigTransaction } from '@/types/multisigTransaction';
@@ -38,14 +34,6 @@ export type AccountSlice = {
       params: ListMultiCliqueTransactionsParams,
       jwt: JwtToken
     ) => void;
-    clear: () => void;
-  };
-  assets: {
-    loading: boolean;
-    failed: boolean;
-    fulfilled?: boolean;
-    data: Paginated<MockPolicyAssets[]> | null;
-    getPolicyAssets: (params: ListPolicyAssetsParams, jwt: JwtToken) => void;
     clear: () => void;
   };
 };
@@ -159,54 +147,6 @@ export const createAccountSlice: StateCreator<
             set(
               produce((state: MCState) => {
                 state.pages.account.transactions.loading = false;
-              })
-            );
-          });
-      },
-      clear: () => {
-        set(
-          produce((state: MCState) => {
-            state.pages.account.transactions.loading = false;
-            state.pages.account.transactions.data = null;
-            state.pages.account.transactions.fulfilled = false;
-            state.pages.account.transactions.failed = false;
-          })
-        );
-      },
-    },
-    assets: {
-      loading: false,
-      data: null,
-      failed: false,
-      fulfilled: false,
-      getPolicyAssets: (params, jwt) => {
-        set(
-          produce((state: MCState) => {
-            state.pages.account.assets.loading = true;
-            state.pages.account.assets.fulfilled = false;
-            state.pages.account.assets.failed = false;
-          })
-        );
-        AssetsService.listPolicyAssets(params, jwt)
-          .then(async (response) => {
-            set(
-              produce((state: MCState) => {
-                state.pages.account.assets.data = response;
-                state.pages.account.assets.fulfilled = true;
-              })
-            );
-          })
-          .catch(() => {
-            set(
-              produce((state: MCState) => {
-                state.pages.account.assets.failed = true;
-              })
-            );
-          })
-          .finally(() => {
-            set(
-              produce((state: MCState) => {
-                state.pages.account.assets.loading = false;
               })
             );
           });

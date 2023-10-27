@@ -175,10 +175,7 @@ const Account = () => {
             )}
             {accountPage.multisig.data?.policy.name === 'ELIO_DAO' &&
               currentTab === 'Manage ELIO DAO Policy' && (
-                <ManageElioPolicy
-                  address={accountId?.toString()}
-                  policy={accountPage.multisig.data.policy}
-                />
+                <ManageElioPolicy policy={accountPage.multisig.data.policy} />
               )}
           </div>
           <div className='fixed bottom-[2%] right-[2%]'>
