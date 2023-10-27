@@ -743,7 +743,9 @@ const useMC = () => {
         jwt
       );
 
-      if (updatedTxn?.approvals?.length === txn.signatories.length + 1) {
+      if (updatedTxn.approvals?.find((item) =>{ 
+        return item.signatory.address === currentWalletAccount?.publicKey;
+      })) {
         addTxnNotification({
           title: 'Multiclique transaction approved',
           message: '',
@@ -779,9 +781,11 @@ const useMC = () => {
         jwt
       );
 
-      if (updatedTxn?.rejections?.length) {
+      if (updatedTxn?.rejections?.find((item) => {
+        return item.signatory.address === currentWalletAccount?.publicKey;
+      })) {
         addTxnNotification({
-          title: 'Multiclique transaction approved',
+          title: 'Multiclique transaction rejected',
           message: '',
           timestamp: Date.now(),
           type: TxnResponse.Success,
