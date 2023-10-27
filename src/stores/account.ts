@@ -7,7 +7,10 @@ import type { ListMultiCliqueTransactionsParams } from '@/services';
 import { AccountService, TransactionService } from '@/services';
 import type { JwtToken } from '@/types/auth';
 import type { MultiCliqueAccount } from '@/types/multiCliqueAccount';
-import type { MultisigTransaction } from '@/types/multisigTransaction';
+import {
+  MultiSigTransactionStatus,
+  type MultisigTransaction,
+} from '@/types/multisigTransaction';
 import type { Paginated } from '@/types/response';
 import type { MCState } from './MCStore';
 
@@ -171,19 +174,29 @@ export const createAccountSlice: StateCreator<
     statistics: {
       transactions: {
         fetch: (jwt: JwtToken) => {
-          TransactionService.listMultiCliqueTransactions(
-            {
-              limit: 1,
-              offset: 0,
-              // ADD EXECUTABLE FILTER
-            },
-            jwt
-          )
-            .then(async (response) => {
+          Promise.all([
+            TransactionService.listMultiCliqueTransactions(
+              {
+                limit: 1,
+                offset: 0,
+                status: MultiSigTransactionStatus.Executable,
+              },
+              jwt
+            ),
+            TransactionService.listMultiCliqueTransactions(
+              {
+                limit: 1,
+                offset: 0,
+                status: MultiSigTransactionStatus.Pending,
+              },
+              jwt
+            ),
+          ])
+            .then(async ([response1, response2]) => {
               set(
                 produce((state: MCState) => {
                   state.pages.account.statistics.transactions.data =
-                    response.count;
+                    response1.count + response2.count;
                 })
               );
             })

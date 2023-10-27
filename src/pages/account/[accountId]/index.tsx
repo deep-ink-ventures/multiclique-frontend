@@ -149,7 +149,7 @@ const Account = () => {
                     onClick={() => setCurrentTab(tab.label)}>
                     {tab.icon}
                     {tab.label}
-                    {tab.badgeCount && (
+                    {Boolean(tab.badgeCount) && (
                       <span className='ml-auto flex h-5 min-w-[1.25rem] items-center justify-center rounded-full bg-error-content p-2 text-sm text-white'>
                         {tab.badgeCount}
                       </span>
