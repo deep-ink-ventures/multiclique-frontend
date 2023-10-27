@@ -5,6 +5,7 @@ import type { StateCreator } from 'zustand';
 
 import type { ListMultiCliqueTransactionsParams } from '@/services';
 import { AccountService, TransactionService } from '@/services';
+
 import type { JwtToken } from '@/types/auth';
 import type { MultiCliqueAccount } from '@/types/multiCliqueAccount';
 import type { MultisigTransaction } from '@/types/multisigTransaction';

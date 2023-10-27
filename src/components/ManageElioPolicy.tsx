@@ -6,16 +6,14 @@ import type { MultiCliquePolicy } from '@/types/multiCliqueAccount';
 import { truncateMiddle } from '@/utils';
 import Image from 'next/image';
 import { useState } from 'react';
-import ConfirmationModal from './ConfirmationModal';
+import { EmptyPlaceholder } from '.';
 import SpendLimitFormModal from './SpendLimitFormModal';
 
 interface IManageElioPolicyProps {
-  address?: string;
   policy: MultiCliquePolicy;
 }
 
 const ManageElioPolicy = ({ policy }: IManageElioPolicyProps) => {
-  const [isConfirmResetVisible, setIsConfirmResetVisible] = useState(false);
   const [isSpendLimitModalVisible, setIsSpendLimitModalVisible] =
     useState(false);
 
@@ -63,47 +61,39 @@ const ManageElioPolicy = ({ policy }: IManageElioPolicyProps) => {
         <div className='text-2xl font-semibold'>Manage ELIO DAO Policy</div>
       </div>
       <div className='space-y-3'>
-        <>
-          <div className='divide-y overflow-hidden rounded-xl border border-neutral'>
-            <div className='grid grid-cols-5 gap-0 divide-x divide-y'>
-              <div className='p-2'>Asset</div>
-              <div className='p-2'>Type</div>
-              <div className='p-2'>Limit</div>
-              <div className='p-2'>Spending</div>
-              <div className='p-2'>Action</div>
-            </div>
-            {Array(5)
-              .fill(null)
-              ?.map((arg, index) => (
-                <div
-                  key={`${index}}`}
-                  className='grid grid-cols-5 gap-0 divide-x divide-y'>
-                  <div className='flex items-center justify-between truncate p-2'>
-                    Asset {truncateMiddle('abc')}
-                    <ClipboardControl text={index} />
-                  </div>
-                  <div className='truncate p-2'>Type {index}</div>
-                  <div className='truncate p-2'>Limit {index}</div>
-                  <div className='truncate p-2'>Spending {index}</div>
-                  <div className='flex gap-2 truncate p-2'>
-                    <button
-                      className='btn btn-outline flex !h-8 !min-h-[0px] gap-1 !rounded-lg bg-white !p-2 !px-3'
-                      onClick={() => setIsSpendLimitModalVisible(true)}>
-                      <Pencil className='h-full fill-base-content' /> Update
-                    </button>
-                  </div>
-                </div>
-              ))}
+        <div className='divide-y overflow-hidden rounded-xl border border-neutral'>
+          <div className='grid grid-cols-4 gap-0 divide-x divide-y'>
+            <div className='p-2'>Asset</div>
+            <div className='p-2'>Limit</div>
+            <div className='p-2'>Spending</div>
+            <div className='p-2'>Action</div>
           </div>
-        </>
+          {!policy.contracts?.length && <EmptyPlaceholder />}
+          {policy.contracts?.map((contract, index) => {
+            return (
+              <div
+                key={`${index}}`}
+                className='grid grid-cols-4 gap-0 divide-x divide-y'>
+                <div className='flex items-center justify-between truncate p-2'>
+                  {truncateMiddle(contract.address)}
+                  <ClipboardControl text={contract.address} />
+                </div>
+                <div className='truncate p-2'>{contract.limit.toString()}</div>
+                <div className='truncate p-2'>
+                  {contract.alreadySpent.toString()}
+                </div>
+                <div className='flex gap-2 truncate p-2'>
+                  <button
+                    className='btn btn-outline flex !h-8 !min-h-[0px] gap-1 !rounded-lg bg-white !p-2 !px-3'
+                    onClick={() => setIsSpendLimitModalVisible(true)}>
+                    <Pencil className='h-full fill-base-content' /> Update
+                  </button>
+                </div>
+              </div>
+            );
+          })}
+        </div>
       </div>
-      <ConfirmationModal
-        title={<div className='text-error-content'>Reset Spend Limit</div>}
-        visible={isConfirmResetVisible}
-        onClose={() => setIsConfirmResetVisible(false)}
-        onConfirm={() => setIsConfirmResetVisible(false)}>
-        Are you sure you want to reset the spend limit?
-      </ConfirmationModal>
       <SpendLimitFormModal
         title='Update Spend Limit'
         visible={isSpendLimitModalVisible}
