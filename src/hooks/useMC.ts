@@ -743,7 +743,9 @@ const useMC = () => {
         jwt
       );
 
-      if (updatedTxn?.approvals?.length) {
+      if (updatedTxn.approvals?.find((item) =>{ 
+        return item.signatory.address === currentWalletAccount?.publicKey;
+      })) {
         addTxnNotification({
           title: 'Multiclique transaction approved',
           message: '',
@@ -778,9 +780,12 @@ const useMC = () => {
         },
         jwt
       );
-      if (updatedTxn?.rejections?.length) {
+
+      if (updatedTxn?.rejections?.find((item) => {
+        return item.signatory.address === currentWalletAccount?.publicKey;
+      })) {
         addTxnNotification({
-          title: 'Multiclique transaction approved',
+          title: 'Multiclique transaction rejected',
           message: '',
           timestamp: Date.now(),
           type: TxnResponse.Success,
@@ -791,15 +796,35 @@ const useMC = () => {
     }
   };
 
-  const executeMCTxn = async (txn: MultisigTransaction) => {
-    if (!currentWalletAccount) {
+  // eslint-disable-next-line
+  const executeMCTxn = async (txn: MultisigTransaction, jwt: JwtToken) => {
+    if (!currentWalletAccount || !txn?.approvals) {
       return;
     }
 
+    const currentApproval = txn.approvals.find((approvals) => {
+      return approvals.signatory.address === currentWalletAccount?.publicKey;
+    });
+
+    if (!currentApproval) {
+      return;
+    }
+
+    const updatedTxn = await TransactionService.patchMultiCliqueTransaction(
+      txn.id.toString(),
+      {
+        submitter: {
+          address: currentApproval.signatory.address,
+        },
+      },
+      jwt
+    );
+
     const transaction = SorobanClient.TransactionBuilder.fromXDR(
-      txn.xdr,
+      updatedTxn.xdr,
       MCConfig?.networkPassphrase
     );
+
     await submitTxn(
       transaction,
       'Multiclique transaction executed',

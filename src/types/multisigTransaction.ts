@@ -23,6 +23,10 @@ export interface RawMultisigTransaction {
   multiclique_address: string;
   default_threshold: number;
   signatories: Signatory[];
+  submitter?: {
+    address: string;
+    name?: string;
+  };
 }
 
 export type MultisigTransaction = CamelCaseObject<RawMultisigTransaction>;
