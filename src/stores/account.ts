@@ -192,11 +192,11 @@ export const createAccountSlice: StateCreator<
               jwt
             ),
           ])
-            .then(async ([response1, response2]) => {
+            .then(async ([executableResponse, pendingResponse]) => {
               set(
                 produce((state: MCState) => {
                   state.pages.account.statistics.transactions.data =
-                    response1.count + response2.count;
+                    executableResponse.count + pendingResponse.count;
                 })
               );
             })
