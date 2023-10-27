@@ -6,6 +6,7 @@ import Switch from '@/svg/components/Switch';
 import CopyIcon from '@/svg/copy.svg';
 import type { JwtToken } from '@/types/auth';
 import type { MultiCliquePolicy } from '@/types/multiCliqueAccount';
+import { truncateMiddle } from '@/utils';
 import Image from 'next/image';
 import { useEffect, useState } from 'react';
 import { EmptyPlaceholder, LoadingPlaceholder, Pagination } from '.';
@@ -131,14 +132,13 @@ const ManageElioPolicy = ({ address }: IManageElioPolicyProps) => {
                       <div
                         key={`${index}}`}
                         className='grid grid-cols-4 gap-0 divide-x divide-y'>
-                        <div className='truncate p-2'>{asset.address}</div>
+                        <div className='flex items-center justify-between truncate p-2'>
+                          {truncateMiddle(asset.address)}
+                          <ClipboardControl text={index} />
+                        </div>
                         <div className='truncate p-2'>{asset.limit}</div>
                         <div className='truncate p-2'>{asset.spending}</div>
                         <div className='flex gap-2 truncate p-2'>
-                          <button className='group btn btn-outline flex !h-8 !min-h-[0px] gap-1 !rounded-lg bg-error-content !p-2 !px-3 text-white'>
-                            <Switch className='h-full fill-white group-hover:fill-base-content' />{' '}
-                            Reset
-                          </button>
                           <button
                             className='btn btn-outline flex !h-8 !min-h-[0px] gap-1 !rounded-lg bg-white !p-2 !px-3'
                             onClick={() => setIsSpendLimitModalVisible(true)}>
