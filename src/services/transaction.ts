@@ -141,6 +141,7 @@ export const patchMultiCliqueTransaction = async (
   );
 
   const objResponse: RawMultisigTransaction = await response.json();
+  console.log(objResponse);
 
   const formattedMultiCliqueAccount = keysToCamelCase(objResponse);
 
