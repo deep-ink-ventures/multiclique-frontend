@@ -183,6 +183,9 @@ const Account = () => {
             isVisible={isImportXdrVisible}
             accountId={accountId?.toString()}
             onClose={() => setIsImportXdrVisible(false)}
+            onSuccess={(jwt) =>
+              multicliqueAccount.statistics.transactions.fetch(jwt)
+            }
           />
         </div>
       ) : (

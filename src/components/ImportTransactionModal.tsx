@@ -3,6 +3,7 @@ import { useLoadingScreenContext } from '@/context/LoadingScreen';
 import useMC from '@/hooks/useMC';
 
 import useMCStore, { TxnResponse } from '@/stores/MCStore';
+import type { JwtToken } from '@/types/auth';
 import { validateXDR } from '@/utils/helpers';
 import { ErrorMessage } from '@hookform/error-message';
 import cn from 'classnames';
@@ -14,6 +15,7 @@ interface IImportTransactionProps {
   accountId?: string;
   children?: ReactNode;
   onClose?: () => void;
+  onSuccess?: (jwt: JwtToken) => void;
 }
 
 interface CreateTransactionFormValues {
@@ -23,7 +25,7 @@ interface CreateTransactionFormValues {
 const MAX_XDR_CHAR_COUNT = 4096;
 
 const ImportTransactionModal = (props: IImportTransactionProps) => {
-  const { isVisible, accountId, onClose } = props;
+  const { isVisible, accountId, onSuccess, onClose } = props;
 
   const [loading, setIsLoading] = useState(false);
 
@@ -88,6 +90,10 @@ const ImportTransactionModal = (props: IImportTransactionProps) => {
             timestamp: Date.now(),
             message: 'Transaction created successfully',
           });
+
+          if (onSuccess) {
+            onSuccess(jwt);
+          }
         }
 
         reset();
