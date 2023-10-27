@@ -12,7 +12,6 @@ export type ExtendedSpendLimitFormValues<Generic extends string> = {
 interface SpendLimitFormProps {
   formName?: string;
   disabled?: boolean;
-  actionButton?: ReactNode;
   onSubmit?: <T extends string>(
     data: ExtendedSpendLimitFormValues<T>
   ) => Promise<boolean> | boolean;
@@ -24,7 +23,6 @@ interface SpendLimitFormValues {
 const SpendLimitForm = ({
   formName,
   onSubmit,
-  actionButton,
   disabled,
 }: SpendLimitFormProps) => {
   const formMethods = useForm();
@@ -67,7 +65,6 @@ const SpendLimitForm = ({
             />
           </div>
           <div className='mt-8 space-y-2'>
-            {actionButton}
             <button className='btn btn-primary ml-auto w-full truncate'>
               Submit
             </button>
