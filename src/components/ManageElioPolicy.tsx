@@ -20,7 +20,6 @@ const ManageElioPolicy = ({ policy }: IManageElioPolicyProps) => {
   const [account, currentWalletAccount] = useMCStore((s) => [
     s.pages.account,
     s.currentWalletAccount,
-    s.jwt,
   ]);
 
   if (
