@@ -21,6 +21,9 @@ export const uiTokens = (
   tokenType?: 'xlm' | 'dao',
   unitName?: string
 ) => {
+  if (rawAmount === null) {
+    return 'N/A';
+  }
   const units = tokenType === 'xlm' ? XLM_UNITS : DAO_UNITS;
   const fmt = {
     prefix: '',

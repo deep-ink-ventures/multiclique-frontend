@@ -3,7 +3,7 @@ import useMCStore from '@/stores/MCStore';
 import Pencil from '@/svg/components/Pencil';
 import CopyIcon from '@/svg/copy.svg';
 import type { MultiCliquePolicy } from '@/types/multiCliqueAccount';
-import { truncateMiddle } from '@/utils';
+import { truncateMiddle, uiTokens } from '@/utils';
 import Image from 'next/image';
 import { useState } from 'react';
 import ConfirmationModal from './ConfirmationModal';
@@ -66,34 +66,37 @@ const ManageElioPolicy = ({ policy }: IManageElioPolicyProps) => {
         <>
           <div className='divide-y overflow-hidden rounded-xl border border-neutral'>
             <div className='grid grid-cols-5 gap-0 divide-x divide-y'>
-              <div className='p-2'>Asset</div>
+              <div className='p-2'>Address</div>
               <div className='p-2'>Type</div>
               <div className='p-2'>Limit</div>
-              <div className='p-2'>Spending</div>
+              <div className='p-2'>Spent</div>
               <div className='p-2'>Action</div>
             </div>
-            {Array(5)
-              .fill(null)
-              ?.map((arg, index) => (
-                <div
-                  key={`${index}}`}
-                  className='grid grid-cols-5 gap-0 divide-x divide-y'>
-                  <div className='flex items-center justify-between truncate p-2'>
-                    Asset {truncateMiddle('abc')}
-                    <ClipboardControl text={index} />
-                  </div>
-                  <div className='truncate p-2'>Type {index}</div>
-                  <div className='truncate p-2'>Limit {index}</div>
-                  <div className='truncate p-2'>Spending {index}</div>
-                  <div className='flex gap-2 truncate p-2'>
-                    <button
-                      className='btn btn-outline flex !h-8 !min-h-[0px] gap-1 !rounded-lg bg-white !p-2 !px-3'
-                      onClick={() => setIsSpendLimitModalVisible(true)}>
-                      <Pencil className='h-full fill-base-content' /> Update
-                    </button>
-                  </div>
+            {policy.contracts?.map((contract, index) => (
+              <div
+                key={contract.address + index.toString()}
+                className='grid grid-cols-5 gap-0 divide-x divide-y'>
+                <div className='flex items-center justify-between truncate p-2'>
+                  {truncateMiddle(contract.address)}
+                  <ClipboardControl text={contract.address} />
                 </div>
-              ))}
+                <div className='truncate p-2'>{contract.type}</div>
+                <div className='truncate p-2'>
+                  {uiTokens(contract.limit, 'dao')}
+                </div>
+                <div className='truncate p-2'>
+                  {' '}
+                  {uiTokens(contract.alreadySpent, 'dao')}
+                </div>
+                <div className='flex gap-2 truncate p-2'>
+                  <button
+                    className='btn btn-outline flex !h-8 !min-h-[0px] gap-1 !rounded-lg bg-white !p-2 !px-3'
+                    onClick={() => setIsSpendLimitModalVisible(true)}>
+                    <Pencil className='h-full fill-base-content' /> Update
+                  </button>
+                </div>
+              </div>
+            ))}
           </div>
         </>
       </div>

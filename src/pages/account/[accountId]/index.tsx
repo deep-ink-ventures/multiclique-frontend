@@ -44,6 +44,10 @@ const Account = () => {
   const [isImportXdrVisible, setIsImportXdrVisible] = useState(false);
 
   const { textRef, copyToClipboard } = useCopyToClipboard<HTMLDivElement>();
+  const isElioPolicyAttached =
+    accountPage.multisig.data?.policy.name === 'ELIO_DAO' &&
+    currentTab === 'Manage ELIO DAO Policy' &&
+    accountPage.multisig.data.policy.contracts !== null;
 
   const badgeCount = useMemo(() => {
     return multicliqueAccount?.transactions?.data?.results.filter((txn) => {
@@ -173,10 +177,9 @@ const Account = () => {
             {currentTab === 'Settings' && (
               <Settings accountId={accountId as string} />
             )}
-            {accountPage.multisig.data?.policy.name === 'ELIO_DAO' &&
-              currentTab === 'Manage ELIO DAO Policy' && (
-                <ManageElioPolicy policy={accountPage.multisig.data.policy} />
-              )}
+            {isElioPolicyAttached ? (
+              <ManageElioPolicy policy={accountPage.multisig.data!!.policy} />
+            ) : null}
           </div>
           <div className='fixed bottom-[2%] right-[2%]'>
             <button
