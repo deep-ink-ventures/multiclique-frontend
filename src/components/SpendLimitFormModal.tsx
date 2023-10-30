@@ -5,12 +5,16 @@ import ConfirmationModal from './ConfirmationModal';
 import SpendLimitForm from './SpendLimitForm';
 
 interface SpendLimitFormModalProps {
+  policyAddress: string;
+  assetContractAddress: string;
   visible?: boolean;
   title?: string;
   onClose?: () => void;
 }
 
 const SpendLimitFormModal = ({
+  policyAddress,
+  assetContractAddress,
   title,
   visible,
   onClose,
@@ -38,6 +42,8 @@ const SpendLimitFormModal = ({
           <div className='w-full min-w-[400px]'>
             <h1 className='mb-6 text-center text-2xl'>{title}</h1>
             <SpendLimitForm
+              policyAddress={policyAddress}
+              assetContractAddress={assetContractAddress}
               actionButton={
                 <button
                   className='btn btn-secondary ml-auto flex w-full gap-2 truncate text-white'
