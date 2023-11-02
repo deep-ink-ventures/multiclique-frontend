@@ -141,7 +141,6 @@ const useMCStore = create<MCStore>((set, get, store) => ({
     // eslint-disable-next-line
     console.log(errMsg, err);
     let message = '';
-    console.log(err)
     if (typeof err === 'object') {
       message = err.message;
     } else {
@@ -239,6 +238,7 @@ const useMCStore = create<MCStore>((set, get, store) => ({
       };
       set({ currentWalletAccount: wallet });
     } catch (ex) {
+      // eslint-disable-next-line
       console.error(ex);
     }
   },

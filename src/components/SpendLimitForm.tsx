@@ -1,12 +1,12 @@
-import { ErrorMessage } from '@hookform/error-message';
-import BigNumber from 'bignumber.js';
-import { useState, type ReactNode } from 'react';
-import type { SubmitHandler } from 'react-hook-form';
-import { FormProvider, useForm } from 'react-hook-form';
+import { DAO_UNITS } from '@/config';
+import { useLoadingScreenContext } from '@/context/LoadingScreen';
 import useMC from '@/hooks/useMC';
 import useMCStore from '@/stores/MCStore';
-import { useLoadingScreenContext } from '@/context/LoadingScreen';
-import { DAO_UNITS } from '@/config';
+import { ErrorMessage } from '@hookform/error-message';
+import BigNumber from 'bignumber.js';
+import { useState } from 'react';
+import type { SubmitHandler } from 'react-hook-form';
+import { FormProvider, useForm } from 'react-hook-form';
 
 export type ExtendedSpendLimitFormValues<Generic extends string> = {
   [Key in keyof SpendLimitFormValues as `${Generic}${Capitalize<
@@ -16,10 +16,9 @@ export type ExtendedSpendLimitFormValues<Generic extends string> = {
 
 interface SpendLimitFormProps {
   policyAddress: string;
-  assetContractAddress: string
+  assetContractAddress: string;
   formName?: string;
   disabled?: boolean;
-  actionButton?: ReactNode;
   onSubmit?: <T extends string>(
     data: ExtendedSpendLimitFormValues<T>
   ) => Promise<boolean> | boolean;
@@ -34,7 +33,6 @@ const SpendLimitForm = ({
   assetContractAddress,
   formName,
   onSubmit,
-  actionButton,
   disabled,
 }: SpendLimitFormProps) => {
   const formMethods = useForm<SpendLimitFormValues>();
@@ -44,11 +42,10 @@ const SpendLimitForm = ({
     formState: { errors },
     register,
   } = formMethods;
-  const [isLoading, setIsLoading] = useState(false)
-  const {setSpendLimit} = useMC();
-  const [ handleErrors] = useMCStore((s) => [ s.handleErrors]);
+  const [isLoading, setIsLoading] = useState(false);
+  const { setSpendLimit } = useMC();
+  const [handleErrors] = useMCStore((s) => [s.handleErrors]);
   const loaders = useLoadingScreenContext();
-
 
   const handleOnSubmit: SubmitHandler<SpendLimitFormValues> = async (data) => {
     try {
@@ -71,7 +68,6 @@ const SpendLimitForm = ({
       });
       reset();
     }
-
   };
   return (
     <FormProvider {...formMethods}>
@@ -89,11 +85,12 @@ const SpendLimitForm = ({
                 min: { value: 1, message: 'Minimum is 1' },
                 max: { value: 1000000000, message: 'Max is 1,000,000,000' },
                 setValueAs: (tokens) => {
-                  const bnTokens = BigNumber(tokens).multipliedBy(BigNumber(DAO_UNITS));
+                  const bnTokens = BigNumber(tokens).multipliedBy(
+                    BigNumber(DAO_UNITS)
+                  );
                   return bnTokens;
                 },
-              }
-              )}
+              })}
             />
             <ErrorMessage
               errors={errors}
@@ -104,7 +101,6 @@ const SpendLimitForm = ({
             />
           </div>
           <div className='mt-8 space-y-2'>
-            {actionButton}
             <button className='btn btn-primary ml-auto w-full truncate'>
               Submit
             </button>

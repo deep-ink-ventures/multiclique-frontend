@@ -2,21 +2,22 @@ import useCopyToClipboard from '@/hooks/useCopyToClipboard';
 import useMCStore from '@/stores/MCStore';
 import Pencil from '@/svg/components/Pencil';
 import CopyIcon from '@/svg/copy.svg';
-import type { MultiCliqueContract, MultiCliquePolicy } from '@/types/multiCliqueAccount';
+import type {
+  MultiCliqueContract,
+  MultiCliquePolicy,
+} from '@/types/multiCliqueAccount';
 import { truncateMiddle, uiTokens } from '@/utils';
 import Image from 'next/image';
 import { useState } from 'react';
-import ConfirmationModal from './ConfirmationModal';
 import SpendLimitFormModal from './SpendLimitFormModal';
 
 interface IManageElioPolicyProps {
-  address?: string;
   policy: MultiCliquePolicy;
 }
 
 const ManageElioPolicy = ({ policy }: IManageElioPolicyProps) => {
-  const [isConfirmResetVisible, setIsConfirmResetVisible] = useState(false);
-  const [selectedContract, setSelectedContract] = useState<MultiCliqueContract | null>(null) 
+  const [selectedContract, setSelectedContract] =
+    useState<MultiCliqueContract | null>(null);
   const [isSpendLimitModalVisible, setIsSpendLimitModalVisible] =
     useState(false);
 
@@ -60,8 +61,8 @@ const ManageElioPolicy = ({ policy }: IManageElioPolicyProps) => {
 
   const handleUpdateClick = (contract: MultiCliqueContract) => {
     setIsSpendLimitModalVisible(true);
-    setSelectedContract(contract)
-  }
+    setSelectedContract(contract);
+  };
 
   return (
     <>
@@ -97,7 +98,9 @@ const ManageElioPolicy = ({ policy }: IManageElioPolicyProps) => {
                 <div className='flex gap-2 truncate p-2'>
                   <button
                     className='btn btn-outline flex !h-8 !min-h-[0px] gap-1 !rounded-lg bg-white !p-2 !px-3'
-                    onClick={() => {handleUpdateClick(contract)}}>
+                    onClick={() => {
+                      handleUpdateClick(contract);
+                    }}>
                     <Pencil className='h-full fill-base-content' /> Update
                   </button>
                 </div>
@@ -106,15 +109,8 @@ const ManageElioPolicy = ({ policy }: IManageElioPolicyProps) => {
           </div>
         </>
       </div>
-      <ConfirmationModal
-        title={<div className='text-error-content'>Reset Spend Limit</div>}
-        visible={isConfirmResetVisible}
-        onClose={() => setIsConfirmResetVisible(false)}
-        onConfirm={() => setIsConfirmResetVisible(false)}>
-        Are you sure you want to reset the spend limit?
-      </ConfirmationModal>
       <SpendLimitFormModal
-        policyAddress = {policy.address}
+        policyAddress={policy.address}
         assetContractAddress={selectedContract?.address || ''}
         title='Update Spend Limit'
         visible={isSpendLimitModalVisible}

@@ -15,6 +15,7 @@ import type { JwtToken } from '@/types/auth';
 import type { MultisigTransaction } from '@/types/multisigTransaction';
 import { MultiSigTransactionStatus } from '@/types/multisigTransaction';
 import { formatDateTime, truncateMiddle } from '@/utils';
+import cn from 'classnames';
 import { useEffect, useState } from 'react';
 
 interface ITransactionsProps {
@@ -125,7 +126,7 @@ const Transactions = ({ address }: ITransactionsProps) => {
     }
 
     try {
-      await executeMCTxn(txn);
+      await executeMCTxn(txn, jwt);
       await new Promise((resolve) => {
         setTimeout(resolve, 2000);
       });
@@ -136,12 +137,21 @@ const Transactions = ({ address }: ITransactionsProps) => {
   };
 
   const displayButtons = (mcTxn: MultisigTransaction) => {
+    const isInApprovals = Boolean(
+      mcTxn.approvals?.find(
+        (approval) =>
+          approval.signatory.address.toLowerCase() ===
+          currentWalletAccount?.publicKey?.toLowerCase()
+      )
+    );
     switch (mcTxn.status) {
       case 'EXECUTABLE':
         return (
           <div className='flex w-full justify-center'>
             <button
-              className='btn btn-primary min-w-[60%]'
+              className={cn('btn btn-primary min-w-[60%]', {
+                disabled: !isInApprovals,
+              })}
               onClick={() => {
                 handleExecute(mcTxn);
               }}>
@@ -320,6 +330,7 @@ const Transactions = ({ address }: ITransactionsProps) => {
                         {mcTxn.status !== 'EXECUTED' && (
                           <div>Can be executed once threshold is reached</div>
                         )}
+
                         <div className='flex justify-center'>
                           {displayButtons(mcTxn)}
                         </div>

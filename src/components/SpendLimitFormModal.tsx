@@ -1,4 +1,3 @@
-import Switch from '@/svg/components/Switch';
 import cn from 'classnames';
 import { useState } from 'react';
 import ConfirmationModal from './ConfirmationModal';
@@ -44,14 +43,6 @@ const SpendLimitFormModal = ({
             <SpendLimitForm
               policyAddress={policyAddress}
               assetContractAddress={assetContractAddress}
-              actionButton={
-                <button
-                  className='btn btn-secondary ml-auto flex w-full gap-2 truncate text-white'
-                  onClick={() => setIsConfirmResetVisible(true)}>
-                  <Switch className='h-full fill-white group-hover:fill-base-content' />{' '}
-                  Reset
-                </button>
-              }
             />
           </div>
         </div>
