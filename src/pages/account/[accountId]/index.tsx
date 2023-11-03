@@ -11,7 +11,6 @@ import { MainLayout } from '@/layouts';
 import useMCStore from '@/stores/MCStore';
 import AvatarImage from '@/svg/avatar.svg';
 import Chevron from '@/svg/components/Chevron';
-import Coins from '@/svg/components/Coins';
 import DashboardIcon from '@/svg/components/Dashboard';
 import Proposal from '@/svg/components/Proposal';
 import SettingsIcon from '@/svg/components/Settings';
@@ -80,10 +79,10 @@ const Account = () => {
         icon: <DashboardIcon className='h-4 w-4 fill-black' />,
         label: 'Dashboard',
       },
-      {
-        icon: <Coins className='h-4 w-4 stroke-black' />,
-        label: 'Assets',
-      },
+      // {
+      //   icon: <Coins className='h-4 w-4 stroke-black' />,
+      //   label: 'Assets',
+      // },
       {
         icon: <SwitchIcon className='h-4 w-4 fill-black' />,
         label: 'Transactions',
