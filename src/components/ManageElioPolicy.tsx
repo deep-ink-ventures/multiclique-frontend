@@ -9,6 +9,7 @@ import type {
 import { truncateMiddle, uiTokens } from '@/utils';
 import Image from 'next/image';
 import { useState } from 'react';
+import { EmptyPlaceholder } from '.';
 import SpendLimitFormModal from './SpendLimitFormModal';
 
 interface IManageElioPolicyProps {
@@ -79,6 +80,7 @@ const ManageElioPolicy = ({ policy }: IManageElioPolicyProps) => {
               <div className='p-2'>Spent</div>
               <div className='p-2'>Action</div>
             </div>
+            {!policy.contracts?.length && <EmptyPlaceholder />}
             {policy.contracts?.map((contract, index) => (
               <div
                 key={contract.address + index.toString()}
