@@ -37,7 +37,7 @@ const StatusBadgeMap: Record<MultiSigTransactionStatus, string> = {
 };
 
 const Transactions = ({ address }: ITransactionsProps) => {
-  const [jwt, handleErrors, account, currentWalletAccount] = useMCStore((s) => [
+  const [jwt, handleErrors, account, currentWalletAccount,] = useMCStore((s) => [
     s.jwt,
     s.handleErrors,
     s.pages.account,
@@ -66,6 +66,9 @@ const Transactions = ({ address }: ITransactionsProps) => {
         },
         jwtToken
       );
+      if (address) {
+        account.statistics.transactions.fetch(jwtToken);
+      }
     }
   };
 

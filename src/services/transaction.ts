@@ -1,6 +1,7 @@
 import { SERVICE_URL } from '@/config';
 import type { JwtToken } from '@/types/auth';
 import type {
+  MultiSigTransactionStatus,
   MultisigTransaction,
   RawMultisigTransaction,
 } from '@/types/multisigTransaction';
@@ -14,7 +15,7 @@ export interface ListMultiCliqueTransactionsParams {
   limit: number;
   offset: number;
   xdr?: string;
-  multicliqueAccountAddress?: string;
+  status?: MultiSigTransactionStatus;
 }
 
 export interface CreateMultiCliqueTransactionRequestPayload {
@@ -48,14 +49,7 @@ export const listMultiCliqueTransactions = async (
   jwt: JwtToken
 ): Promise<Paginated<MultisigTransaction[]>> => {
   const queryString = convertToQueryString(keysToSnakeCase(params));
-  // temp fix to address extra "_" in api params
-  if (params?.multicliqueAccountAddress?.length) {
-    queryString.set(
-      'multiclique_account__address',
-      params.multicliqueAccountAddress
-    );
-    queryString.delete('multiclique_account_address');
-  }
+
   const response = await fetch(
     `${SERVICE_URL}/multiclique/transactions/?${queryString}`,
     {

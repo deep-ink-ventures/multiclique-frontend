@@ -8,7 +8,10 @@ import { AccountService, TransactionService } from '@/services';
 
 import type { JwtToken } from '@/types/auth';
 import type { MultiCliqueAccount } from '@/types/multiCliqueAccount';
-import type { MultisigTransaction } from '@/types/multisigTransaction';
+import {
+  MultiSigTransactionStatus,
+  type MultisigTransaction,
+} from '@/types/multisigTransaction';
 import type { Paginated } from '@/types/response';
 import type { MCState } from './MCStore';
 
@@ -34,6 +37,13 @@ export type AccountSlice = {
       params: ListMultiCliqueTransactionsParams,
       jwt: JwtToken
     ) => void;
+    clear: () => void;
+  };
+  statistics: {
+    transactions: {
+      fetch: (jwt: JwtToken) => void;
+      data?: number | null;
+    };
     clear: () => void;
   };
 };
@@ -158,6 +168,52 @@ export const createAccountSlice: StateCreator<
             state.pages.account.transactions.data = null;
             state.pages.account.transactions.fulfilled = false;
             state.pages.account.transactions.failed = false;
+          })
+        );
+      },
+    },
+    statistics: {
+      transactions: {
+        fetch: (jwt: JwtToken) => {
+          Promise.all([
+            TransactionService.listMultiCliqueTransactions(
+              {
+                limit: 1,
+                offset: 0,
+                status: MultiSigTransactionStatus.Executable,
+              },
+              jwt
+            ),
+            TransactionService.listMultiCliqueTransactions(
+              {
+                limit: 1,
+                offset: 0,
+                status: MultiSigTransactionStatus.Pending,
+              },
+              jwt
+            ),
+          ])
+            .then(async ([executableResponse, pendingResponse]) => {
+              set(
+                produce((state: MCState) => {
+                  state.pages.account.statistics.transactions.data =
+                    executableResponse.count + pendingResponse.count;
+                })
+              );
+            })
+            .catch(() => {
+              set(
+                produce((state: MCState) => {
+                  state.pages.account.statistics.transactions.data = null;
+                })
+              );
+            });
+        },
+      },
+      clear: () => {
+        set(
+          produce((state: MCState) => {
+            state.pages.account.statistics.transactions.data = null;
           })
         );
       },

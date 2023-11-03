@@ -49,12 +49,6 @@ const Account = () => {
     currentTab === 'Manage ELIO DAO Policy' &&
     accountPage.multisig.data.policy.contracts !== null;
 
-  const badgeCount = useMemo(() => {
-    return multicliqueAccount?.transactions?.data?.results.filter((txn) => {
-      return txn.status === 'PENDING' || txn.status === 'EXECUTABLE';
-    }).length;
-  }, [multicliqueAccount.transactions.data]);
-
   useEffect(() => {
     if (accountId) {
       accountPage.multisig.getMultisigAccount(accountId.toString());
@@ -93,7 +87,7 @@ const Account = () => {
       {
         icon: <SwitchIcon className='h-4 w-4 fill-black' />,
         label: 'Transactions',
-        badgeCount: badgeCount || null,
+        badgeCount: multicliqueAccount?.statistics?.transactions?.data,
       },
       {
         icon: <Proposal className='h-4 w-4 fill-black' />,
@@ -104,7 +98,7 @@ const Account = () => {
         label: 'Settings',
       },
     ],
-    [multicliqueAccount.transactions.data]
+    [multicliqueAccount?.statistics?.transactions?.data]
   );
 
   return (
@@ -159,7 +153,7 @@ const Account = () => {
                     onClick={() => setCurrentTab(tab.label)}>
                     {tab.icon}
                     {tab.label}
-                    {tab.badgeCount && (
+                    {Boolean(tab.badgeCount) && (
                       <span className='ml-auto flex h-5 min-w-[1.25rem] items-center justify-center rounded-full bg-error-content p-2 text-sm text-white'>
                         {tab.badgeCount}
                       </span>
@@ -192,6 +186,9 @@ const Account = () => {
             isVisible={isImportXdrVisible}
             accountId={accountId?.toString()}
             onClose={() => setIsImportXdrVisible(false)}
+            onSuccess={(jwt) =>
+              multicliqueAccount.statistics.transactions.fetch(jwt)
+            }
           />
         </div>
       ) : (
