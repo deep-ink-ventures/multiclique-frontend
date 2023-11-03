@@ -132,6 +132,77 @@ const useMCStore = create<MCStore>((set, get, store) => ({
   updateIsConnectModalOpen: (isOpen: boolean) => {
     set({ isConnectModalOpen: isOpen });
   },
+  handleErrors: (
+    errMsg: string,
+    err?: Error | string,
+    contractName?: ContractName
+  ) => {
+    set({ isTxnProcessing: false });
+    // eslint-disable-next-line
+    console.log(errMsg, err);
+    let message = '';
+    if (typeof err === 'object') {
+      message = err.message;
+    } else {
+      message = errMsg;
+    }
+
+    const getErrorCode = (str: string | undefined) => {
+      if (!str) {
+        return null;
+      }
+      const startMarker = '#';
+      const errorLines = str.split('\n');
+
+      let errorCode: string | null = null;
+
+      errorLines.some((line) => {
+        const sanitizedLine = line.replace(/[()]/g, '');
+        const start = sanitizedLine.indexOf(startMarker);
+
+        if (start !== -1) {
+          const end = sanitizedLine.indexOf(' ', start);
+          errorCode =
+            end === -1
+              ? sanitizedLine.slice(start + 1)
+              : sanitizedLine.slice(start + 1, end);
+          return true;
+        }
+
+        return false;
+      });
+
+      return errorCode;
+    };
+
+    const addErrorMsg = (errorCode: string, contract: ContractName) => {
+      if (errorCode && contractErrorCodes[contract][errorCode]) {
+        message = `${splitCamelCase(
+          contractErrorCodes[contract][errorCode]!
+        )} - ${message}`;
+      }
+    };
+
+    if (
+      contractName &&
+      typeof err === 'string' &&
+      err.includes('Error(Contract')
+    ) {
+      const errorCode = getErrorCode(err);
+      if (errorCode) {
+        addErrorMsg(errorCode, contractName);
+      }
+    }
+
+    const newNoti = {
+      title: TxnResponse.Error,
+      message,
+      type: TxnResponse.Error,
+      timestamp: Date.now(),
+    };
+
+    get().addTxnNotification(newNoti);
+  },
   getWallet: async () => {
     // wallet is automatically injected to the window, we just need to get the values
 
@@ -167,6 +238,7 @@ const useMCStore = create<MCStore>((set, get, store) => ({
       };
       set({ currentWalletAccount: wallet });
     } catch (ex) {
+      // eslint-disable-next-line
       console.error(ex);
     }
   },
@@ -233,78 +305,7 @@ const useMCStore = create<MCStore>((set, get, store) => ({
       return null;
     }
   },
-  handleErrors: (
-    errMsg: string,
-    err?: Error | string,
-    contractName?: ContractName
-  ) => {
-    set({ isTxnProcessing: false });
-    // eslint-disable-next-line
-    console.log(errMsg, err);
-    let message = '';
 
-    if (typeof err === 'object') {
-      message = err.message;
-    } else {
-      message = errMsg;
-    }
-
-    const getErrorCode = (str: string | undefined) => {
-      if (!str) {
-        return null;
-      }
-      const startMarker = '#';
-      const errorLines = str.split('\n');
-
-      let errorCode: string | null = null;
-
-      errorLines.some((line) => {
-        const sanitizedLine = line.replace(/[()]/g, '');
-        const start = sanitizedLine.indexOf(startMarker);
-
-        if (start !== -1) {
-          const end = sanitizedLine.indexOf(' ', start);
-          errorCode =
-            end === -1
-              ? sanitizedLine.slice(start + 1)
-              : sanitizedLine.slice(start + 1, end);
-          return true;
-        }
-
-        return false;
-      });
-
-      return errorCode;
-    };
-
-    const addErrorMsg = (errorCode: string, contract: ContractName) => {
-      if (errorCode && contractErrorCodes[contract][errorCode]) {
-        message = `${splitCamelCase(
-          contractErrorCodes[contract][errorCode]!
-        )} - ${message}`;
-      }
-    };
-
-    if (
-      contractName &&
-      typeof err === 'string' &&
-      err.includes('Error(Contract')
-    ) {
-      const errorCode = getErrorCode(err);
-      if (errorCode) {
-        addErrorMsg(errorCode, contractName);
-      }
-    }
-
-    const newNoti = {
-      title: TxnResponse.Error,
-      message,
-      type: TxnResponse.Error,
-      timestamp: Date.now(),
-    };
-
-    get().addTxnNotification(newNoti);
-  },
   updateIsTxnProcessing: (isProcessing: boolean) => {
     set({ isTxnProcessing: isProcessing });
   },

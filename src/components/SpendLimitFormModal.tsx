@@ -1,16 +1,19 @@
-import Switch from '@/svg/components/Switch';
 import cn from 'classnames';
 import { useState } from 'react';
 import ConfirmationModal from './ConfirmationModal';
 import SpendLimitForm from './SpendLimitForm';
 
 interface SpendLimitFormModalProps {
+  policyAddress: string;
+  assetContractAddress: string;
   visible?: boolean;
   title?: string;
   onClose?: () => void;
 }
 
 const SpendLimitFormModal = ({
+  policyAddress,
+  assetContractAddress,
   title,
   visible,
   onClose,
@@ -35,16 +38,12 @@ const SpendLimitFormModal = ({
           }}
         />
         <div className='z-[1050] flex flex-col items-center justify-center gap-5 rounded-lg bg-white p-8 opacity-100'>
-          <div className='w-full min-w-[500px]'>
-            <h1 className='relative mb-6 text-center text-2xl'>
-              {title}
-              <button
-                className='btn btn-outline absolute right-0 !h-10 !min-h-[0px] truncate !py-1'
-                onClick={() => setIsConfirmResetVisible(true)}>
-                <Switch className='mr-1 h-4 fill-base-content' /> Reset
-              </button>
-            </h1>
-            <SpendLimitForm />
+          <div className='w-full min-w-[400px]'>
+            <h1 className='mb-6 text-center text-2xl'>{title}</h1>
+            <SpendLimitForm
+              policyAddress={policyAddress}
+              assetContractAddress={assetContractAddress}
+            />
           </div>
         </div>
       </div>
