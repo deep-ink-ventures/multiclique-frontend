@@ -76,7 +76,7 @@ const Account = () => {
   }[] = useMemo(
     () => [
       {
-        icon: <DashboardIcon className='h-4 w-4 fill-black' />,
+        icon: <DashboardIcon className='h-4 w-4 shrink-0 fill-black' />,
         label: 'Dashboard',
       },
       // {
@@ -84,16 +84,16 @@ const Account = () => {
       //   label: 'Assets',
       // },
       {
-        icon: <SwitchIcon className='h-4 w-4 fill-black' />,
+        icon: <SwitchIcon className='h-4 w-4 shrink-0 fill-black' />,
         label: 'Transactions',
         badgeCount: multicliqueAccount?.statistics?.transactions?.data,
       },
       {
-        icon: <Proposal className='h-4 w-4 fill-black' />,
+        icon: <Proposal className='h-4 w-4 shrink-0 fill-black' />,
         label: 'Manage ELIO DAO Policy',
       },
       {
-        icon: <SettingsIcon className='h-4 w-4 fill-black' />,
+        icon: <SettingsIcon className='h-4 w-4 shrink-0 fill-black' />,
         label: 'Settings',
       },
     ],
@@ -151,7 +151,7 @@ const Account = () => {
                     active={currentTab === tab.label}
                     onClick={() => setCurrentTab(tab.label)}>
                     {tab.icon}
-                    {tab.label}
+                    <div className='w-full grow truncate'>{tab.label}</div>
                     {Boolean(tab.badgeCount) && (
                       <span className='ml-auto flex h-5 min-w-[1.25rem] items-center justify-center rounded-full bg-error-content p-2 text-sm text-white'>
                         {tab.badgeCount}
