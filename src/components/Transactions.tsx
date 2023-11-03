@@ -7,6 +7,7 @@ import {
   TransactionBadge,
   UserTally,
 } from '@/components';
+import { useLoadingScreenContext } from '@/context/LoadingScreen';
 import { useDebounce } from '@/hooks/useDebounce';
 import useMC from '@/hooks/useMC';
 import useMCStore from '@/stores/MCStore';
@@ -44,6 +45,8 @@ const Transactions = ({ address }: ITransactionsProps) => {
     s.currentWalletAccount,
   ]);
   const { approveTxnDB, getJwtToken, rejectTxnDB, executeMCTxn } = useMC();
+
+  const loaders = useLoadingScreenContext();
 
   const [activeAccordion, setActiveAccordion] = useState<number | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
@@ -97,12 +100,21 @@ const Transactions = ({ address }: ITransactionsProps) => {
     }
 
     try {
+      loaders.setAction({
+        type: 'SHOW_TRANSACTION_PROCESSING',
+      });
       await approveTxnDB(txn, jwt);
+      loaders.setAction({
+        type: 'CLOSE',
+      });
       await new Promise((resolve) => {
         setTimeout(resolve, 2000);
       });
       fetchTransactions(jwt);
     } catch {
+      loaders.setAction({
+        type: 'CLOSE',
+      });
       handleErrors('Error in approving transaction');
     }
   };
@@ -113,12 +125,21 @@ const Transactions = ({ address }: ITransactionsProps) => {
     }
 
     try {
+      loaders.setAction({
+        type: 'SHOW_TRANSACTION_PROCESSING',
+      });
       await rejectTxnDB(txn, jwt);
+      loaders.setAction({
+        type: 'CLOSE',
+      });
       await new Promise((resolve) => {
         setTimeout(resolve, 2000);
       });
       fetchTransactions(jwt);
     } catch {
+      loaders.setAction({
+        type: 'CLOSE',
+      });
       handleErrors('Error in approving transaction');
     }
   };
@@ -129,12 +150,23 @@ const Transactions = ({ address }: ITransactionsProps) => {
     }
 
     try {
+      loaders.setAction({
+        type: 'SHOW_TRANSACTION_PROCESSING',
+      });
+
       await executeMCTxn(txn, jwt);
+      loaders.setAction({
+        type: 'CLOSE',
+      });
       await new Promise((resolve) => {
         setTimeout(resolve, 2000);
       });
+
       fetchTransactions(jwt);
     } catch {
+      loaders.setAction({
+        type: 'CLOSE',
+      });
       handleErrors('Error in approving transaction');
     }
   };
